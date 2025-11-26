@@ -20,6 +20,7 @@
             border-radius: var(--radius-lg);
             padding: 1.5rem;
             border-left: 4px solid;
+            position: relative;
         }
 
         .investment-card.mutual_fund {
@@ -106,6 +107,64 @@
             background: rgba(239, 68, 68, 0.2);
             color: var(--danger);
         }
+
+        /* Grouping Cards */
+        .group-scroll {
+            display: flex;
+            gap: 1rem;
+            overflow-x: auto;
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .group-card {
+            min-width: 160px;
+            background: var(--bg-secondary);
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .group-card:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .group-card.active {
+            border-color: var(--primary-green);
+            background: rgba(34, 197, 94, 0.1);
+        }
+
+        .group-card h3 {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .group-card .amount {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .edit-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background 0.2s;
+        }
+
+        .edit-btn:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
     </style>
 </head>
 
@@ -120,7 +179,8 @@
             <a href="investments.html" class="nav-item active"><i
                     class="fas fa-chart-line"></i><span>Investments</span></a>
             <a href="loans.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i><span>Loans</span></a>
-            <a href="lendings.html" class="nav-item"><i class="fas fa-handshake"></i><span>Lendings</span></a>            <a href="transfer.html" class="nav-item">
+            <a href="lendings.html" class="nav-item"><i class="fas fa-handshake"></i><span>Lendings</span></a> <a
+                href="transfer.html" class="nav-item">
                 <i class="fas fa-exchange-alt"></i>
                 <span>Transfer</span>
             </a>
@@ -151,15 +211,8 @@
         </header>
 
         <div class="container">
-            <!-- Portfolio Summary -->
+            <!-- Overall Summary -->
             <div class="summary-grid">
-                <div class="summary-card investments">
-                    <div class="card-icon"><i class="fas fa-chart-line"></i></div>
-                    <div class="card-content">
-                        <p class="card-label">Total Invested</p>
-                        <h2 class="card-value" id="totalInvested">₹0</h2>
-                    </div>
-                </div>
                 <div class="summary-card balance">
                     <div class="card-icon"><i class="fas fa-wallet"></i></div>
                     <div class="card-content">
@@ -175,6 +228,19 @@
                         <span class="card-trend positive" id="returnPercentage">+0%</span>
                     </div>
                 </div>
+                <div class="summary-card investments">
+                    <div class="card-icon"><i class="fas fa-piggy-bank"></i></div>
+                    <div class="card-content">
+                        <p class="card-label">Total Invested</p>
+                        <h2 class="card-value" id="totalInvested">₹0</h2>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grouping/Filter Cards -->
+            <h3 style="margin: 1.5rem 0 1rem;">Portfolio Breakdown</h3>
+            <div class="group-scroll" id="groupCards">
+                <!-- Populated by JS -->
             </div>
 
             <!-- Investments Grid -->
@@ -182,17 +248,52 @@
         </div>
     </div>
 
+    <!-- Edit Modal -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Investment</h2>
+                <button class="close-modal" onclick="closeEditModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="editForm" onsubmit="handleEditSubmit(event)">
+                    <input type="hidden" name="id" id="editId">
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" name="name" id="editName" readonly style="opacity: 0.7;">
+                    </div>
+                    <div class="form-group">
+                        <label>Current Price / NAV</label>
+                        <input type="number" step="0.01" name="currentPrice" id="editCurrentPrice">
+                    </div>
+                    <div class="form-group">
+                        <label>Units / Quantity</label>
+                        <input type="number" step="0.0001" name="units" id="editUnits">
+                    </div>
+                    <button type="submit" class="btn-primary" style="width: 100%;">Update</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script src="js/mock-data.js"></script>
     <script src="js/app.js"></script>
     <script>
+        let allInvestments = [];
+        let currentFilter = 'all';
+
         document.addEventListener('DOMContentLoaded', loadInvestments);
 
         function loadInvestments() {
-            const investments = JARVIS.get('investments') || [];
+            allInvestments = JARVIS.get('investments') || [];
+            updateSummary(allInvestments);
+            renderGroupCards(allInvestments);
+            displayInvestments(allInvestments);
+        }
 
-            // Calculate totals
-            const totalInvested = investments.reduce((sum, inv) => sum + (inv.invested || inv.amount || 0), 0);
-            const currentValue = investments.reduce((sum, inv) => sum + (inv.currentValue || inv.amount || 0), 0);
+        function updateSummary(investments) {
+            const totalInvested = investments.reduce((sum, inv) => sum + (inv.invested || inv.amount || inv.purchasePrice || 0), 0);
+            const currentValue = investments.reduce((sum, inv) => sum + (inv.currentValue || inv.amount || inv.purchasePrice || 0), 0); // Fallback for items without current value updates
             const totalReturns = currentValue - totalInvested;
             const returnPercentage = totalInvested > 0 ? ((totalReturns / totalInvested) * 100).toFixed(2) : 0;
 
@@ -201,24 +302,70 @@
             document.getElementById('totalReturns').textContent = JARVIS.formatCurrency(totalReturns);
             document.getElementById('returnPercentage').textContent = `${totalReturns >= 0 ? '+' : ''}${returnPercentage}%`;
             document.getElementById('returnPercentage').className = `card-trend ${totalReturns >= 0 ? 'positive' : 'negative'}`;
+        }
 
-            displayInvestments(investments);
+        function renderGroupCards(investments) {
+            const groups = {
+                'all': { name: 'All Assets', amount: 0, count: 0 },
+                'mutual_fund': { name: 'Mutual Funds', amount: 0, count: 0 },
+                'stock': { name: 'Stocks', amount: 0, count: 0 },
+                'fd': { name: 'Fixed Deposits', amount: 0, count: 0 },
+                'rd': { name: 'Recurring Deposits', amount: 0, count: 0 },
+                'real_estate': { name: 'Real Estate', amount: 0, count: 0 }
+            };
+
+            investments.forEach(inv => {
+                const val = inv.currentValue || inv.amount || inv.purchasePrice || 0;
+                groups.all.amount += val;
+                groups.all.count++;
+
+                if (groups[inv.type]) {
+                    groups[inv.type].amount += val;
+                    groups[inv.type].count++;
+                }
+            });
+
+            const container = document.getElementById('groupCards');
+            container.innerHTML = Object.entries(groups).map(([key, data]) => {
+                if (data.count === 0 && key !== 'all') return '';
+                return `
+                    <div class="group-card ${currentFilter === key ? 'active' : ''}" onclick="filterInvestments('${key}')">
+                        <h3>${data.name}</h3>
+                        <div class="amount">${JARVIS.formatCurrency(data.amount)}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">${data.count} items</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterInvestments(type) {
+            currentFilter = type;
+            renderGroupCards(allInvestments); // Re-render to update active state
+
+            const filtered = type === 'all'
+                ? allInvestments
+                : allInvestments.filter(inv => inv.type === type);
+
+            displayInvestments(filtered);
         }
 
         function displayInvestments(investments) {
             const container = document.getElementById('investmentsList');
 
             if (investments.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 2rem; grid-column: 1/-1;">No investments yet</p>';
+                container.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 2rem; grid-column: 1/-1;">No investments found</p>';
                 return;
             }
 
             container.innerHTML = investments.map(inv => {
-                const profit = (inv.currentValue || inv.amount) - (inv.invested || inv.amount);
-                const profitPercent = inv.invested ? ((profit / inv.invested) * 100).toFixed(2) : 0;
+                const invested = inv.invested || inv.amount || inv.purchasePrice;
+                const current = inv.currentValue || inv.amount || inv.purchasePrice; // Fallback
+                const profit = current - invested;
+                const profitPercent = invested ? ((profit / invested) * 100).toFixed(2) : 0;
 
                 return `
                     <div class="investment-card ${inv.type}">
+                        <button class="edit-btn" onclick="openEditModal(${inv.id})"><i class="fas fa-pencil-alt"></i></button>
                         <div class="investment-header">
                             <div>
                                 <div class="investment-type">${formatInvestmentType(inv.type)}</div>
@@ -254,11 +401,11 @@
                 return `
                     <div class="stat">
                         <div class="stat-label">Units</div>
-                        <div class="stat-value">${inv.units}</div>
+                        <div class="stat-value">${inv.units ? inv.units.toFixed(4) : '0'}</div>
                     </div>
                     <div class="stat">
-                        <div class="stat-label">Current NAV</div>
-                        <div class="stat-value">₹${inv.currentPrice}</div>
+                        <div class="stat-label">NAV</div>
+                        <div class="stat-value">₹${inv.currentPrice || inv.buyPrice}</div>
                     </div>
                     <div class="stat">
                         <div class="stat-label">Invested</div>
@@ -276,8 +423,8 @@
                         <div class="stat-value">${inv.quantity}</div>
                     </div>
                     <div class="stat">
-                        <div class="stat-label">Current Price</div>
-                        <div class="stat-value">₹${inv.currentPrice}</div>
+                        <div class="stat-label">Price</div>
+                        <div class="stat-value">₹${inv.currentPrice || inv.buyPrice}</div>
                     </div>
                     <div class="stat">
                         <div class="stat-label">Invested</div>
@@ -328,6 +475,74 @@
                 `;
             }
             return '';
+        }
+
+        // Edit Modal Functions
+        function openEditModal(id) {
+            const inv = allInvestments.find(i => i.id === id);
+            if (!inv) return;
+
+            document.getElementById('editId').value = inv.id;
+            document.getElementById('editName').value = inv.name;
+
+            // Populate fields based on type
+            const priceInput = document.getElementById('editCurrentPrice');
+            const unitsInput = document.getElementById('editUnits');
+
+            if (inv.type === 'mutual_fund') {
+                priceInput.value = inv.currentPrice || inv.buyPrice;
+                unitsInput.value = inv.units;
+                priceInput.parentElement.style.display = 'block';
+                unitsInput.parentElement.style.display = 'block';
+            } else if (inv.type === 'stock') {
+                priceInput.value = inv.currentPrice || inv.buyPrice;
+                unitsInput.value = inv.quantity;
+                priceInput.parentElement.style.display = 'block';
+                unitsInput.parentElement.style.display = 'block';
+            } else if (inv.type === 'real_estate') {
+                priceInput.value = inv.currentValue;
+                unitsInput.parentElement.style.display = 'none';
+                priceInput.parentElement.style.display = 'block';
+                document.querySelector('label[for="editCurrentPrice"]').textContent = 'Current Value';
+            } else {
+                // For FD/RD, maybe just allow name edit for now
+                priceInput.parentElement.style.display = 'none';
+                unitsInput.parentElement.style.display = 'none';
+            }
+
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+        }
+
+        function handleEditSubmit(event) {
+            event.preventDefault();
+            const id = parseInt(document.getElementById('editId').value);
+            const inv = allInvestments.find(i => i.id === id);
+
+            if (inv) {
+                const newPrice = parseFloat(document.getElementById('editCurrentPrice').value);
+                const newUnits = parseFloat(document.getElementById('editUnits').value);
+
+                if (inv.type === 'mutual_fund') {
+                    inv.currentPrice = newPrice;
+                    inv.units = newUnits;
+                    inv.currentValue = inv.units * inv.currentPrice;
+                } else if (inv.type === 'stock') {
+                    inv.currentPrice = newPrice;
+                    inv.quantity = newUnits;
+                    inv.currentValue = inv.quantity * inv.currentPrice;
+                } else if (inv.type === 'real_estate') {
+                    inv.currentValue = newPrice;
+                }
+
+                JARVIS.update('investments', id, inv);
+                closeEditModal();
+                loadInvestments(); // Reload to show changes
+                showNotification('Investment updated successfully', 'success');
+            }
         }
     </script>
 </body>
