@@ -1,0 +1,54 @@
+# Vercel Deployment Ignore
+# This file tells Vercel which files to exclude from deployment
+
+# Development files
+.env
+.env.*
+!.env.example
+
+# Testing
+tests/
+phpunit.xml
+.phpunit.result.cache
+
+# Development dependencies
+node_modules/
+.npm/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+README.md
+*.md
+!vercel.json
+
+# Storage (will be created at runtime)
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+
+# Development tools
+.editorconfig
+.php-cs-fixer.php
+.php-cs-fixer.cache
+
+# Package manager files
+package-lock.json
+composer.lock
+yarn.lock
+pnpm-lock.yaml
