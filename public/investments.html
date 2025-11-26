@@ -253,296 +253,222 @@
                 <!-- Populated by JS -->
             </div>
 
-            <!-- Investments Grid -->
-            <div class="investment-grid" id="investmentsList"></div>
-        </div>
-    </div>
+            let currentFilter = 'all';
 
-    <!-- Edit Modal (Price Only) -->
-    <div class="modal" id="editModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Update Investment Value</h2>
-                <button class="close-modal" onclick="closeEditModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="editForm" onsubmit="handleEditSubmit(event)">
-                    <input type="hidden" name="id" id="editId">
-                    <div class="form-group">
-                        <label>Name</label>
-                        <input type="text" name="name" id="editName" readonly style="opacity: 0.7;">
-                    </div>
-                    <div class="form-group">
-                        <label>Current Price / NAV</label>
-                        <input type="number" step="0.01" name="currentPrice" id="editCurrentPrice" required>
-                        <small style="color: var(--text-muted);">Update the current market price or NAV.</small>
-                    </div>
-                    <button type="submit" class="btn-primary" style="width: 100%;">Update Value</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Sell/Withdraw Modal -->
-    <div class="modal" id="sellModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Sell / Withdraw</h2>
-                <button class="close-modal" onclick="closeSellModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="sellForm" onsubmit="handleSellSubmit(event)">
-                    <input type="hidden" name="id" id="sellId">
-
-                    <div class="form-group">
-                        <label>Investment</label>
-                        <input type="text" id="sellName" readonly style="opacity: 0.7;">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Units/Quantity to Sell</label>
-                        <input type="number" step="0.0001" name="units" id="sellUnits" required>
-                        <small style="color: var(--text-muted);" id="availableUnits"></small>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Selling Price / NAV</label>
-                        <input type="number" step="0.01" name="price" id="sellPrice" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Deposit to Account</label>
-                        <select name="accountId" id="sellAccount" required>
-                            <!-- Populated by JS -->
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Date</label>
-                        <input type="date" name="date" id="sellDate" required>
-                    </div>
-
-                    <button type="submit" class="btn-primary" style="width: 100%; background: var(--danger);">
-                        <i class="fas fa-money-bill-wave"></i> Confirm Withdrawal
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <script src="js/mock-data.js"></script>
-    <script src="js/app.js"></script>
-    <script>
-        let allInvestments = [];
-        let currentFilter = 'all';
-
-        document.addEventListener('DOMContentLoaded', function () {
+            document.addEventListener('DOMContentLoaded', function () {
             loadInvestments();
             document.getElementById('sellDate').valueAsDate = new Date();
-        });
+            });
 
-        function loadInvestments() {
+            function loadInvestments() {
             allInvestments = JARVIS.get('investments') || [];
             updateSummary(allInvestments);
             renderGroupCards(allInvestments);
             displayInvestments(allInvestments);
-        }
+            }
 
-        function updateSummary(investments) {
-            const totalInvested = investments.reduce((sum, inv) => sum + (inv.invested || inv.amount || inv.purchasePrice || 0), 0);
-            const currentValue = investments.reduce((sum, inv) => sum + (inv.currentValue || inv.amount || inv.purchasePrice || 0), 0);
+            function updateSummary(investments) {
+            const totalInvested = investments.reduce((sum, inv) => sum + (inv.invested || inv.amount ||
+            inv.purchasePrice || 0), 0);
+            const currentValue = investments.reduce((sum, inv) => sum + (inv.currentValue || inv.amount ||
+            inv.purchasePrice || 0), 0);
             const totalReturns = currentValue - totalInvested;
             const returnPercentage = totalInvested > 0 ? ((totalReturns / totalInvested) * 100).toFixed(2) : 0;
 
             document.getElementById('totalInvested').textContent = JARVIS.formatCurrency(totalInvested);
             document.getElementById('currentValue').textContent = JARVIS.formatCurrency(currentValue);
             document.getElementById('totalReturns').textContent = JARVIS.formatCurrency(totalReturns);
-            document.getElementById('returnPercentage').textContent = `${totalReturns >= 0 ? '+' : ''}${returnPercentage}%`;
-            document.getElementById('returnPercentage').className = `card-trend ${totalReturns >= 0 ? 'positive' : 'negative'}`;
-        }
+            document.getElementById('returnPercentage').textContent = `${totalReturns >= 0 ? '+' :
+            ''}${returnPercentage}%`;
+            document.getElementById('returnPercentage').className = `card-trend ${totalReturns >= 0 ? 'positive' :
+            'negative'}`;
+            }
 
-        function renderGroupCards(investments) {
+            function renderGroupCards(investments) {
             const groups = {
-                'all': { name: 'All Assets', amount: 0, count: 0 },
-                'mutual_fund': { name: 'Mutual Funds', amount: 0, count: 0 },
-                'stock': { name: 'Stocks', amount: 0, count: 0 },
-                'fd': { name: 'Fixed Deposits', amount: 0, count: 0 },
-                'rd': { name: 'Recurring Deposits', amount: 0, count: 0 },
-                'real_estate': { name: 'Real Estate', amount: 0, count: 0 }
+            'all': { name: 'All Assets', amount: 0, count: 0 },
+            'mutual_fund': { name: 'Mutual Funds', amount: 0, count: 0 },
+            'stock': { name: 'Stocks', amount: 0, count: 0 },
+            'fd': { name: 'Fixed Deposits', amount: 0, count: 0 },
+            'rd': { name: 'Recurring Deposits', amount: 0, count: 0 },
+            'real_estate': { name: 'Real Estate', amount: 0, count: 0 }
             };
 
             investments.forEach(inv => {
-                const val = inv.currentValue || inv.amount || inv.purchasePrice || 0;
-                groups.all.amount += val;
-                groups.all.count++;
+            const val = inv.currentValue || inv.amount || inv.purchasePrice || 0;
+            groups.all.amount += val;
+            groups.all.count++;
 
-                if (groups[inv.type]) {
-                    groups[inv.type].amount += val;
-                    groups[inv.type].count++;
-                }
+            if (groups[inv.type]) {
+            groups[inv.type].amount += val;
+            groups[inv.type].count++;
+            }
             });
 
             const container = document.getElementById('groupCards');
             container.innerHTML = Object.entries(groups).map(([key, data]) => {
-                if (data.count === 0 && key !== 'all') return '';
-                return `
-                    <div class="group-card ${currentFilter === key ? 'active' : ''}" onclick="filterInvestments('${key}')">
-                        <h3>${data.name}</h3>
-                        <div class="amount">${JARVIS.formatCurrency(data.amount)}</div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">${data.count} items</div>
-                    </div>
-                `;
+            if (data.count === 0 && key !== 'all') return '';
+            return `
+            <div class="group-card ${currentFilter === key ? 'active' : ''}" onclick="filterInvestments('${key}')">
+                <h3>${data.name}</h3>
+                <div class="amount">${JARVIS.formatCurrency(data.amount)}</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">${data.count} items
+                </div>
+            </div>
+            `;
             }).join('');
-        }
+            }
 
-        function filterInvestments(type) {
+            function filterInvestments(type) {
             currentFilter = type;
             renderGroupCards(allInvestments);
 
             const filtered = type === 'all'
-                ? allInvestments
-                : allInvestments.filter(inv => inv.type === type);
+            ? allInvestments
+            : allInvestments.filter(inv => inv.type === type);
 
             displayInvestments(filtered);
-        }
+            }
 
-        function displayInvestments(investments) {
+            function displayInvestments(investments) {
             const container = document.getElementById('investmentsList');
 
             if (investments.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 2rem; grid-column: 1/-1;">No investments found</p>';
-                return;
+            container.innerHTML = '<p
+                style="text-align: center; color: var(--text-muted); padding: 2rem; grid-column: 1/-1;">No investments
+                found</p>';
+            return;
             }
 
             container.innerHTML = investments.map(inv => {
-                const invested = inv.invested || inv.amount || inv.purchasePrice;
-                const current = inv.currentValue || inv.amount || inv.purchasePrice;
-                const profit = current - invested;
-                const profitPercent = invested ? ((profit / invested) * 100).toFixed(2) : 0;
+            const invested = inv.invested || inv.amount || inv.purchasePrice;
+            const current = inv.currentValue || inv.amount || inv.purchasePrice;
+            const profit = current - invested;
+            const profitPercent = invested ? ((profit / invested) * 100).toFixed(2) : 0;
 
-                return `
-                    <div class="investment-card ${inv.type}">
-                        <div class="card-actions">
-                            <button class="action-btn" onclick="openEditModal(${inv.id})" title="Update Price">
-                                <i class="fas fa-pencil-alt"></i>
-                            </button>
-                            <button class="action-btn sell" onclick="openSellModal(${inv.id})" title="Sell/Withdraw">
-                                <i class="fas fa-minus-circle"></i>
-                            </button>
-                        </div>
-                        <div class="investment-header">
-                            <div>
-                                <div class="investment-type">${formatInvestmentType(inv.type)}</div>
-                                <div class="investment-name">${inv.name}</div>
-                            </div>
-                            <div class="profit-badge ${profit >= 0 ? 'positive' : 'negative'}">
-                                <i class="fas fa-arrow-${profit >= 0 ? 'up' : 'down'}"></i>
-                                ${profit >= 0 ? '+' : ''}${profitPercent}%
-                            </div>
-                        </div>
-                        
-                        <div class="investment-stats">
-                            ${getInvestmentStats(inv)}
-                        </div>
+            return `
+            <div class="investment-card ${inv.type}">
+                <div class="card-actions">
+                    <button class="action-btn" onclick="openEditModal(${inv.id})" title="Update Price">
+                        <i class="fas fa-pencil-alt"></i>
+                    </button>
+                    <button class="action-btn sell" onclick="openSellModal(${inv.id})" title="Sell/Withdraw">
+                        <i class="fas fa-minus-circle"></i>
+                    </button>
+                </div>
+                <div class="investment-header">
+                    <div>
+                        <div class="investment-type">${formatInvestmentType(inv.type)}</div>
+                        <div class="investment-name">${inv.name}</div>
                     </div>
-                `;
-            }).join('');
-        }
+                    <div class="profit-badge ${profit >= 0 ? 'positive' : 'negative'}">
+                        <i class="fas fa-arrow-${profit >= 0 ? 'up' : 'down'}"></i>
+                        ${profit >= 0 ? '+' : ''}${profitPercent}%
+                    </div>
+                </div>
 
-        function formatInvestmentType(type) {
+                <div class="investment-stats">
+                    ${getInvestmentStats(inv)}
+                </div>
+            </div>
+            `;
+            }).join('');
+            }
+
+            function formatInvestmentType(type) {
             const types = {
-                'mutual_fund': 'Mutual Fund',
-                'stock': 'Stock',
-                'fd': 'Fixed Deposit',
-                'rd': 'Recurring Deposit',
-                'real_estate': 'Real Estate'
+            'mutual_fund': 'Mutual Fund',
+            'stock': 'Stock',
+            'fd': 'Fixed Deposit',
+            'rd': 'Recurring Deposit',
+            'real_estate': 'Real Estate'
             };
             return types[type] || type;
-        }
+            }
 
-        function getInvestmentStats(inv) {
+            function getInvestmentStats(inv) {
             if (inv.type === 'mutual_fund') {
-                return `
-                    <div class="stat">
-                        <div class="stat-label">Units</div>
-                        <div class="stat-value">${inv.units ? inv.units.toFixed(4) : '0'}</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-label">NAV</div>
-                        <div class="stat-value">₹${inv.currentPrice || inv.buyPrice}</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-label">Invested</div>
-                        <div class="stat-value">${JARVIS.formatCurrency(inv.invested)}</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-label">Current Value</div>
-                        <div class="stat-value">${JARVIS.formatCurrency(inv.currentValue)}</div>
-                    </div>
-                `;
+            return `
+            <div class="stat">
+                <div class="stat-label">Units</div>
+                <div class="stat-value">${inv.units ? inv.units.toFixed(4) : '0'}</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">NAV</div>
+                <div class="stat-value">₹${inv.currentPrice || inv.buyPrice}</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Invested</div>
+                <div class="stat-value">${JARVIS.formatCurrency(inv.invested)}</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Current Value</div>
+                <div class="stat-value">${JARVIS.formatCurrency(inv.currentValue)}</div>
+            </div>
+            `;
             } else if (inv.type === 'stock') {
-                return `
-                    <div class="stat">
-                        <div class="stat-label">Shares</div>
-                        <div class="stat-value">${inv.quantity}</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-label">Price</div>
-                        <div class="stat-value">₹${inv.currentPrice || inv.buyPrice}</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-label">Invested</div>
-                        <div class="stat-value">${JARVIS.formatCurrency(inv.invested)}</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-label">Current Value</div>
-                        <div class="stat-value">${JARVIS.formatCurrency(inv.currentValue)}</div>
-                    </div>
-                `;
+            return `
+            <div class="stat">
+                <div class="stat-label">Shares</div>
+                <div class="stat-value">${inv.quantity}</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Price</div>
+                <div class="stat-value">₹${inv.currentPrice || inv.buyPrice}</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Invested</div>
+                <div class="stat-value">${JARVIS.formatCurrency(inv.invested)}</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Current Value</div>
+                <div class="stat-value">${JARVIS.formatCurrency(inv.currentValue)}</div>
+            </div>
+            `;
             } else if (inv.type === 'fd' || inv.type === 'rd') {
-                return `
-                    <div class="stat">
-                        <div class="stat-label">Amount</div>
-                        <div class="stat-value">${JARVIS.formatCurrency(inv.amount)}</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-label">Interest Rate</div>
-                        <div class="stat-value">${inv.interestRate}% p.a.</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-label">Maturity Date</div>
-                        <div class="stat-value">${JARVIS.formatDate(inv.maturityDate)}</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-label">Maturity Amount</div>
-                        <div class="stat-value">${JARVIS.formatCurrency(inv.maturityAmount)}</div>
-                    </div>
-                `;
+            return `
+            <div class="stat">
+                <div class="stat-label">Amount</div>
+                <div class="stat-value">${JARVIS.formatCurrency(inv.amount)}</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Interest Rate</div>
+                <div class="stat-value">${inv.interestRate}% p.a.</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Maturity Date</div>
+                <div class="stat-value">${JARVIS.formatDate(inv.maturityDate)}</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Maturity Amount</div>
+                <div class="stat-value">${JARVIS.formatCurrency(inv.maturityAmount)}</div>
+            </div>
+            `;
             } else if (inv.type === 'real_estate') {
-                return `
-                    <div class="stat">
-                        <div class="stat-label">Purchase Price</div>
-                        <div class="stat-value">${JARVIS.formatCurrency(inv.purchasePrice)}</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-label">Current Value</div>
-                        <div class="stat-value">${JARVIS.formatCurrency(inv.currentValue)}</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-label">Purchase Date</div>
-                        <div class="stat-value">${JARVIS.formatDate(inv.purchaseDate)}</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-label">Appreciation</div>
-                        <div class="stat-value">${JARVIS.formatCurrency(inv.currentValue - inv.purchasePrice)}</div>
-                    </div>
-                `;
+            return `
+            <div class="stat">
+                <div class="stat-label">Purchase Price</div>
+                <div class="stat-value">${JARVIS.formatCurrency(inv.purchasePrice)}</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Current Value</div>
+                <div class="stat-value">${JARVIS.formatCurrency(inv.currentValue)}</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Purchase Date</div>
+                <div class="stat-value">${JARVIS.formatDate(inv.purchaseDate)}</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Appreciation</div>
+                <div class="stat-value">${JARVIS.formatCurrency(inv.currentValue - inv.purchasePrice)}</div>
+            </div>
+            `;
             }
             return '';
-        }
+            }
 
-        // Edit Modal Functions (Price Only)
-        function openEditModal(id) {
+            // Edit Modal Functions (Price Only)
+            function openEditModal(id) {
             const inv = allInvestments.find(i => i.id === id);
             if (!inv) return;
 
@@ -553,50 +479,50 @@
             const priceInput = document.getElementById('editCurrentPrice');
 
             if (inv.type === 'mutual_fund') {
-                priceInput.value = inv.currentPrice || inv.buyPrice;
+            priceInput.value = inv.currentPrice || inv.buyPrice;
             } else if (inv.type === 'stock') {
-                priceInput.value = inv.currentPrice || inv.buyPrice;
+            priceInput.value = inv.currentPrice || inv.buyPrice;
             } else if (inv.type === 'real_estate') {
-                priceInput.value = inv.currentValue;
+            priceInput.value = inv.currentValue;
             } else {
-                // For FD/RD, maybe just allow name edit for now
-                priceInput.parentElement.style.display = 'none';
+            // For FD/RD, maybe just allow name edit for now
+            priceInput.parentElement.style.display = 'none';
             }
 
             document.getElementById('editModal').classList.add('active');
-        }
+            }
 
-        function closeEditModal() {
+            function closeEditModal() {
             document.getElementById('editModal').classList.remove('active');
-        }
+            }
 
-        function handleEditSubmit(event) {
+            function handleEditSubmit(event) {
             event.preventDefault();
             const id = parseInt(document.getElementById('editId').value);
             const inv = allInvestments.find(i => i.id === id);
 
             if (inv) {
-                const newPrice = parseFloat(document.getElementById('editCurrentPrice').value);
+            const newPrice = parseFloat(document.getElementById('editCurrentPrice').value);
 
-                if (inv.type === 'mutual_fund') {
-                    inv.currentPrice = newPrice;
-                    inv.currentValue = inv.units * inv.currentPrice;
-                } else if (inv.type === 'stock') {
-                    inv.currentPrice = newPrice;
-                    inv.currentValue = inv.quantity * inv.currentPrice;
-                } else if (inv.type === 'real_estate') {
-                    inv.currentValue = newPrice;
-                }
-
-                JARVIS.update('investments', id, inv);
-                closeEditModal();
-                loadInvestments();
-                showNotification('Investment value updated successfully', 'success');
+            if (inv.type === 'mutual_fund') {
+            inv.currentPrice = newPrice;
+            inv.currentValue = inv.units * inv.currentPrice;
+            } else if (inv.type === 'stock') {
+            inv.currentPrice = newPrice;
+            inv.currentValue = inv.quantity * inv.currentPrice;
+            } else if (inv.type === 'real_estate') {
+            inv.currentValue = newPrice;
             }
-        }
 
-        // Sell Modal Functions
-        function openSellModal(id) {
+            JARVIS.update('investments', id, inv);
+            closeEditModal();
+            loadInvestments();
+            showNotification('Investment value updated successfully', 'success');
+            }
+            }
+
+            // Sell Modal Functions
+            function openSellModal(id) {
             const inv = allInvestments.find(i => i.id === id);
             if (!inv) return;
 
@@ -608,38 +534,39 @@
             const availUnits = document.getElementById('availableUnits');
 
             if (inv.type === 'mutual_fund') {
-                unitsInput.value = inv.units;
-                availUnits.textContent = `Available Units: ${inv.units}`;
-                priceInput.value = inv.currentPrice || inv.buyPrice;
+            unitsInput.value = inv.units;
+            availUnits.textContent = `Available Units: ${inv.units}`;
+            priceInput.value = inv.currentPrice || inv.buyPrice;
             } else if (inv.type === 'stock') {
-                unitsInput.value = inv.quantity;
-                availUnits.textContent = `Available Shares: ${inv.quantity}`;
-                priceInput.value = inv.currentPrice || inv.buyPrice;
+            unitsInput.value = inv.quantity;
+            availUnits.textContent = `Available Shares: ${inv.quantity}`;
+            priceInput.value = inv.currentPrice || inv.buyPrice;
             } else {
-                // For FD/RD/Real Estate - logic might differ (full withdrawal)
-                // For now, let's treat 'units' as 'amount' for FD/RD? Or disable partial?
-                // Simplifying: Only MF/Stock partial sell. Others full sell?
-                // Let's stick to MF/Stock for now as per user request about "units"
-                if (inv.type === 'fd' || inv.type === 'rd') {
-                    unitsInput.value = 1; // 1 FD
-                    availUnits.textContent = 'Full Withdrawal';
-                    priceInput.value = inv.maturityAmount; // Or current value
-                }
+            // For FD/RD/Real Estate - logic might differ (full withdrawal)
+            // For now, let's treat 'units' as 'amount' for FD/RD? Or disable partial?
+            // Simplifying: Only MF/Stock partial sell. Others full sell?
+            // Let's stick to MF/Stock for now as per user request about "units"
+            if (inv.type === 'fd' || inv.type === 'rd') {
+            unitsInput.value = 1; // 1 FD
+            availUnits.textContent = 'Full Withdrawal';
+            priceInput.value = inv.maturityAmount; // Or current value
+            }
             }
 
             // Load accounts
             const accounts = JARVIS.get('accounts') || [];
             const accSelect = document.getElementById('sellAccount');
-            accSelect.innerHTML = accounts.map(a => `<option value="${a.id}">${a.name} (₹${a.balance})</option>`).join('');
+            accSelect.innerHTML = accounts.map(a => `<option value="${a.id}">${a.name} (₹${a.balance})</option>
+            `).join('');
 
             document.getElementById('sellModal').classList.add('active');
-        }
+            }
 
-        function closeSellModal() {
+            function closeSellModal() {
             document.getElementById('sellModal').classList.remove('active');
-        }
+            }
 
-        function handleSellSubmit(event) {
+            function handleSellSubmit(event) {
             event.preventDefault();
             const id = parseInt(document.getElementById('sellId').value);
             const inv = allInvestments.find(i => i.id === id);
@@ -655,23 +582,24 @@
 
             // Update Investment
             if (inv.type === 'mutual_fund') {
-                if (unitsToSell > inv.units) {
-                    showNotification('Cannot sell more units than available!', 'error');
-                    return;
-                }
-                inv.units -= unitsToSell;
-                inv.currentValue = inv.units * (inv.currentPrice || inv.buyPrice);
-                inv.invested = (inv.invested / (inv.units + unitsToSell)) * inv.units; // Proportional reduction in invested amount? Or FIFO?
-                // Simple proportional for now:
-                // New Invested = Old Invested * (New Units / Old Units)
-                // Actually, let's just reduce invested proportionally
+            if (unitsToSell > inv.units) {
+            showNotification('Cannot sell more units than available!', 'error');
+            return;
+            }
+            inv.units -= unitsToSell;
+            inv.currentValue = inv.units * (inv.currentPrice || inv.buyPrice);
+            inv.invested = (inv.invested / (inv.units + unitsToSell)) * inv.units; // Proportional reduction in invested
+            amount? Or FIFO?
+            // Simple proportional for now:
+            // New Invested = Old Invested * (New Units / Old Units)
+            // Actually, let's just reduce invested proportionally
             } else if (inv.type === 'stock') {
-                if (unitsToSell > inv.quantity) {
-                    showNotification('Cannot sell more shares than available!', 'error');
-                    return;
-                }
-                inv.quantity -= unitsToSell;
-                inv.currentValue = inv.quantity * (inv.currentPrice || inv.buyPrice);
+            if (unitsToSell > inv.quantity) {
+            showNotification('Cannot sell more shares than available!', 'error');
+            return;
+            }
+            inv.quantity -= unitsToSell;
+            inv.currentValue = inv.quantity * (inv.currentPrice || inv.buyPrice);
             }
 
             // If units 0, maybe mark as closed or delete?
@@ -684,26 +612,37 @@
             const accounts = JARVIS.get('accounts') || [];
             const acc = accounts.find(a => a.id === accountId);
             if (acc) {
-                acc.balance += totalAmount;
-                JARVIS.update('accounts', accountId, acc);
+            acc.balance += totalAmount;
+            JARVIS.update('accounts', accountId, acc);
             }
 
             // Record Transaction
             const transaction = {
-                date: date,
-                type: 'income', // It's money coming in
-                category: 'Investment Return',
-                amount: totalAmount,
-                account: acc ? acc.name : 'Unknown',
-                description: `Sold ${unitsToSell} units of ${inv.name} @ ₹${sellPrice}`
+            date: date,
+            type: 'income', // It's money coming in
+            category: 'Investment Return',
+            amount: totalAmount,
+            account: acc ? acc.name : 'Unknown',
+            description: `Sold ${unitsToSell} units of ${inv.name} @ ₹${sellPrice}`
             };
             JARVIS.add('transactions', transaction);
 
             closeSellModal();
             loadInvestments();
             showNotification('Investment sold and transaction recorded!', 'success');
-        }
-    </script>
+            }
+            function setMaxUnits() {
+            const id = parseInt(document.getElementById('sellId').value);
+            const inv = allInvestments.find(i => i.id === id);
+            if (inv) {
+            if (inv.type === 'mutual_fund') {
+            document.getElementById('sellUnits').value = inv.units;
+            } else if (inv.type === 'stock') {
+            document.getElementById('sellUnits').value = inv.quantity;
+            }
+            }
+            }
+            </script>
 </body>
 
 </html>
