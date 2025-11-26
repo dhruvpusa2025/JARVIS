@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Investment - JARVIS</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .form-container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .form-card {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--bg-tertiary);
+            border: 2px solid transparent;
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-green);
+        }
+
+        .type-fields {
+            display: none;
+        }
+
+        .type-fields.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar" id="sidebar">
+        <div class="logo"><i class="fas fa-robot"></i><span>JARVIS</span></div>
+        <nav class="nav-menu">
+            <a href="index.html" class="nav-item"><i class="fas fa-home"></i><span>Dashboard</span></a>
+            <a href="accounts.html" class="nav-item"><i class="fas fa-wallet"></i><span>Accounts</span></a>
+            <a href="transactions.html" class="nav-item"><i
+                    class="fas fa-exchange-alt"></i><span>Transactions</span></a>
+            <a href="investments.html" class="nav-item active"><i
+                    class="fas fa-chart-line"></i><span>Investments</span></a>
+            <a href="loans.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i><span>Loans</span></a>
+            <a href="lendings.html" class="nav-item"><i class="fas fa-handshake"></i><span>Lendings</span></a>
+            <a href="reports.html" class="nav-item"><i class="fas fa-chart-pie"></i><span>Reports</span></a>
+        </nav>
+    </div>
+
+    <div class="mobile-nav">
+        <a href="index.html" class="mobile-nav-item"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="add-transaction.html" class="mobile-nav-item"><i class="fas fa-plus-circle"></i><span>Add</span></a>
+        <a href="investments.html" class="mobile-nav-item active"><i
+                class="fas fa-chart-line"></i><span>Invest</span></a>
+        <a href="reports.html" class="mobile-nav-item"><i class="fas fa-chart-pie"></i><span>Reports</span></a>
+    </div>
+
+    <div class="main-content">
+        <header class="header">
+            <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+            <h1>Add Investment</h1>
+            <a href="investments.html" class="btn-link">View Portfolio</a>
+        </header>
+
+        <div class="form-container">
+            <div class="form-card">
+                <h2 style="margin-bottom: 1.5rem;">New Investment</h2>
+                <form id="investmentForm" onsubmit="handleAddInvestment(event)">
+                    <div class="form-group">
+                        <label>Investment Type</label>
+                        <select name="type" required onchange="toggleFields(this.value)">
+                            <option value="">Select type</option>
+                            <option value="mutual_fund">Mutual Fund</option>
+                            <option value="stock">Stock</option>
+                            <option value="fd">Fixed Deposit (FD)</option>
+                            <option value="rd">Recurring Deposit (RD)</option>
+                            <option value="real_estate">Real Estate</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" name="name" placeholder="e.g., HDFC Balanced Fund, Reliance Stock" required>
+                    </div>
+
+                    <!-- Mutual Fund Fields -->
+                    <div id="mutual_fund_fields" class="type-fields">
+                        <div class="form-group">
+                            <label>Units</label>
+                            <input type="number" name="units" step="0.0001" placeholder="1250">
+                        </div>
+                        <div class="form-group">
+                            <label>Buy Price (NAV)</label>
+                            <input type="number" name="buyPrice" step="0.01" placeholder="80.00">
+                        </div>
+                        <div class="form-group">
+                            <label>Current Price (NAV)</label>
+                            <input type="number" name="currentPrice" step="0.01" placeholder="85.50">
+                        </div>
+                    </div>
+
+                    <!-- Stock Fields -->
+                    <div id="stock_fields" class="type-fields">
+                        <div class="form-group">
+                            <label>Quantity (Shares)</label>
+                            <input type="number" name="quantity" placeholder="10">
+                        </div>
+                        <div class="form-group">
+                            <label>Buy Price per Share</label>
+                            <input type="number" name="buyPrice" step="0.01" placeholder="2500.00">
+                        </div>
+                        <div class="form-group">
+                            <label>Current Price per Share</label>
+                            <input type="number" name="currentPrice" step="0.01" placeholder="2650.00">
+                        </div>
+                    </div>
+
+                    <!-- FD/RD Fields -->
+                    <div id="fd_fields" class="type-fields">
+                        <div class="form-group">
+                            <label>Amount</label>
+                            <input type="number" name="amount" step="0.01" placeholder="100000">
+                        </div>
+                        <div class="form-group">
+                            <label>Interest Rate (% per annum)</label>
+                            <input type="number" name="interestRate" step="0.01" placeholder="7.00">
+                        </div>
+                        <div class="form-group">
+                            <label>Tenure (months)</label>
+                            <input type="number" name="tenure" placeholder="12">
+                        </div>
+                        <div class="form-group">
+                            <label>Maturity Date</label>
+                            <input type="date" name="maturityDate">
+                        </div>
+                    </div>
+
+                    <div id="rd_fields" class="type-fields">
+                        <div class="form-group">
+                            <label>Monthly Amount</label>
+                            <input type="number" name="amount" step="0.01" placeholder="5000">
+                        </div>
+                        <div class="form-group">
+                            <label>Interest Rate (% per annum)</label>
+                            <input type="number" name="interestRate" step="0.01" placeholder="6.50">
+                        </div>
+                        <div class="form-group">
+                            <label>Tenure (months)</label>
+                            <input type="number" name="tenure" placeholder="24">
+                        </div>
+                        <div class="form-group">
+                            <label>Maturity Date</label>
+                            <input type="date" name="maturityDate">
+                        </div>
+                    </div>
+
+                    <!-- Real Estate Fields -->
+                    <div id="real_estate_fields" class="type-fields">
+                        <div class="form-group">
+                            <label>Purchase Price</label>
+                            <input type="number" name="purchasePrice" step="0.01" placeholder="5000000">
+                        </div>
+                        <div class="form-group">
+                            <label>Current Value</label>
+                            <input type="number" name="currentValue" step="0.01" placeholder="6000000">
+                        </div>
+                        <div class="form-group">
+                            <label>Purchase Date</label>
+                            <input type="date" name="purchaseDate">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Paid From Account</label>
+                        <select name="accountId" id="accountSelect" required>
+                            <option value="">Select account</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Purchase Date</label>
+                        <input type="date" name="date" id="investmentDate" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Notes (Optional)</label>
+                        <textarea name="notes" rows="3"
+                            style="width: 100%; padding: 0.75rem; background: var(--bg-tertiary); border: none; border-radius: var(--radius-md); color: var(--text-primary);"></textarea>
+                    </div>
+
+                    <button type="submit" class="submit-btn"
+                        style="width: 100%; padding: 1rem; background: var(--gradient-primary); border: none; border-radius: var(--radius-md); color: white; font-size: 1.125rem; font-weight: 600; cursor: pointer;">
+                        <i class="fas fa-plus"></i> Add Investment
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/mock-data.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('investmentDate').valueAsDate = new Date();
+            loadAccounts();
+        });
+
+        function loadAccounts() {
+            const accounts = JARVIS.get('accounts') || [];
+            const select = document.getElementById('accountSelect');
+            accounts.forEach(acc => {
+                const option = document.createElement('option');
+                option.value = acc.id;
+                option.textContent = `${acc.name} (${JARVIS.formatCurrency(acc.balance)})`;
+                select.appendChild(option);
+            });
+        }
+
+        function toggleFields(type) {
+            document.querySelectorAll('.type-fields').forEach(el => el.classList.remove('active'));
+            if (type) {
+                const fields = document.getElementById(`${type}_fields`);
+                if (fields) fields.classList.add('active');
+            }
+        }
+
+        function handleAddInvestment(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const type = formData.get('type');
+
+            let investment = {
+                type: type,
+                name: formData.get('name'),
+                notes: formData.get('notes')
+            };
+
+            if (type === 'mutual_fund' || type === 'stock') {
+                const qty = type === 'mutual_fund' ? parseFloat(formData.get('units')) : parseFloat(formData.get('quantity'));
+                const buyPrice = parseFloat(formData.get('buyPrice'));
+                const currentPrice = parseFloat(formData.get('currentPrice'));
+
+                investment.units = type === 'mutual_fund' ? qty : undefined;
+                investment.quantity = type === 'stock' ? qty : undefined;
+                investment.buyPrice = buyPrice;
+                investment.currentPrice = currentPrice;
+                investment.invested = qty * buyPrice;
+                investment.currentValue = qty * currentPrice;
+            } else if (type === 'fd' || type === 'rd') {
+                const amount = parseFloat(formData.get('amount'));
+                const rate = parseFloat(formData.get('interestRate'));
+                const tenure = parseInt(formData.get('tenure'));
+
+                investment.amount = amount;
+                investment.interestRate = rate;
+                investment.maturityDate = formData.get('maturityDate');
+                investment.maturityAmount = amount + (amount * rate * tenure / 1200);
+            } else if (type === 'real_estate') {
+                investment.purchasePrice = parseFloat(formData.get('purchasePrice'));
+                investment.currentValue = parseFloat(formData.get('currentValue'));
+                investment.purchaseDate = formData.get('purchaseDate');
+            }
+
+            // Deduct from account
+            const accountId = parseInt(formData.get('accountId'));
+            const accounts = JARVIS.get('accounts') || [];
+            const account = accounts.find(a => a.id === accountId);
+            if (account) {
+                const amount = investment.invested || investment.amount || investment.purchasePrice;
+                account.balance -= amount;
+                JARVIS.update('accounts', accountId, { balance: account.balance });
+            }
+
+            JARVIS.add('investments', investment);
+            showNotification('Investment added successfully!', 'success');
+            setTimeout(() => window.location.href = 'investments.html', 1000);
+        }
+    </script>
+</body>
+
+</html>

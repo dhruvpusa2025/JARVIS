@@ -25,50 +25,30 @@
     </div>
 
     <div class="mobile-nav">
-        <a href="index.html" class="mobile-nav-item"><i class="fas fa-home"></i><span>Home</span></a>
-        <a href="add-transaction.html" class="mobile-nav-item"><i class="fas fa-plus-circle"></i><span>Add</span></a>
-        <a href="investments.html" class="mobile-nav-item"><i class="fas fa-chart-line"></i><span>Invest</span></a>
-        <a href="reports.html" class="mobile-nav-item"><i class="fas fa-chart-pie"></i><span>Reports</span></a>
+        <div class="card-content">
+            <p class="card-label">Total Outstanding</p>
+            <h2 class="card-value" id="totalOutstanding">₹0</h2>
+        </div>
+    </div>
+    <div class="summary-card balance">
+        <div class="card-icon"><i class="fas fa-calendar-alt"></i></div>
+        <div class="card-content">
+            <p class="card-label">Monthly EMI</p>
+            <h2 class="card-value" id="totalEMI">₹0</h2>
+        </div>
+    </div>
+    <div class="summary-card income">
+        <div class="card-icon"><i class="fas fa-percent"></i></div>
+        <div class="card-content">
+            <p class="card-label">Avg Interest Rate</p>
+            <h2 class="card-value" id="avgInterest">0%</h2>
+        </div>
+    </div>
     </div>
 
-    <div class="main-content">
-        <header class="header">
-            <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
-            <h1>Loans</h1>
-            <button class="btn-primary" onclick="showNotification('Add loan feature coming soon!', 'info')">
-                <i class="fas fa-plus"></i> Add Loan
-            </button>
-        </header>
-
-        <div class="container">
-            <!-- Summary -->
-            <div class="summary-grid">
-                <div class="summary-card expense">
-                    <div class="card-icon"><i class="fas fa-file-invoice-dollar"></i></div>
-                    <div class="card-content">
-                        <p class="card-label">Total Outstanding</p>
-                        <h2 class="card-value" id="totalOutstanding">₹0</h2>
-                    </div>
-                </div>
-                <div class="summary-card balance">
-                    <div class="card-icon"><i class="fas fa-calendar-alt"></i></div>
-                    <div class="card-content">
-                        <p class="card-label">Monthly EMI</p>
-                        <h2 class="card-value" id="totalEMI">₹0</h2>
-                    </div>
-                </div>
-                <div class="summary-card income">
-                    <div class="card-icon"><i class="fas fa-percent"></i></div>
-                    <div class="card-content">
-                        <p class="card-label">Avg Interest Rate</p>
-                        <h2 class="card-value" id="avgInterest">0%</h2>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Loans List -->
-            <div id="loansList"></div>
-        </div>
+    <!-- Loans List -->
+    <div id="loansList"></div>
+    </div>
     </div>
 
     <script src="js/mock-data.js"></script>

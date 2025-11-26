@@ -127,51 +127,31 @@
 
     <div class="mobile-nav">
         <a href="index.html" class="mobile-nav-item"><i class="fas fa-home"></i><span>Home</span></a>
-        <a href="add-transaction.html" class="mobile-nav-item"><i class="fas fa-plus-circle"></i><span>Add</span></a>
-        <a href="investments.html" class="mobile-nav-item active"><i
-                class="fas fa-chart-line"></i><span>Invest</span></a>
-        <a href="reports.html" class="mobile-nav-item"><i class="fas fa-chart-pie"></i><span>Reports</span></a>
+        <div class="card-content">
+            <p class="card-label">Total Invested</p>
+            <h2 class="card-value" id="totalInvested">₹0</h2>
+        </div>
+    </div>
+    <div class="summary-card balance">
+        <div class="card-icon"><i class="fas fa-wallet"></i></div>
+        <div class="card-content">
+            <p class="card-label">Current Value</p>
+            <h2 class="card-value" id="currentValue">₹0</h2>
+        </div>
+    </div>
+    <div class="summary-card income">
+        <div class="card-icon"><i class="fas fa-arrow-up"></i></div>
+        <div class="card-content">
+            <p class="card-label">Total Returns</p>
+            <h2 class="card-value" id="totalReturns">₹0</h2>
+            <span class="card-trend positive" id="returnPercentage">+0%</span>
+        </div>
+    </div>
     </div>
 
-    <div class="main-content">
-        <header class="header">
-            <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
-            <h1>Investments</h1>
-            <button class="btn-primary" onclick="showNotification('Add investment feature coming soon!', 'info')">
-                <i class="fas fa-plus"></i> Add Investment
-            </button>
-        </header>
-
-        <div class="container">
-            <!-- Portfolio Summary -->
-            <div class="summary-grid">
-                <div class="summary-card investments">
-                    <div class="card-icon"><i class="fas fa-chart-line"></i></div>
-                    <div class="card-content">
-                        <p class="card-label">Total Invested</p>
-                        <h2 class="card-value" id="totalInvested">₹0</h2>
-                    </div>
-                </div>
-                <div class="summary-card balance">
-                    <div class="card-icon"><i class="fas fa-wallet"></i></div>
-                    <div class="card-content">
-                        <p class="card-label">Current Value</p>
-                        <h2 class="card-value" id="currentValue">₹0</h2>
-                    </div>
-                </div>
-                <div class="summary-card income">
-                    <div class="card-icon"><i class="fas fa-arrow-up"></i></div>
-                    <div class="card-content">
-                        <p class="card-label">Total Returns</p>
-                        <h2 class="card-value" id="totalReturns">₹0</h2>
-                        <span class="card-trend positive" id="returnPercentage">+0%</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Investments Grid -->
-            <div class="investment-grid" id="investmentsList"></div>
-        </div>
+    <!-- Investments Grid -->
+    <div class="investment-grid" id="investmentsList"></div>
+    </div>
     </div>
 
     <script src="js/mock-data.js"></script>

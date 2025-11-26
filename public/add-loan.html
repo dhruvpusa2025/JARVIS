@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Loan - JARVIS</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .form-container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .form-card {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--bg-tertiary);
+            border: 2px solid transparent;
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-green);
+        }
+
+        .calculated-field {
+            background: rgba(16, 185, 129, 0.1);
+            border: 2px solid var(--primary-green);
+            font-weight: 700;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar" id="sidebar">
+        <div class="logo"><i class="fas fa-robot"></i><span>JARVIS</span></div>
+        <nav class="nav-menu">
+            <a href="index.html" class="nav-item"><i class="fas fa-home"></i><span>Dashboard</span></a>
+            <a href="accounts.html" class="nav-item"><i class="fas fa-wallet"></i><span>Accounts</span></a>
+            <a href="transactions.html" class="nav-item"><i
+                    class="fas fa-exchange-alt"></i><span>Transactions</span></a>
+            <a href="investments.html" class="nav-item"><i class="fas fa-chart-line"></i><span>Investments</span></a>
+            <a href="loans.html" class="nav-item active"><i class="fas fa-hand-holding-usd"></i><span>Loans</span></a>
+            <a href="lendings.html" class="nav-item"><i class="fas fa-handshake"></i><span>Lendings</span></a>
+            <a href="reports.html" class="nav-item"><i class="fas fa-chart-pie"></i><span>Reports</span></a>
+        </nav>
+    </div>
+
+    <div class="mobile-nav">
+        <a href="index.html" class="mobile-nav-item"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="add-transaction.html" class="mobile-nav-item"><i class="fas fa-plus-circle"></i><span>Add</span></a>
+        <a href="investments.html" class="mobile-nav-item"><i class="fas fa-chart-line"></i><span>Invest</span></a>
+        <a href="reports.html" class="mobile-nav-item"><i class="fas fa-chart-pie"></i><span>Reports</span></a>
+    </div>
+
+    <div class="main-content">
+        <header class="header">
+            <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+            <h1>Add Loan</h1>
+            <a href="loans.html" class="btn-link">View Loans</a>
+        </header>
+
+        <div class="form-container">
+            <div class="form-card">
+                <h2 style="margin-bottom: 1.5rem;">New Loan</h2>
+                <form id="loanForm" onsubmit="handleAddLoan(event)">
+                    <div class="form-group">
+                        <label>Loan Type</label>
+                        <select name="type" required>
+                            <option value="">Select type</option>
+                            <option value="home">Home Loan</option>
+                            <option value="car">Car Loan</option>
+                            <option value="personal">Personal Loan</option>
+                            <option value="education">Education Loan</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Lender Name</label>
+                        <input type="text" name="lender" placeholder="e.g., HDFC Bank, SBI" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Principal Amount</label>
+                        <input type="number" name="principal" step="0.01" placeholder="5000000" required
+                            oninput="calculateEMI()">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Interest Rate (% per annum)</label>
+                        <input type="number" name="interestRate" step="0.01" placeholder="8.5" required
+                            oninput="calculateEMI()">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tenure (months)</label>
+                        <input type="number" name="tenureMonths" placeholder="240" required oninput="calculateEMI()">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Monthly EMI (Auto-calculated)</label>
+                        <input type="number" name="emiAmount" id="emiAmount" class="calculated-field" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label>EMI Deduction Date (Day of month)</label>
+                        <input type="number" name="emiDay" min="1" max="31" placeholder="10" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>EMI Deduction Account</label>
+                        <select name="accountId" id="accountSelect" required>
+                            <option value="">Select account</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Loan Start Date</label>
+                        <input type="date" name="startDate" id="loanDate" required>
+                    </div>
+
+                    <button type="submit" class="submit-btn"
+                        style="width: 100%; padding: 1rem; background: var(--gradient-primary); border: none; border-radius: var(--radius-md); color: white; font-size: 1.125rem; font-weight: 600; cursor: pointer;">
+                        <i class="fas fa-plus"></i> Add Loan
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/mock-data.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('loanDate').valueAsDate = new Date();
+            loadAccounts();
+        });
+
+        function loadAccounts() {
+            const accounts = JARVIS.get('accounts') || [];
+            const select = document.getElementById('accountSelect');
+            accounts.filter(a => a.type === 'bank').forEach(acc => {
+                const option = document.createElement('option');
+                option.value = acc.id;
+                option.textContent = `${acc.name} (${JARVIS.formatCurrency(acc.balance)})`;
+                select.appendChild(option);
+            });
+        }
+
+        function calculateEMI() {
+            const principal = parseFloat(document.querySelector('[name="principal"]').value) || 0;
+            const rate = parseFloat(document.querySelector('[name="interestRate"]').value) || 0;
+            const tenure = parseInt(document.querySelector('[name="tenureMonths"]').value) || 0;
+
+            if (principal && rate && tenure) {
+                const monthlyRate = rate / 1200;
+                const emi = principal * monthlyRate * Math.pow(1 + monthlyRate, tenure) / (Math.pow(1 + monthlyRate, tenure) - 1);
+                document.getElementById('emiAmount').value = Math.round(emi);
+            }
+        }
+
+        function handleAddLoan(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+
+            const loan = {
+                type: formData.get('type'),
+                lender: formData.get('lender'),
+                principal: parseFloat(formData.get('principal')),
+                interestRate: parseFloat(formData.get('interestRate')),
+                tenureMonths: parseInt(formData.get('tenureMonths')),
+                emiAmount: parseFloat(formData.get('emiAmount')),
+                emiDay: parseInt(formData.get('emiDay')),
+                outstanding: parseFloat(formData.get('principal')),
+                accountId: parseInt(formData.get('accountId')),
+                startDate: formData.get('startDate'),
+                is_active: true
+            };
+
+            JARVIS.add('loans', loan);
+            showNotification('Loan added successfully!', 'success');
+            setTimeout(() => window.location.href = 'loans.html', 1000);
+        }
+    </script>
+</body>
+
+</html>
