@@ -19,7 +19,8 @@
                     class="fas fa-exchange-alt"></i><span>Transactions</span></a>
             <a href="investments.html" class="nav-item"><i class="fas fa-chart-line"></i><span>Investments</span></a>
             <a href="loans.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i><span>Loans</span></a>
-            <a href="lendings.html" class="nav-item"><i class="fas fa-handshake"></i><span>Lendings</span></a>            <a href="transfer.html" class="nav-item">
+            <a href="lendings.html" class="nav-item"><i class="fas fa-handshake"></i><span>Lendings</span></a> <a
+                href="transfer.html" class="nav-item">
                 <i class="fas fa-exchange-alt"></i>
                 <span>Transfer</span>
             </a>
@@ -51,19 +52,39 @@
             <!-- Filters -->
             <div class="card" style="margin-bottom: 1.5rem;">
                 <div class="card-body" style="padding: 1rem;">
-                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+                        <!-- Search -->
+                        <div style="flex: 1; min-width: 200px; position: relative;">
+                            <i class="fas fa-search"
+                                style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
+                            <input type="text" id="searchInput" placeholder="Search transactions..."
+                                onkeyup="filterTransactions()"
+                                style="width: 100%; padding: 0.5rem 0.5rem 0.5rem 2.5rem; background: var(--bg-tertiary); border: none; color: var(--text-primary); border-radius: var(--radius-sm);">
+                        </div>
+
+                        <!-- Type Filter -->
                         <select id="filterType" onchange="filterTransactions()"
                             style="padding: 0.5rem; background: var(--bg-tertiary); border: none; color: var(--text-primary); border-radius: var(--radius-sm);">
                             <option value="all">All Types</option>
                             <option value="income">Income</option>
                             <option value="expense">Expense</option>
+                            <option value="transfer">Transfer</option>
                         </select>
+
+                        <!-- Category Filter -->
                         <select id="filterCategory" onchange="filterTransactions()"
                             style="padding: 0.5rem; background: var(--bg-tertiary); border: none; color: var(--text-primary); border-radius: var(--radius-sm);">
                             <option value="all">All Categories</option>
                         </select>
-                        <input type="month" id="filterMonth" onchange="filterTransactions()"
-                            style="padding: 0.5rem; background: var(--bg-tertiary); border: none; color: var(--text-primary); border-radius: var(--radius-sm);">
+
+                        <!-- Date Range -->
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <input type="date" id="startDate" onchange="filterTransactions()"
+                                style="padding: 0.5rem; background: var(--bg-tertiary); border: none; color: var(--text-primary); border-radius: var(--radius-sm);">
+                            <span style="color: var(--text-muted);">to</span>
+                            <input type="date" id="endDate" onchange="filterTransactions()"
+                                style="padding: 0.5rem; background: var(--bg-tertiary); border: none; color: var(--text-primary); border-radius: var(--radius-sm);">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -90,9 +111,8 @@
             loadTransactions();
             loadCategoryFilter();
 
-            // Set current month
-            const now = new Date();
-            document.getElementById('filterMonth').value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            // Default to current month range? Or just show all?
+            // User asked for date range option, let's leave it empty by default to show all.
         });
 
         function loadTransactions() {
@@ -112,22 +132,39 @@
         }
 
         function filterTransactions() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
             const type = document.getElementById('filterType').value;
             const category = document.getElementById('filterCategory').value;
-            const month = document.getElementById('filterMonth').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
 
             let filtered = allTransactions;
 
+            // Search
+            if (search) {
+                filtered = filtered.filter(t =>
+                    (t.description && t.description.toLowerCase().includes(search)) ||
+                    (t.category && t.category.toLowerCase().includes(search)) ||
+                    (t.account && t.account.toLowerCase().includes(search))
+                );
+            }
+
+            // Type
             if (type !== 'all') {
                 filtered = filtered.filter(t => t.type === type);
             }
 
+            // Category
             if (category !== 'all') {
                 filtered = filtered.filter(t => t.category === category);
             }
 
-            if (month) {
-                filtered = filtered.filter(t => t.date.startsWith(month));
+            // Date Range
+            if (startDate) {
+                filtered = filtered.filter(t => t.date >= startDate);
+            }
+            if (endDate) {
+                filtered = filtered.filter(t => t.date <= endDate);
             }
 
             displayTransactions(filtered);
@@ -145,20 +182,40 @@
             // Sort by date (newest first)
             const sorted = transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-            container.innerHTML = sorted.map(t => `
-                <div class="transaction-item">
-                    <div class="transaction-icon ${t.type}">
-                        <i class="fas fa-${t.type === 'income' ? 'arrow-down' : 'arrow-up'}"></i>
+            container.innerHTML = sorted.map(t => {
+                let iconClass = 'arrow-right';
+                let colorClass = '';
+                let sign = '';
+
+                if (t.type === 'income') {
+                    iconClass = 'arrow-down';
+                    colorClass = 'income';
+                    sign = '+';
+                } else if (t.type === 'expense') {
+                    iconClass = 'arrow-up';
+                    colorClass = 'expense';
+                    sign = '-';
+                } else if (t.type === 'transfer') {
+                    iconClass = 'exchange-alt';
+                    colorClass = ''; // Neutral
+                    sign = '';
+                }
+
+                return `
+                    <div class="transaction-item">
+                        <div class="transaction-icon ${colorClass}" style="${t.type === 'transfer' ? 'background: rgba(59, 130, 246, 0.2); color: #3b82f6;' : ''}">
+                            <i class="fas fa-${iconClass}"></i>
+                        </div>
+                        <div class="transaction-details">
+                            <div class="transaction-title">${t.description || t.category}</div>
+                            <div class="transaction-category">${t.category} • ${t.account} ${t.toAccount ? '→ ' + t.toAccount : ''} • ${JARVIS.formatDate(t.date)}</div>
+                        </div>
+                        <div class="transaction-amount ${colorClass}">
+                            ${sign}${JARVIS.formatCurrency(t.amount)}
+                        </div>
                     </div>
-                    <div class="transaction-details">
-                        <div class="transaction-title">${t.description || t.category}</div>
-                        <div class="transaction-category">${t.category} • ${t.account} • ${JARVIS.formatDate(t.date)}</div>
-                    </div>
-                    <div class="transaction-amount ${t.type}">
-                        ${t.type === 'income' ? '+' : '-'}${JARVIS.formatCurrency(t.amount)}
-                    </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
     </script>
 </body>

@@ -148,22 +148,32 @@
             color: var(--text-primary);
         }
 
-        .edit-btn {
+        .card-actions {
             position: absolute;
             top: 1rem;
             right: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
             background: transparent;
             border: none;
             color: var(--text-muted);
             cursor: pointer;
             padding: 0.5rem;
             border-radius: 50%;
-            transition: background 0.2s;
+            transition: all 0.2s;
         }
 
-        .edit-btn:hover {
+        .action-btn:hover {
             background: var(--bg-tertiary);
             color: var(--text-primary);
+        }
+
+        .action-btn.sell:hover {
+            color: var(--danger);
+            background: rgba(239, 68, 68, 0.1);
         }
     </style>
 </head>
@@ -248,11 +258,11 @@
         </div>
     </div>
 
-    <!-- Edit Modal -->
+    <!-- Edit Modal (Price Only) -->
     <div class="modal" id="editModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Edit Investment</h2>
+                <h2>Update Investment Value</h2>
                 <button class="close-modal" onclick="closeEditModal()">&times;</button>
             </div>
             <div class="modal-body">
@@ -264,13 +274,57 @@
                     </div>
                     <div class="form-group">
                         <label>Current Price / NAV</label>
-                        <input type="number" step="0.01" name="currentPrice" id="editCurrentPrice">
+                        <input type="number" step="0.01" name="currentPrice" id="editCurrentPrice" required>
+                        <small style="color: var(--text-muted);">Update the current market price or NAV.</small>
                     </div>
+                    <button type="submit" class="btn-primary" style="width: 100%;">Update Value</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sell/Withdraw Modal -->
+    <div class="modal" id="sellModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Sell / Withdraw</h2>
+                <button class="close-modal" onclick="closeSellModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="sellForm" onsubmit="handleSellSubmit(event)">
+                    <input type="hidden" name="id" id="sellId">
+
                     <div class="form-group">
-                        <label>Units / Quantity</label>
-                        <input type="number" step="0.0001" name="units" id="editUnits">
+                        <label>Investment</label>
+                        <input type="text" id="sellName" readonly style="opacity: 0.7;">
                     </div>
-                    <button type="submit" class="btn-primary" style="width: 100%;">Update</button>
+
+                    <div class="form-group">
+                        <label>Units/Quantity to Sell</label>
+                        <input type="number" step="0.0001" name="units" id="sellUnits" required>
+                        <small style="color: var(--text-muted);" id="availableUnits"></small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Selling Price / NAV</label>
+                        <input type="number" step="0.01" name="price" id="sellPrice" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Deposit to Account</label>
+                        <select name="accountId" id="sellAccount" required>
+                            <!-- Populated by JS -->
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" name="date" id="sellDate" required>
+                    </div>
+
+                    <button type="submit" class="btn-primary" style="width: 100%; background: var(--danger);">
+                        <i class="fas fa-money-bill-wave"></i> Confirm Withdrawal
+                    </button>
                 </form>
             </div>
         </div>
@@ -282,7 +336,10 @@
         let allInvestments = [];
         let currentFilter = 'all';
 
-        document.addEventListener('DOMContentLoaded', loadInvestments);
+        document.addEventListener('DOMContentLoaded', function () {
+            loadInvestments();
+            document.getElementById('sellDate').valueAsDate = new Date();
+        });
 
         function loadInvestments() {
             allInvestments = JARVIS.get('investments') || [];
@@ -293,7 +350,7 @@
 
         function updateSummary(investments) {
             const totalInvested = investments.reduce((sum, inv) => sum + (inv.invested || inv.amount || inv.purchasePrice || 0), 0);
-            const currentValue = investments.reduce((sum, inv) => sum + (inv.currentValue || inv.amount || inv.purchasePrice || 0), 0); // Fallback for items without current value updates
+            const currentValue = investments.reduce((sum, inv) => sum + (inv.currentValue || inv.amount || inv.purchasePrice || 0), 0);
             const totalReturns = currentValue - totalInvested;
             const returnPercentage = totalInvested > 0 ? ((totalReturns / totalInvested) * 100).toFixed(2) : 0;
 
@@ -340,7 +397,7 @@
 
         function filterInvestments(type) {
             currentFilter = type;
-            renderGroupCards(allInvestments); // Re-render to update active state
+            renderGroupCards(allInvestments);
 
             const filtered = type === 'all'
                 ? allInvestments
@@ -359,13 +416,20 @@
 
             container.innerHTML = investments.map(inv => {
                 const invested = inv.invested || inv.amount || inv.purchasePrice;
-                const current = inv.currentValue || inv.amount || inv.purchasePrice; // Fallback
+                const current = inv.currentValue || inv.amount || inv.purchasePrice;
                 const profit = current - invested;
                 const profitPercent = invested ? ((profit / invested) * 100).toFixed(2) : 0;
 
                 return `
                     <div class="investment-card ${inv.type}">
-                        <button class="edit-btn" onclick="openEditModal(${inv.id})"><i class="fas fa-pencil-alt"></i></button>
+                        <div class="card-actions">
+                            <button class="action-btn" onclick="openEditModal(${inv.id})" title="Update Price">
+                                <i class="fas fa-pencil-alt"></i>
+                            </button>
+                            <button class="action-btn sell" onclick="openSellModal(${inv.id})" title="Sell/Withdraw">
+                                <i class="fas fa-minus-circle"></i>
+                            </button>
+                        </div>
                         <div class="investment-header">
                             <div>
                                 <div class="investment-type">${formatInvestmentType(inv.type)}</div>
@@ -477,7 +541,7 @@
             return '';
         }
 
-        // Edit Modal Functions
+        // Edit Modal Functions (Price Only)
         function openEditModal(id) {
             const inv = allInvestments.find(i => i.id === id);
             if (!inv) return;
@@ -487,27 +551,16 @@
 
             // Populate fields based on type
             const priceInput = document.getElementById('editCurrentPrice');
-            const unitsInput = document.getElementById('editUnits');
 
             if (inv.type === 'mutual_fund') {
                 priceInput.value = inv.currentPrice || inv.buyPrice;
-                unitsInput.value = inv.units;
-                priceInput.parentElement.style.display = 'block';
-                unitsInput.parentElement.style.display = 'block';
             } else if (inv.type === 'stock') {
                 priceInput.value = inv.currentPrice || inv.buyPrice;
-                unitsInput.value = inv.quantity;
-                priceInput.parentElement.style.display = 'block';
-                unitsInput.parentElement.style.display = 'block';
             } else if (inv.type === 'real_estate') {
                 priceInput.value = inv.currentValue;
-                unitsInput.parentElement.style.display = 'none';
-                priceInput.parentElement.style.display = 'block';
-                document.querySelector('label[for="editCurrentPrice"]').textContent = 'Current Value';
             } else {
                 // For FD/RD, maybe just allow name edit for now
                 priceInput.parentElement.style.display = 'none';
-                unitsInput.parentElement.style.display = 'none';
             }
 
             document.getElementById('editModal').classList.add('active');
@@ -524,15 +577,12 @@
 
             if (inv) {
                 const newPrice = parseFloat(document.getElementById('editCurrentPrice').value);
-                const newUnits = parseFloat(document.getElementById('editUnits').value);
 
                 if (inv.type === 'mutual_fund') {
                     inv.currentPrice = newPrice;
-                    inv.units = newUnits;
                     inv.currentValue = inv.units * inv.currentPrice;
                 } else if (inv.type === 'stock') {
                     inv.currentPrice = newPrice;
-                    inv.quantity = newUnits;
                     inv.currentValue = inv.quantity * inv.currentPrice;
                 } else if (inv.type === 'real_estate') {
                     inv.currentValue = newPrice;
@@ -540,9 +590,118 @@
 
                 JARVIS.update('investments', id, inv);
                 closeEditModal();
-                loadInvestments(); // Reload to show changes
-                showNotification('Investment updated successfully', 'success');
+                loadInvestments();
+                showNotification('Investment value updated successfully', 'success');
             }
+        }
+
+        // Sell Modal Functions
+        function openSellModal(id) {
+            const inv = allInvestments.find(i => i.id === id);
+            if (!inv) return;
+
+            document.getElementById('sellId').value = inv.id;
+            document.getElementById('sellName').value = inv.name;
+
+            const unitsInput = document.getElementById('sellUnits');
+            const priceInput = document.getElementById('sellPrice');
+            const availUnits = document.getElementById('availableUnits');
+
+            if (inv.type === 'mutual_fund') {
+                unitsInput.value = inv.units;
+                availUnits.textContent = `Available Units: ${inv.units}`;
+                priceInput.value = inv.currentPrice || inv.buyPrice;
+            } else if (inv.type === 'stock') {
+                unitsInput.value = inv.quantity;
+                availUnits.textContent = `Available Shares: ${inv.quantity}`;
+                priceInput.value = inv.currentPrice || inv.buyPrice;
+            } else {
+                // For FD/RD/Real Estate - logic might differ (full withdrawal)
+                // For now, let's treat 'units' as 'amount' for FD/RD? Or disable partial?
+                // Simplifying: Only MF/Stock partial sell. Others full sell?
+                // Let's stick to MF/Stock for now as per user request about "units"
+                if (inv.type === 'fd' || inv.type === 'rd') {
+                    unitsInput.value = 1; // 1 FD
+                    availUnits.textContent = 'Full Withdrawal';
+                    priceInput.value = inv.maturityAmount; // Or current value
+                }
+            }
+
+            // Load accounts
+            const accounts = JARVIS.get('accounts') || [];
+            const accSelect = document.getElementById('sellAccount');
+            accSelect.innerHTML = accounts.map(a => `<option value="${a.id}">${a.name} (₹${a.balance})</option>`).join('');
+
+            document.getElementById('sellModal').classList.add('active');
+        }
+
+        function closeSellModal() {
+            document.getElementById('sellModal').classList.remove('active');
+        }
+
+        function handleSellSubmit(event) {
+            event.preventDefault();
+            const id = parseInt(document.getElementById('sellId').value);
+            const inv = allInvestments.find(i => i.id === id);
+            const unitsToSell = parseFloat(document.getElementById('sellUnits').value);
+            const sellPrice = parseFloat(document.getElementById('sellPrice').value);
+            const accountId = parseInt(document.getElementById('sellAccount').value);
+            const date = document.getElementById('sellDate').value;
+
+            if (!inv) return;
+
+            // Calculate total amount
+            const totalAmount = unitsToSell * sellPrice;
+
+            // Update Investment
+            if (inv.type === 'mutual_fund') {
+                if (unitsToSell > inv.units) {
+                    showNotification('Cannot sell more units than available!', 'error');
+                    return;
+                }
+                inv.units -= unitsToSell;
+                inv.currentValue = inv.units * (inv.currentPrice || inv.buyPrice);
+                inv.invested = (inv.invested / (inv.units + unitsToSell)) * inv.units; // Proportional reduction in invested amount? Or FIFO?
+                // Simple proportional for now:
+                // New Invested = Old Invested * (New Units / Old Units)
+                // Actually, let's just reduce invested proportionally
+            } else if (inv.type === 'stock') {
+                if (unitsToSell > inv.quantity) {
+                    showNotification('Cannot sell more shares than available!', 'error');
+                    return;
+                }
+                inv.quantity -= unitsToSell;
+                inv.currentValue = inv.quantity * (inv.currentPrice || inv.buyPrice);
+            }
+
+            // If units 0, maybe mark as closed or delete?
+            // For now, keep it with 0 units or delete if user wants.
+            // Let's keep it but maybe hide it or show as closed.
+
+            JARVIS.update('investments', id, inv);
+
+            // Update Account
+            const accounts = JARVIS.get('accounts') || [];
+            const acc = accounts.find(a => a.id === accountId);
+            if (acc) {
+                acc.balance += totalAmount;
+                JARVIS.update('accounts', accountId, acc);
+            }
+
+            // Record Transaction
+            const transaction = {
+                date: date,
+                type: 'income', // It's money coming in
+                category: 'Investment Return',
+                amount: totalAmount,
+                account: acc ? acc.name : 'Unknown',
+                description: `Sold ${unitsToSell} units of ${inv.name} @ ₹${sellPrice}`
+            };
+            JARVIS.add('transactions', transaction);
+
+            closeSellModal();
+            loadInvestments();
+            showNotification('Investment sold and transaction recorded!', 'success');
         }
     </script>
 </body>
