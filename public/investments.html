@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investments - JARVIS</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .investment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .investment-card {
+            background: var(--gradient-card);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            border-left: 4px solid;
+        }
+
+        .investment-card.mutual_fund {
+            border-left-color: #3b82f6;
+        }
+
+        .investment-card.stock {
+            border-left-color: #8b5cf6;
+        }
+
+        .investment-card.fd {
+            border-left-color: #f59e0b;
+        }
+
+        .investment-card.rd {
+            border-left-color: #10b981;
+        }
+
+        .investment-card.real_estate {
+            border-left-color: #22c55e;
+        }
+
+        .investment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+
+        .investment-type {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .investment-name {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin: 0.25rem 0;
+        }
+
+        .investment-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--bg-tertiary);
+        }
+
+        .stat {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-value {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .profit-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .profit-badge.positive {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--success);
+        }
+
+        .profit-badge.negative {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar" id="sidebar">
+        <div class="logo"><i class="fas fa-robot"></i><span>JARVIS</span></div>
+        <nav class="nav-menu">
+            <a href="index.html" class="nav-item"><i class="fas fa-home"></i><span>Dashboard</span></a>
+            <a href="accounts.html" class="nav-item"><i class="fas fa-wallet"></i><span>Accounts</span></a>
+            <a href="transactions.html" class="nav-item"><i
+                    class="fas fa-exchange-alt"></i><span>Transactions</span></a>
+            <a href="investments.html" class="nav-item active"><i
+                    class="fas fa-chart-line"></i><span>Investments</span></a>
+            <a href="loans.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i><span>Loans</span></a>
+            <a href="lendings.html" class="nav-item"><i class="fas fa-handshake"></i><span>Lendings</span></a>
+            <a href="reports.html" class="nav-item"><i class="fas fa-chart-pie"></i><span>Reports</span></a>
+        </nav>
+    </div>
+
+    <div class="mobile-nav">
+        <a href="index.html" class="mobile-nav-item"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="add-transaction.html" class="mobile-nav-item"><i class="fas fa-plus-circle"></i><span>Add</span></a>
+        <a href="investments.html" class="mobile-nav-item active"><i
+                class="fas fa-chart-line"></i><span>Invest</span></a>
+        <a href="reports.html" class="mobile-nav-item"><i class="fas fa-chart-pie"></i><span>Reports</span></a>
+    </div>
+
+    <div class="main-content">
+        <header class="header">
+            <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+            <h1>Investments</h1>
+            <button class="btn-primary" onclick="showNotification('Add investment feature coming soon!', 'info')">
+                <i class="fas fa-plus"></i> Add Investment
+            </button>
+        </header>
+
+        <div class="container">
+            <!-- Portfolio Summary -->
+            <div class="summary-grid">
+                <div class="summary-card investments">
+                    <div class="card-icon"><i class="fas fa-chart-line"></i></div>
+                    <div class="card-content">
+                        <p class="card-label">Total Invested</p>
+                        <h2 class="card-value" id="totalInvested">₹0</h2>
+                    </div>
+                </div>
+                <div class="summary-card balance">
+                    <div class="card-icon"><i class="fas fa-wallet"></i></div>
+                    <div class="card-content">
+                        <p class="card-label">Current Value</p>
+                        <h2 class="card-value" id="currentValue">₹0</h2>
+                    </div>
+                </div>
+                <div class="summary-card income">
+                    <div class="card-icon"><i class="fas fa-arrow-up"></i></div>
+                    <div class="card-content">
+                        <p class="card-label">Total Returns</p>
+                        <h2 class="card-value" id="totalReturns">₹0</h2>
+                        <span class="card-trend positive" id="returnPercentage">+0%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Investments Grid -->
+            <div class="investment-grid" id="investmentsList"></div>
+        </div>
+    </div>
+
+    <script src="js/mock-data.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', loadInvestments);
+
+        function loadInvestments() {
+            const investments = JARVIS.get('investments') || [];
+
+            // Calculate totals
+            const totalInvested = investments.reduce((sum, inv) => sum + (inv.invested || inv.amount || 0), 0);
+            const currentValue = investments.reduce((sum, inv) => sum + (inv.currentValue || inv.amount || 0), 0);
+            const totalReturns = currentValue - totalInvested;
+            const returnPercentage = totalInvested > 0 ? ((totalReturns / totalInvested) * 100).toFixed(2) : 0;
+
+            document.getElementById('totalInvested').textContent = JARVIS.formatCurrency(totalInvested);
+            document.getElementById('currentValue').textContent = JARVIS.formatCurrency(currentValue);
+            document.getElementById('totalReturns').textContent = JARVIS.formatCurrency(totalReturns);
+            document.getElementById('returnPercentage').textContent = `${totalReturns >= 0 ? '+' : ''}${returnPercentage}%`;
+            document.getElementById('returnPercentage').className = `card-trend ${totalReturns >= 0 ? 'positive' : 'negative'}`;
+
+            displayInvestments(investments);
+        }
+
+        function displayInvestments(investments) {
+            const container = document.getElementById('investmentsList');
+
+            if (investments.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 2rem; grid-column: 1/-1;">No investments yet</p>';
+                return;
+            }
+
+            container.innerHTML = investments.map(inv => {
+                const profit = (inv.currentValue || inv.amount) - (inv.invested || inv.amount);
+                const profitPercent = inv.invested ? ((profit / inv.invested) * 100).toFixed(2) : 0;
+
+                return `
+                    <div class="investment-card ${inv.type}">
+                        <div class="investment-header">
+                            <div>
+                                <div class="investment-type">${formatInvestmentType(inv.type)}</div>
+                                <div class="investment-name">${inv.name}</div>
+                            </div>
+                            <div class="profit-badge ${profit >= 0 ? 'positive' : 'negative'}">
+                                <i class="fas fa-arrow-${profit >= 0 ? 'up' : 'down'}"></i>
+                                ${profit >= 0 ? '+' : ''}${profitPercent}%
+                            </div>
+                        </div>
+                        
+                        <div class="investment-stats">
+                            ${getInvestmentStats(inv)}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function formatInvestmentType(type) {
+            const types = {
+                'mutual_fund': 'Mutual Fund',
+                'stock': 'Stock',
+                'fd': 'Fixed Deposit',
+                'rd': 'Recurring Deposit',
+                'real_estate': 'Real Estate'
+            };
+            return types[type] || type;
+        }
+
+        function getInvestmentStats(inv) {
+            if (inv.type === 'mutual_fund') {
+                return `
+                    <div class="stat">
+                        <div class="stat-label">Units</div>
+                        <div class="stat-value">${inv.units}</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Current NAV</div>
+                        <div class="stat-value">₹${inv.currentPrice}</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Invested</div>
+                        <div class="stat-value">${JARVIS.formatCurrency(inv.invested)}</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Current Value</div>
+                        <div class="stat-value">${JARVIS.formatCurrency(inv.currentValue)}</div>
+                    </div>
+                `;
+            } else if (inv.type === 'stock') {
+                return `
+                    <div class="stat">
+                        <div class="stat-label">Shares</div>
+                        <div class="stat-value">${inv.quantity}</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Current Price</div>
+                        <div class="stat-value">₹${inv.currentPrice}</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Invested</div>
+                        <div class="stat-value">${JARVIS.formatCurrency(inv.invested)}</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Current Value</div>
+                        <div class="stat-value">${JARVIS.formatCurrency(inv.currentValue)}</div>
+                    </div>
+                `;
+            } else if (inv.type === 'fd' || inv.type === 'rd') {
+                return `
+                    <div class="stat">
+                        <div class="stat-label">Amount</div>
+                        <div class="stat-value">${JARVIS.formatCurrency(inv.amount)}</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Interest Rate</div>
+                        <div class="stat-value">${inv.interestRate}% p.a.</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Maturity Date</div>
+                        <div class="stat-value">${JARVIS.formatDate(inv.maturityDate)}</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Maturity Amount</div>
+                        <div class="stat-value">${JARVIS.formatCurrency(inv.maturityAmount)}</div>
+                    </div>
+                `;
+            } else if (inv.type === 'real_estate') {
+                return `
+                    <div class="stat">
+                        <div class="stat-label">Purchase Price</div>
+                        <div class="stat-value">${JARVIS.formatCurrency(inv.purchasePrice)}</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Current Value</div>
+                        <div class="stat-value">${JARVIS.formatCurrency(inv.currentValue)}</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Purchase Date</div>
+                        <div class="stat-value">${JARVIS.formatDate(inv.purchaseDate)}</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Appreciation</div>
+                        <div class="stat-value">${JARVIS.formatCurrency(inv.currentValue - inv.purchasePrice)}</div>
+                    </div>
+                `;
+            }
+            return '';
+        }
+    </script>
+</body>
+
+</html>

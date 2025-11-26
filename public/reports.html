@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - JARVIS</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="sidebar" id="sidebar">
+        <div class="logo"><i class="fas fa-robot"></i><span>JARVIS</span></div>
+        <nav class="nav-menu">
+            <a href="index.html" class="nav-item"><i class="fas fa-home"></i><span>Dashboard</span></a>
+            <a href="accounts.html" class="nav-item"><i class="fas fa-wallet"></i><span>Accounts</span></a>
+            <a href="transactions.html" class="nav-item"><i
+                    class="fas fa-exchange-alt"></i><span>Transactions</span></a>
+            <a href="investments.html" class="nav-item"><i class="fas fa-chart-line"></i><span>Investments</span></a>
+            <a href="loans.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i><span>Loans</span></a>
+            <a href="lendings.html" class="nav-item"><i class="fas fa-handshake"></i><span>Lendings</span></a>
+            <a href="reports.html" class="nav-item active"><i class="fas fa-chart-pie"></i><span>Reports</span></a>
+        </nav>
+    </div>
+
+    <div class="mobile-nav">
+        <a href="index.html" class="mobile-nav-item"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="add-transaction.html" class="mobile-nav-item"><i class="fas fa-plus-circle"></i><span>Add</span></a>
+        <a href="investments.html" class="mobile-nav-item"><i class="fas fa-chart-line"></i><span>Invest</span></a>
+        <a href="reports.html" class="mobile-nav-item active"><i class="fas fa-chart-pie"></i><span>Reports</span></a>
+    </div>
+
+    <div class="main-content">
+        <header class="header">
+            <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+            <h1>Reports</h1>
+            <div class="header-actions">
+                <select id="reportMonth" onchange="loadReports()"
+                    style="padding: 0.5rem 1rem; background: var(--bg-tertiary); border: none; color: var(--text-primary); border-radius: var(--radius-md); cursor: pointer;">
+                    <option value="">This Month</option>
+                </select>
+                <button class="btn-primary" onclick="exportReport()">
+                    <i class="fas fa-download"></i> Export PDF
+                </button>
+            </div>
+        </header>
+
+        <div class="container">
+            <!-- Net Worth -->
+            <div class="card" style="margin-bottom: 1.5rem;">
+                <div class="card-header">
+                    <h3>Net Worth</h3>
+                </div>
+                <div class="card-body">
+                    <div style="text-align: center; padding: 2rem;">
+                        <div
+                            style="font-size: 3rem; font-weight: 700; background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                            <span id="netWorth">₹0</span>
+                        </div>
+                        <p style="color: var(--text-muted); margin-top: 0.5rem;">Total Assets - Total Liabilities</p>
+                    </div>
+                    <div
+                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem;">Liquid
+                                Assets</div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--success);" id="liquidAssets">
+                                ₹0</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+                                Investments</div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--info);" id="investmentAssets">
+                                ₹0</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+                                Liabilities</div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--danger);"
+                                id="totalLiabilities">₹0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monthly Summary -->
+            <div class="card" style="margin-bottom: 1.5rem;">
+                <div class="card-header">
+                    <h3>Monthly Summary</h3>
+                </div>
+                <div class="card-body">
+                    <div
+                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1.5rem;">
+                        <div>
+                            <div style="font-size: 0.875rem; color: var(--text-muted);">Income</div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--success);" id="monthlyIncome">
+                                ₹0</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.875rem; color: var(--text-muted);">Expenses</div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--danger);"
+                                id="monthlyExpenses">₹0</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.875rem; color: var(--text-muted);">Savings</div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary-green);"
+                                id="monthlySavings">₹0</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.875rem; color: var(--text-muted);">Savings Rate</div>
+                            <div style="font-size: 1.5rem; font-weight: 700;" id="savingsRate">0%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category Breakdown -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Expense Breakdown by Category</h3>
+                </div>
+                <div class="card-body">
+                    <div id="categoryBreakdown"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/mock-data.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            populateMonthSelector();
+            loadReports();
+        });
+
+        function populateMonthSelector() {
+            const select = document.getElementById('reportMonth');
+            const now = new Date();
+
+            for (let i = 0; i < 12; i++) {
+                const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                const option = document.createElement('option');
+                option.value = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                option.textContent = date.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+                if (i === 0) option.selected = true;
+                select.appendChild(option);
+            }
+        }
+
+        function loadReports() {
+            calculateNetWorth();
+            calculateMonthlySummary();
+            displayCategoryBreakdown();
+        }
+
+        function calculateNetWorth() {
+            const accounts = JARVIS.get('accounts') || [];
+            const investments = JARVIS.get('investments') || [];
+            const loans = JARVIS.get('loans') || [];
+
+            const liquidAssets = accounts.reduce((sum, a) => sum + a.balance, 0);
+            const investmentAssets = investments.reduce((sum, i) => sum + (i.currentValue || i.amount || 0), 0);
+            const liabilities = loans.reduce((sum, l) => sum + l.outstanding, 0);
+            const netWorth = liquidAssets + investmentAssets - liabilities;
+
+            document.getElementById('netWorth').textContent = JARVIS.formatCurrency(netWorth);
+            document.getElementById('liquidAssets').textContent = JARVIS.formatCurrency(liquidAssets);
+            document.getElementById('investmentAssets').textContent = JARVIS.formatCurrency(investmentAssets);
+            document.getElementById('totalLiabilities').textContent = JARVIS.formatCurrency(liabilities);
+        }
+
+        function calculateMonthlySummary() {
+            const income = JARVIS.getMonthlyIncome();
+            const expenses = JARVIS.getMonthlyExpenses();
+            const savings = income - expenses;
+            const savingsRate = income > 0 ? ((savings / income) * 100).toFixed(1) : 0;
+
+            document.getElementById('monthlyIncome').textContent = JARVIS.formatCurrency(income);
+            document.getElementById('monthlyExpenses').textContent = JARVIS.formatCurrency(expenses);
+            document.getElementById('monthlySavings').textContent = JARVIS.formatCurrency(savings);
+            document.getElementById('savingsRate').textContent = savingsRate + '%';
+        }
+
+        function displayCategoryBreakdown() {
+            const breakdown = JARVIS.getExpenseBreakdown();
+            const container = document.getElementById('categoryBreakdown');
+            const total = Object.values(breakdown).reduce((sum, val) => sum + val, 0);
+
+            if (total === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 2rem;">No expenses this month</p>';
+                return;
+            }
+
+            const colors = ['#10b981', '#f59e0b', '#3b82f6', '#8b5cf6', '#ef4444', '#ec4899'];
+            let colorIndex = 0;
+
+            container.innerHTML = Object.entries(breakdown)
+                .sort((a, b) => b[1] - a[1])
+                .map(([category, amount]) => {
+                    const percentage = ((amount / total) * 100).toFixed(1);
+                    const color = colors[colorIndex++ % colors.length];
+
+                    return `
+                        <div style="margin-bottom: 1.5rem;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span style="font-weight: 500;">${category}</span>
+                                <span style="font-weight: 600;">${JARVIS.formatCurrency(amount)} (${percentage}%)</span>
+                            </div>
+                            <div style="background: var(--bg-tertiary); height: 8px; border-radius: 4px; overflow: hidden;">
+                                <div style="background: ${color}; height: 100%; width: ${percentage}%; transition: width 0.3s ease;"></div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+        }
+
+        function exportReport() {
+            showNotification('PDF export feature coming soon!', 'info');
+        }
+    </script>
+</body>
+
+</html>

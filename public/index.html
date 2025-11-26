@@ -2,51 +2,206 @@
 <html lang="en">
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>JARVIS</title>
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,600&display=swap" rel="stylesheet" />
-    <!-- Styles -->
-    <style>
-        body {
-            font-family: 'Figtree', sans-serif;
-            background-color: #111827;
-            color: #ffffff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-
-        .container {
-            text-align: center;
-        }
-
-        h1 {
-            font-size: 4rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            background: linear-gradient(to right, #60a5fa, #a78bfa);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        p {
-            font-size: 1.5rem;
-            color: #9ca3af;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JARVIS - Personal Finance Manager</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
-<body class="antialiased">
-    <div class="container">
-        <h1>Welcome to JARVIS</h1>
-        <p>Your Personal Finance Assistant</p>
+<body>
+    <!-- Sidebar Navigation -->
+    <div class="sidebar" id="sidebar">
+        <div class="logo">
+            <i class="fas fa-robot"></i>
+            <span>JARVIS</span>
+        </div>
+        <nav class="nav-menu">
+            <a href="index.html" class="nav-item active">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="accounts.html" class="nav-item">
+                <i class="fas fa-wallet"></i>
+                <span>Accounts</span>
+            </a>
+            <a href="transactions.html" class="nav-item">
+                <i class="fas fa-exchange-alt"></i>
+                <span>Transactions</span>
+            </a>
+            <a href="investments.html" class="nav-item">
+                <i class="fas fa-chart-line"></i>
+                <span>Investments</span>
+            </a>
+            <a href="loans.html" class="nav-item">
+                <i class="fas fa-hand-holding-usd"></i>
+                <span>Loans</span>
+            </a>
+            <a href="lendings.html" class="nav-item">
+                <i class="fas fa-handshake"></i>
+                <span>Lendings</span>
+            </a>
+            <a href="reports.html" class="nav-item">
+                <i class="fas fa-chart-pie"></i>
+                <span>Reports</span>
+            </a>
+        </nav>
     </div>
+
+    <!-- Mobile Bottom Navigation -->
+    <div class="mobile-nav">
+        <a href="index.html" class="mobile-nav-item active">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="transactions.html" class="mobile-nav-item">
+            <i class="fas fa-plus-circle"></i>
+            <span>Add</span>
+        </a>
+        <a href="investments.html" class="mobile-nav-item">
+            <i class="fas fa-chart-line"></i>
+            <span>Invest</span>
+        </a>
+        <a href="reports.html" class="mobile-nav-item">
+            <i class="fas fa-chart-pie"></i>
+            <span>Reports</span>
+        </a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <button class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1>Dashboard</h1>
+            <div class="header-actions">
+                <button class="btn-icon">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge">3</span>
+                </button>
+                <button class="btn-icon">
+                    <i class="fas fa-user-circle"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <div class="container">
+            <!-- Summary Cards -->
+            <div class="summary-grid">
+                <div class="summary-card balance">
+                    <div class="card-icon">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <div class="card-content">
+                        <p class="card-label">Total Balance</p>
+                        <h2 class="card-value" id="totalBalance">₹0</h2>
+                        <span class="card-trend positive">
+                            <i class="fas fa-arrow-up"></i> 12.5%
+                        </span>
+                    </div>
+                </div>
+
+                <div class="summary-card income">
+                    <div class="card-icon">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    <div class="card-content">
+                        <p class="card-label">Monthly Income</p>
+                        <h2 class="card-value" id="monthlyIncome">₹0</h2>
+                        <span class="card-subtitle">This month</span>
+                    </div>
+                </div>
+
+                <div class="summary-card expense">
+                    <div class="card-icon">
+                        <i class="fas fa-arrow-up"></i>
+                    </div>
+                    <div class="card-content">
+                        <p class="card-label">Monthly Expenses</p>
+                        <h2 class="card-value" id="monthlyExpenses">₹0</h2>
+                        <span class="card-subtitle">This month</span>
+                    </div>
+                </div>
+
+                <div class="summary-card investments">
+                    <div class="card-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="card-content">
+                        <p class="card-label">Investments</p>
+                        <h2 class="card-value" id="totalInvestments">₹0</h2>
+                        <span class="card-trend positive">
+                            <i class="fas fa-arrow-up"></i> +7.9%
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="charts-row">
+                <div class="card chart-card">
+                    <div class="card-header">
+                        <h3>Expense Breakdown</h3>
+                        <select class="period-select">
+                            <option>This Month</option>
+                            <option>Last Month</option>
+                            <option>Last 3 Months</option>
+                        </select>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="expenseChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card chart-card">
+                    <div class="card-header">
+                        <h3>Cash Flow</h3>
+                        <select class="period-select">
+                            <option>Last 6 Months</option>
+                            <option>Last Year</option>
+                        </select>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="cashFlowChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Transactions -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Recent Transactions</h3>
+                    <a href="transactions.html" class="btn-link">View All</a>
+                </div>
+                <div class="card-body">
+                    <div class="transactions-list" id="recentTransactions">
+                        <!-- Transactions will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions (Mobile) -->
+            <div class="quick-actions mobile-only">
+                <a href="add-transaction.html" class="quick-action-btn">
+                    <i class="fas fa-plus"></i>
+                    <span>Add Transaction</span>
+                </a>
+                <a href="transfer.html" class="quick-action-btn">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Transfer</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/mock-data.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/dashboard.js"></script>
 </body>
 
 </html>
