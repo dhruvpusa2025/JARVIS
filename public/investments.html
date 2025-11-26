@@ -330,24 +330,11 @@
 
                     displayInvestments(filtered);
                 }
+                const current = inv.currentValue || inv.amount || inv.purchasePrice;
+                const profit = current - invested;
+                const profitPercent = invested ? ((profit / invested) * 100).toFixed(2) : 0;
 
-                function displayInvestments(investments) {
-                    const container = document.getElementById('investmentsList');
-
-                    if (investments.length === 0) {
-                        container.innerHTML = '<p
-                        style = "text-align: center; color: var(--text-muted); padding: 2rem; grid-column: 1/-1;" > No investments
-                found</p > ';
-                        return;
-                    }
-
-                    container.innerHTML = investments.map(inv => {
-                        const invested = inv.invested || inv.amount || inv.purchasePrice;
-                        const current = inv.currentValue || inv.amount || inv.purchasePrice;
-                        const profit = current - invested;
-                        const profitPercent = invested ? ((profit / invested) * 100).toFixed(2) : 0;
-
-                        return `
+                return `
             <div class="investment-card ${inv.type}">
                 <div class="card-actions">
                     <button class="action-btn" onclick="openEditModal(${inv.id})" title="Update Price">
@@ -590,11 +577,11 @@
                         inv.units -= unitsToSell;
                         inv.currentValue = inv.units * (inv.currentPrice || inv.buyPrice);
                         inv.invested = (inv.invested / (inv.units + unitsToSell)) * inv.units; // Proportional reduction in invested
-                        amount ? Or FIFO ?
-            // Simple proportional for now:
-            // New Invested = Old Invested * (New Units / Old Units)
-            // Actually, let's just reduce invested proportionally
-            } else if (inv.type === 'stock') {
+                        // amount ? Or FIFO ?
+                        // Simple proportional for now:
+                        // New Invested = Old Invested * (New Units / Old Units)
+                        // Actually, let's just reduce invested proportionally
+                    } else if (inv.type === 'stock') {
                         if (unitsToSell > inv.quantity) {
                             showNotification('Cannot sell more shares than available!', 'error');
                             return;

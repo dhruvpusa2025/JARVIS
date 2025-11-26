@@ -103,243 +103,323 @@
             color: white;
             padding: 0.25rem 0.75rem;
             border-radius: 1rem;
-            <a href="index.html" class="nav-item"><i class="fas fa-home"></i><span>Dashboard</span></a><a href="accounts.html" class="nav-item"><i class="fas fa-wallet"></i><span>Accounts</span></a><a href="transactions.html" class="nav-item"><i class="fas fa-exchange-alt"></i><span>Transactions</span></a><a href="investments.html" class="nav-item"><i class="fas fa-chart-line"></i><span>Investments</span></a><a href="loans.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i><span>Loans</span></a><a href="lendings.html" class="nav-item active"><i class="fas fa-handshake"></i><span>Lendings</span></a><a href="transfer.html" class="nav-item"><i class="fas fa-exchange-alt"></i><span>Transfer</span></a><a href="categories.html" class="nav-item"><i class="fas fa-tags"></i><span>Categories</span></a><a href="reports.html" class="nav-item"><i class="fas fa-chart-pie"></i><span>Reports</span></a></nav></div><div class="mobile-nav"><a href="index.html" class="mobile-nav-item"><i class="fas fa-home"></i><span>Home</span></a><a href="add-transaction.html" class="mobile-nav-item"><i class="fas fa-plus-circle"></i><span>Add</span></a><a href="investments.html" class="mobile-nav-item"><i class="fas fa-chart-line"></i><span>Invest</span></a><a href="reports.html" class="mobile-nav-item"><i class="fas fa-chart-pie"></i><span>Reports</span></a></div><div class="main-content"><header class="header"><button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button><h1>Lendings</h1><a href="add-lending.html" class="btn-primary"><i class="fas fa-plus"></i>Add Lending </a></header><div class="container">< !-- Summary --><div class="summary-grid"><div class="summary-card balance"><div class="card-icon"><i class="fas fa-hand-holding-usd"></i></div><div class="card-content"><p class="card-label">Total Lent</p><h2 class="card-value" id="totalLent">₹0</h2></div></div><div class="summary-card expense"><div class="card-icon"><i class="fas fa-clock"></i></div><div class="card-content"><p class="card-label">Outstanding</p><h2 class="card-value" id="totalOutstanding">₹0</h2></div></div><div class="summary-card income"><div class="card-icon"><i class="fas fa-coins"></i></div><div class="card-content"><p class="card-label">Interest Earned</p><h2 class="card-value" id="totalInterest">₹0</h2></div></div></div>< !-- Lendings List --><div id="lendingsList"></div></div></div><script src="js/mock-data.js"></script><script src="js/app.js"></script><script>document.addEventListener('DOMContentLoaded', loadLendings);
+            font-size: 0.75rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+    </style>
+</head>
 
-            function loadLendings() {
-                const lendings=JARVIS.get('lendings') || [];
+<body>
+    <div class="sidebar" id="sidebar">
+        <div class="logo"><i class="fas fa-robot"></i><span>JARVIS</span></div>
+        <nav class="nav-menu">
+            <a href="index.html" class="nav-item"><i class="fas fa-home"></i><span>Dashboard</span></a>
+            <a href="accounts.html" class="nav-item"><i class="fas fa-wallet"></i><span>Accounts</span></a>
+            <a href="transactions.html" class="nav-item"><i
+                    class="fas fa-exchange-alt"></i><span>Transactions</span></a>
+            <a href="investments.html" class="nav-item"><i class="fas fa-chart-line"></i><span>Investments</span></a>
+            <a href="loans.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i><span>Loans</span></a>
+            <a href="lendings.html" class="nav-item active"><i class="fas fa-handshake"></i><span>Lendings</span></a>
+            <a href="transfer.html" class="nav-item"><i class="fas fa-exchange-alt"></i><span>Transfer</span></a>
+            <a href="categories.html" class="nav-item"><i class="fas fa-tags"></i><span>Categories</span></a>
+            <a href="reports.html" class="nav-item"><i class="fas fa-chart-pie"></i><span>Reports</span></a>
+        </nav>
+    </div>
 
-                // Calculate totals
-                const totalLent=lendings.reduce((sum, l)=> sum + l.amount, 0);
-                const totalOutstanding=lendings.reduce((sum, l)=> sum + l.outstanding, 0);
-                const totalInterest=15000; // Mock data for now
+    <div class="mobile-nav">
+        <a href="index.html" class="mobile-nav-item"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="add-transaction.html" class="mobile-nav-item"><i class="fas fa-plus-circle"></i><span>Add</span></a>
+        <a href="investments.html" class="mobile-nav-item"><i class="fas fa-chart-line"></i><span>Invest</span></a>
+        <a href="reports.html" class="mobile-nav-item"><i class="fas fa-chart-pie"></i><span>Reports</span></a>
+    </div>
 
-                document.getElementById('totalLent').textContent=JARVIS.formatCurrency(totalLent);
-                document.getElementById('totalOutstanding').textContent=JARVIS.formatCurrency(totalOutstanding);
-                document.getElementById('totalInterest').textContent=JARVIS.formatCurrency(totalInterest);
+    <div class="main-content">
+        <header class="header">
+            <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+            <h1>Lendings</h1>
+            <a href="add-lending.html" class="btn-primary">
+                <i class="fas fa-plus"></i> Add Lending
+            </a>
+        </header>
 
-                displayLendings(lendings);
+        <div class="container">
+            <!-- Summary -->
+            <div class="summary-grid">
+                <div class="summary-card balance">
+                    <div class="card-icon"><i class="fas fa-hand-holding-usd"></i></div>
+                    <div class="card-content">
+                        <p class="card-label">Total Lent</p>
+                        <h2 class="card-value" id="totalLent">₹0</h2>
+                    </div>
+                </div>
+                <div class="summary-card expense">
+                    <div class="card-icon"><i class="fas fa-clock"></i></div>
+                    <div class="card-content">
+                        <p class="card-label">Outstanding</p>
+                        <h2 class="card-value" id="totalOutstanding">₹0</h2>
+                    </div>
+                </div>
+                <div class="summary-card income">
+                    <div class="card-icon"><i class="fas fa-coins"></i></div>
+                    <div class="card-content">
+                        <p class="card-label">Interest Earned</p>
+                        <h2 class="card-value" id="totalInterest">₹0</h2>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lendings List -->
+            <div id="lendingsList"></div>
+        </div>
+    </div>
+
+    <script src="js/mock-data.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', loadLendings);
+
+        function loadLendings() {
+            const lendings = JARVIS.get('lendings') || [];
+
+            // Calculate totals
+            const totalLent = lendings.reduce((sum, l) => sum + l.amount, 0);
+            const totalOutstanding = lendings.reduce((sum, l) => sum + l.outstanding, 0);
+            const totalInterest = 15000; // Mock data for now
+
+            document.getElementById('totalLent').textContent = JARVIS.formatCurrency(totalLent);
+            document.getElementById('totalOutstanding').textContent = JARVIS.formatCurrency(totalOutstanding);
+            document.getElementById('totalInterest').textContent = JARVIS.formatCurrency(totalInterest);
+
+            displayLendings(lendings);
+        }
+
+        function displayLendings(lendings) {
+            const container = document.getElementById('lendingsList');
+
+            if (lendings.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 2rem;">No lendings yet</p>';
+                return;
             }
 
-            function displayLendings(lendings) {
-                const container=document.getElementById('lendingsList');
+            container.innerHTML = lendings.map(lending => {
+                const isDue = lending.nextInterestDate && new Date(lending.nextInterestDate) <= new Date();
+                const isCompleted = lending.outstanding === 0;
 
-                if (lendings.length===0) {
-                    container.innerHTML='<p style="text-align: center; color: var(--text-muted); padding: 2rem;">No lendings yet</p>';
-                    return;
-                }
+                return `
+                    <div class="lending-card ${isDue ? 'due' : ''} ${isCompleted ? 'completed' : ''}">
+                        <div class="lending-header">
+                            <div>
+                                <div class="borrower-name">
+                                    ${lending.borrower}
+                                    ${isDue ? '<span class="due-badge"><i class="fas fa-bell"></i> Interest Due</span>' : ''}
+                                </div>
+                            </div>
+                            <div class="lending-amount">
+                                ${JARVIS.formatCurrency(lending.outstanding)}
+                            </div>
+                        </div>
 
-                container.innerHTML=lendings.map(lending=> {
-                        const isDue=lending.nextInterestDate && new Date(lending.nextInterestDate) <=new Date();
-                        const isCompleted=lending.outstanding===0;
+                        <div class="lending-details">
+                            <div class="detail-item">
+                                <div class="detail-label">Original Amount</div>
+                                <div class="detail-value">${JARVIS.formatCurrency(lending.amount)}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Interest Rate</div>
+                                <div class="detail-value">${lending.interestRate}% ${formatFrequency(lending.frequency)}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Start Date</div>
+                                <div class="detail-value">${JARVIS.formatDate(lending.startDate)}</div>
+                            </div>
+                            ${lending.nextInterestDate ? `
+                            <div class="detail-item">
+                                <div class="detail-label">Next Interest Due</div>
+                                <div class="detail-value">${JARVIS.formatDate(lending.nextInterestDate)}</div>
+                            </div>
+                            ` : ''}
+                            ${lending.returnDate ? `
+                            <div class="detail-item">
+                                <div class="detail-label">Expected Return</div>
+                                <div class="detail-value">${JARVIS.formatDate(lending.returnDate)}</div>
+                            </div>
+                            ` : ''}
+                        </div>
 
-                        return ` <div class="lending-card ${isDue ? 'due' : ''} ${isCompleted ? 'completed' : ''}" > <div class="lending-header" > <div> <div class="borrower-name" > $ {
-                            lending.borrower
-                        }
+                        ${!isCompleted ? `
+                        <div class="lending-actions">
+                            ${lending.interestRate > 0 ? `
+                            <button class="btn-small btn-success" onclick="receiveInterest(${lending.id})">
+                                <i class="fas fa-coins"></i> Receive Interest
+                            </button>
+                            ` : ''}
+                            <button class="btn-small btn-info" onclick="receiveRepayment(${lending.id})">
+                                <i class="fas fa-hand-holding-usd"></i> Receive Repayment
+                            </button>
+                        </div>
+                        ` : '<p style="color: var(--success); font-weight: 600;"><i class="fas fa-check-circle"></i> Fully Repaid</p>'}
+                    </div>
+                `;
+            }).join('');
+        }
 
-                        $ {
-                            isDue ? '<span class="due-badge"><i class="fas fa-bell"></i> Interest Due</span>' : ''
-                        }
+        function formatFrequency(freq) {
+            const frequencies = {
+                'monthly': 'per month',
+                'quarterly': 'per quarter',
+                'yearly': 'per year',
+                'none': ''
+            };
+            return frequencies[freq] || '';
+        }
 
-                        </div> </div> <div class="lending-amount" > $ {
-                            JARVIS.formatCurrency(lending.outstanding)
-                        }
+        function receiveInterest(id) {
+            const lending = JARVIS.get('lendings').find(l => l.id === id);
+            if (!lending) return;
 
-                        </div> </div> <div class="lending-details" > <div class="detail-item" > <div class="detail-label" >Original Amount</div> <div class="detail-value" >$ {
-                            JARVIS.formatCurrency(lending.amount)
-                        }
+            document.getElementById('intLendingId').value = lending.id;
+            document.getElementById('intBorrower').value = lending.borrower;
 
-                        </div> </div> <div class="detail-item" > <div class="detail-label" >Interest Rate</div> <div class="detail-value" >$ {
-                            lending.interestRate
-                        }
+            // Calculate expected interest (Simple Interest for now since last payment/start)
+            // Simplified: Just let user enter amount, maybe pre-fill if we had logic
+            // document.getElementById('intAmount').value = ...;
 
-                        % $ {
-                            formatFrequency(lending.frequency)
-                        }
+            const accounts = JARVIS.get('accounts') || [];
+            const accSelect = document.getElementById('intAccount');
 
-                        </div> </div> <div class="detail-item" > <div class="detail-label" >Start Date</div> <div class="detail-value" >$ {
-                            JARVIS.formatDate(lending.startDate)
-                        }
+            accSelect.innerHTML = accounts.map(a => `<option value="${a.id}">${a.name} (₹${a.balance})</option>`).join('');
 
-                        </div> </div> $ {
-                            lending.nextInterestDate ? ` <div class="detail-item" > <div class="detail-label" >Next Interest Due</div> <div class="detail-value" >$ {
-                                JARVIS.formatDate(lending.nextInterestDate)
-                            }
+            document.getElementById('intDate').valueAsDate = new Date();
+            document.getElementById('receiveInterestModal').classList.add('active');
+        }
 
-                            </div> </div> ` : ''
-                        }
+        function closeReceiveInterestModal() {
+            document.getElementById('receiveInterestModal').classList.remove('active');
+        }
 
-                        $ {
-                            lending.returnDate ? ` <div class="detail-item" > <div class="detail-label" >Expected Return</div> <div class="detail-value" >$ {
-                                JARVIS.formatDate(lending.returnDate)
-                            }
+        function handleReceiveInterest(event) {
+            event.preventDefault();
+            const id = parseInt(document.getElementById('intLendingId').value);
+            const amount = parseFloat(document.getElementById('intAmount').value);
+            const accountId = parseInt(document.getElementById('intAccount').value);
+            const date = document.getElementById('intDate').value;
 
-                            </div> </div> ` : ''
-                        }
+            const accounts = JARVIS.get('accounts');
+            const accIndex = accounts.findIndex(a => a.id === accountId);
 
-                        </div> $ {
-                            !isCompleted ? ` <div class="lending-actions" > $ {
-                                lending.interestRate > 0 ? ` <button class="btn-small btn-success" onclick="receiveInterest(${lending.id})" > <i class="fas fa-coins" ></i> Receive Interest </button> ` : ''
-                            }
+            if (accIndex > -1) {
+                accounts[accIndex].balance += amount;
+                JARVIS.save('accounts', accounts);
 
-                            <button class="btn-small btn-info" onclick="receiveRepayment(${lending.id})" > <i class="fas fa-hand-holding-usd" ></i> Receive Repayment </button> </div> ` : '<p style="color: var(--success); font-weight: 600;"><i class="fas fa-check-circle"></i> Fully Repaid</p>'
-                        }
+                const lending = JARVIS.get('lendings').find(l => l.id === id);
 
-                        </div> `;
-                    }).join('');
+                const transaction = {
+                    date: date,
+                    type: 'income',
+                    category: 'Interest Received',
+                    amount: amount,
+                    account: accounts[accIndex].name,
+                    description: `Interest from ${lending.borrower}`
+                };
+                JARVIS.add('transactions', transaction);
+
+                closeReceiveInterestModal();
+                loadLendings(); // Refresh to update totals
+                showNotification('Interest received successfully!', 'success');
             }
+        }
 
-            function formatFrequency(freq) {
-                const frequencies= {
-                    'monthly': 'per month',
-                        'quarterly': 'per quarter',
-                        'yearly': 'per year',
-                        'none': ''
-                }
+        function receiveRepayment(id) {
+            const lending = JARVIS.get('lendings').find(l => l.id === id);
+            if (!lending) return;
 
-                ;
-                return frequencies[freq] || '';
-            }
+            document.getElementById('repLendingId').value = lending.id;
+            document.getElementById('repBorrower').value = lending.borrower;
+            document.getElementById('repAmount').value = lending.outstanding; // Default to full repayment
 
-            function receiveInterest(id) {
-                const lending=JARVIS.get('lendings').find(l=> l.id===id);
-                if ( !lending) return;
+            const accounts = JARVIS.get('accounts') || [];
+            const accSelect = document.getElementById('repAccount');
 
-                document.getElementById('intLendingId').value=lending.id;
-                document.getElementById('intBorrower').value=lending.borrower;
+            accSelect.innerHTML = accounts.map(a => `<option value="${a.id}">${a.name} (₹${a.balance})</option>`).join('');
 
-                // Calculate expected interest (Simple Interest for now since last payment/start)
-                // Simplified: Just let user enter amount, maybe pre-fill if we had logic
-                // document.getElementById('intAmount').value = ...;
+            document.getElementById('repDate').valueAsDate = new Date();
+            document.getElementById('receiveRepaymentModal').classList.add('active');
+        }
 
-                const accounts=JARVIS.get('accounts') || [];
-                const accSelect=document.getElementById('intAccount');
+        function closeReceiveRepaymentModal() {
+            document.getElementById('receiveRepaymentModal').classList.remove('active');
+        }
 
-                accSelect.innerHTML=accounts.map(a=> `<option value="${a.id}" >$ {
-                        a.name
-                    }
+        function handleReceiveRepayment(event) {
+            event.preventDefault();
+            const id = parseInt(document.getElementById('repLendingId').value);
+            const amount = parseFloat(document.getElementById('repAmount').value);
+            const accountId = parseInt(document.getElementById('repAccount').value);
+            const date = document.getElementById('repDate').value;
 
-                    (₹$ {
-                            a.balance
-                        })</option>`).join('');
+            const lendings = JARVIS.get('lendings');
+            const lendingIndex = lendings.findIndex(l => l.id === id);
 
-                document.getElementById('receiveInterestModal').classList.add('active');
-            }
-
-            function closeReceiveInterestModal() {
-                document.getElementById('receiveInterestModal').classList.remove('active');
-            }
-
-            function handleReceiveInterest(event) {
-                event.preventDefault();
-                const id=parseInt(document.getElementById('intLendingId').value);
-                const amount=parseFloat(document.getElementById('intAmount').value);
-                const accountId=parseInt(document.getElementById('intAccount').value);
-                const date=document.getElementById('intDate').value;
-
-                const accounts=JARVIS.get('accounts');
-                const accIndex=accounts.findIndex(a=> a.id===accountId);
+            if (lendingIndex > -1) {
+                const accounts = JARVIS.get('accounts');
+                const accIndex = accounts.findIndex(a => a.id === accountId);
 
                 if (accIndex > -1) {
-                    accounts[accIndex].balance+=amount;
+                    accounts[accIndex].balance += amount;
                     JARVIS.save('accounts', accounts);
-
-                    const lending=JARVIS.get('lendings').find(l=> l.id===id);
-
-                    const transaction= {
-
-                        date: date,
-                        type: 'income',
-                        category: 'Interest Received',
-                        amount: amount,
-                        account: accounts[accIndex].name,
-                        description: `Interest from $ {
-                            lending.borrower
-                        }
-
-                        `
-                    }
-
-                    ;
-                    JARVIS.add('transactions', transaction);
-
-                    closeReceiveInterestModal();
-                    loadLendings(); // Refresh to update totals
-                    showNotification('Interest received successfully!', 'success');
                 }
+
+                lendings[lendingIndex].outstanding -= amount;
+                if (lendings[lendingIndex].outstanding < 0) lendings[lendingIndex].outstanding = 0;
+                JARVIS.save('lendings', lendings);
+
+                const transaction = {
+                    date: date,
+                    type: 'income',
+                    category: 'Lending Repayment',
+                    amount: amount,
+                    account: accounts[accIndex].name,
+                    description: `Repayment from ${lendings[lendingIndex].borrower}`
+                };
+                JARVIS.add('transactions', transaction);
+
+                closeReceiveRepaymentModal();
+                loadLendings();
+                showNotification('Repayment received successfully!', 'success');
             }
+        }
+    </script>
 
-            function receiveRepayment(id) {
-                const lending=JARVIS.get('lendings').find(l=> l.id===id);
-                if ( !lending) return;
+    <!-- Receive Interest Modal -->
+    <div class="modal" id="receiveInterestModal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2>Receive Interest</h2>
+                <button class="close-modal" onclick="closeReceiveInterestModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form onsubmit="handleReceiveInterest(event)">
+                    <input type="hidden" id="intLendingId">
+                    <div class="form-group">
+                        <label>Borrower</label>
+                        <input type="text" id="intBorrower" readonly class="readonly-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Interest Amount</label>
+                        <div class="input-group">
+                            <span class="input-prefix">₹</span>
+                            <input type="number" id="intAmount" required step="0.01">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
 
-                document.getElementById('repLendingId').value=lending.id;
-                document.getElementById('repBorrower').value=lending.borrower;
-                document.getElementById('repAmount').value=lending.outstanding; // Default to full repayment
-
-                const accounts=JARVIS.get('accounts') || [];
-                const accSelect=document.getElementById('repAccount');
-
-                accSelect.innerHTML=accounts.map(a=> `<option value="${a.id}" >$ {
-                        a.name
-                    }
-
-                    (₹$ {
-                            a.balance
-                        })</option>`).join('');
-
-                document.getElementById('receiveRepaymentModal').classList.add('active');
-            }
-
-            function closeReceiveRepaymentModal() {
-                document.getElementById('receiveRepaymentModal').classList.remove('active');
-            }
-
-            function handleReceiveRepayment(event) {
-                event.preventDefault();
-                const id=parseInt(document.getElementById('repLendingId').value);
-                const amount=parseFloat(document.getElementById('repAmount').value);
-                const accountId=parseInt(document.getElementById('repAccount').value);
-                const date=document.getElementById('repDate').value;
-
-                const lendings=JARVIS.get('lendings');
-                const lendingIndex=lendings.findIndex(l=> l.id===id);
-
-                if (lendingIndex > -1) {
-                    const accounts=JARVIS.get('accounts');
-                    const accIndex=accounts.findIndex(a=> a.id===accountId);
-
-                    if (accIndex > -1) {
-                        accounts[accIndex].balance+=amount;
-                        JARVIS.save('accounts', accounts);
-                    }
-
-                    lendings[lendingIndex].outstanding -=amount;
-                    if (lendings[lendingIndex].outstanding < 0) lendings[lendingIndex].outstanding=0;
-                    JARVIS.save('lendings', lendings);
-
-                    const transaction= {
-
-                        date: date,
-                        type: 'income',
-                        category: 'Lending Repayment',
-                        amount: amount,
-                        account: accounts[accIndex].name,
-                        description: `Repayment from $ {
-                            lendings[lendingIndex].borrower
-                        }
-
-                        `
-                    }
-
-                    ;
-                    JARVIS.add('transactions', transaction);
-
-                    closeReceiveRepaymentModal();
-                    loadLendings();
-                    showNotification('Repayment received successfully!', 'success');
-                }
-            }
-
-            </script>< !-- Receive Interest Modal --><div class="modal" id="receiveInterestModal"><div class="modal-content" style="max-width: 400px;"><div class="modal-header"><h2>Receive Interest</h2><button class="close-modal" onclick="closeReceiveInterestModal()">&times;
-            </button></div><div class="modal-body"><form onsubmit="handleReceiveInterest(event)"><input type="hidden" id="intLendingId"><div class="form-group"><label>Borrower</label><input type="text" id="intBorrower" readonly class="readonly-input"></div><div class="form-group"><label>Interest Amount</label><div class="input-group"><span class="input-prefix">₹</span><input type="number" id="intAmount" required step="0.01"></div></div><div class="form-group"><label>Deposit To</label><select id="intAccount" required class="styled-select"></select></div><div class="form-group"><label>Date</label><input type="date" id="intDate" required value="${new Date().toISOString().split('T')[0]}"></div><div class="modal-footer"><button type="button" class="btn-secondary" onclick="closeReceiveInterestModal()">Cancel</button><button type="submit" class="btn-primary">Receive</button></div></form></div></div></div>< !-- Receive Repayment Modal --><div class="modal" id="receiveRepaymentModal"><div class="modal-content" style="max-width: 400px;"><div class="modal-header"><h2>Receive Repayment</h2><button class="close-modal" onclick="closeReceiveRepaymentModal()">&times;
-            </button></div><div class="modal-body"><form onsubmit="handleReceiveRepayment(event)"><input type="hidden" id="repLendingId"><div class="form-group"><label>Borrower</label><input type="text" id="repBorrower" readonly class="readonly-input"></div><div class="form-group"><label>Repayment Amount</label><div class="input-group"><span class="input-prefix">₹</span><input type="number" id="repAmount" required step="0.01"></div></div><div class="form-group"><label>Deposit To</label><select id="repAccount" required class="styled-select"></select></div><div class="form-group"><label>Date</label><input type="date" id="repDate" required value="${new Date().toISOString().split('T')[0]}"></div><div class="modal-footer"><button type="button" class="btn-secondary" onclick="closeReceiveRepaymentModal()">Cancel</button><button type="submit" class="btn-primary">Receive</button></div></form></div></div></div></body></html>
+</html>
