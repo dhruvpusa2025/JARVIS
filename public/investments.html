@@ -253,62 +253,63 @@
                 <!-- Populated by JS -->
             </div>
 
-            let currentFilter = 'all';
+            <script>
+                let currentFilter = 'all';
 
-            document.addEventListener('DOMContentLoaded', function () {
-            loadInvestments();
-            document.getElementById('sellDate').valueAsDate = new Date();
-            });
+                document.addEventListener('DOMContentLoaded', function () {
+                    loadInvestments();
+                    document.getElementById('sellDate').valueAsDate = new Date();
+                });
 
-            function loadInvestments() {
-            allInvestments = JARVIS.get('investments') || [];
-            updateSummary(allInvestments);
-            renderGroupCards(allInvestments);
-            displayInvestments(allInvestments);
-            }
+                function loadInvestments() {
+                    allInvestments = JARVIS.get('investments') || [];
+                    updateSummary(allInvestments);
+                    renderGroupCards(allInvestments);
+                    displayInvestments(allInvestments);
+                }
 
-            function updateSummary(investments) {
-            const totalInvested = investments.reduce((sum, inv) => sum + (inv.invested || inv.amount ||
-            inv.purchasePrice || 0), 0);
-            const currentValue = investments.reduce((sum, inv) => sum + (inv.currentValue || inv.amount ||
-            inv.purchasePrice || 0), 0);
-            const totalReturns = currentValue - totalInvested;
-            const returnPercentage = totalInvested > 0 ? ((totalReturns / totalInvested) * 100).toFixed(2) : 0;
+                function updateSummary(investments) {
+                    const totalInvested = investments.reduce((sum, inv) => sum + (inv.invested || inv.amount ||
+                        inv.purchasePrice || 0), 0);
+                    const currentValue = investments.reduce((sum, inv) => sum + (inv.currentValue || inv.amount ||
+                        inv.purchasePrice || 0), 0);
+                    const totalReturns = currentValue - totalInvested;
+                    const returnPercentage = totalInvested > 0 ? ((totalReturns / totalInvested) * 100).toFixed(2) : 0;
 
-            document.getElementById('totalInvested').textContent = JARVIS.formatCurrency(totalInvested);
-            document.getElementById('currentValue').textContent = JARVIS.formatCurrency(currentValue);
-            document.getElementById('totalReturns').textContent = JARVIS.formatCurrency(totalReturns);
-            document.getElementById('returnPercentage').textContent = `${totalReturns >= 0 ? '+' :
-            ''}${returnPercentage}%`;
-            document.getElementById('returnPercentage').className = `card-trend ${totalReturns >= 0 ? 'positive' :
-            'negative'}`;
-            }
+                    document.getElementById('totalInvested').textContent = JARVIS.formatCurrency(totalInvested);
+                    document.getElementById('currentValue').textContent = JARVIS.formatCurrency(currentValue);
+                    document.getElementById('totalReturns').textContent = JARVIS.formatCurrency(totalReturns);
+                    document.getElementById('returnPercentage').textContent = `${totalReturns >= 0 ? '+' :
+                        ''}${returnPercentage}%`;
+                    document.getElementById('returnPercentage').className = `card-trend ${totalReturns >= 0 ? 'positive' :
+                        'negative'}`;
+                }
 
-            function renderGroupCards(investments) {
-            const groups = {
-            'all': { name: 'All Assets', amount: 0, count: 0 },
-            'mutual_fund': { name: 'Mutual Funds', amount: 0, count: 0 },
-            'stock': { name: 'Stocks', amount: 0, count: 0 },
-            'fd': { name: 'Fixed Deposits', amount: 0, count: 0 },
-            'rd': { name: 'Recurring Deposits', amount: 0, count: 0 },
-            'real_estate': { name: 'Real Estate', amount: 0, count: 0 }
-            };
+                function renderGroupCards(investments) {
+                    const groups = {
+                        'all': { name: 'All Assets', amount: 0, count: 0 },
+                        'mutual_fund': { name: 'Mutual Funds', amount: 0, count: 0 },
+                        'stock': { name: 'Stocks', amount: 0, count: 0 },
+                        'fd': { name: 'Fixed Deposits', amount: 0, count: 0 },
+                        'rd': { name: 'Recurring Deposits', amount: 0, count: 0 },
+                        'real_estate': { name: 'Real Estate', amount: 0, count: 0 }
+                    };
 
-            investments.forEach(inv => {
-            const val = inv.currentValue || inv.amount || inv.purchasePrice || 0;
-            groups.all.amount += val;
-            groups.all.count++;
+                    investments.forEach(inv => {
+                        const val = inv.currentValue || inv.amount || inv.purchasePrice || 0;
+                        groups.all.amount += val;
+                        groups.all.count++;
 
-            if (groups[inv.type]) {
-            groups[inv.type].amount += val;
-            groups[inv.type].count++;
-            }
-            });
+                        if (groups[inv.type]) {
+                            groups[inv.type].amount += val;
+                            groups[inv.type].count++;
+                        }
+                    });
 
-            const container = document.getElementById('groupCards');
-            container.innerHTML = Object.entries(groups).map(([key, data]) => {
-            if (data.count === 0 && key !== 'all') return '';
-            return `
+                    const container = document.getElementById('groupCards');
+                    container.innerHTML = Object.entries(groups).map(([key, data]) => {
+                        if (data.count === 0 && key !== 'all') return '';
+                        return `
             <div class="group-card ${currentFilter === key ? 'active' : ''}" onclick="filterInvestments('${key}')">
                 <h3>${data.name}</h3>
                 <div class="amount">${JARVIS.formatCurrency(data.amount)}</div>
@@ -316,37 +317,37 @@
                 </div>
             </div>
             `;
-            }).join('');
-            }
+                    }).join('');
+                }
 
-            function filterInvestments(type) {
-            currentFilter = type;
-            renderGroupCards(allInvestments);
+                function filterInvestments(type) {
+                    currentFilter = type;
+                    renderGroupCards(allInvestments);
 
-            const filtered = type === 'all'
-            ? allInvestments
-            : allInvestments.filter(inv => inv.type === type);
+                    const filtered = type === 'all'
+                        ? allInvestments
+                        : allInvestments.filter(inv => inv.type === type);
 
-            displayInvestments(filtered);
-            }
+                    displayInvestments(filtered);
+                }
 
-            function displayInvestments(investments) {
-            const container = document.getElementById('investmentsList');
+                function displayInvestments(investments) {
+                    const container = document.getElementById('investmentsList');
 
-            if (investments.length === 0) {
-            container.innerHTML = '<p
-                style="text-align: center; color: var(--text-muted); padding: 2rem; grid-column: 1/-1;">No investments
-                found</p>';
-            return;
-            }
+                    if (investments.length === 0) {
+                        container.innerHTML = '<p
+                        style = "text-align: center; color: var(--text-muted); padding: 2rem; grid-column: 1/-1;" > No investments
+                found</p > ';
+                        return;
+                    }
 
-            container.innerHTML = investments.map(inv => {
-            const invested = inv.invested || inv.amount || inv.purchasePrice;
-            const current = inv.currentValue || inv.amount || inv.purchasePrice;
-            const profit = current - invested;
-            const profitPercent = invested ? ((profit / invested) * 100).toFixed(2) : 0;
+                    container.innerHTML = investments.map(inv => {
+                        const invested = inv.invested || inv.amount || inv.purchasePrice;
+                        const current = inv.currentValue || inv.amount || inv.purchasePrice;
+                        const profit = current - invested;
+                        const profitPercent = invested ? ((profit / invested) * 100).toFixed(2) : 0;
 
-            return `
+                        return `
             <div class="investment-card ${inv.type}">
                 <div class="card-actions">
                     <button class="action-btn" onclick="openEditModal(${inv.id})" title="Update Price">
@@ -372,23 +373,23 @@
                 </div>
             </div>
             `;
-            }).join('');
-            }
+                    }).join('');
+                }
 
-            function formatInvestmentType(type) {
-            const types = {
-            'mutual_fund': 'Mutual Fund',
-            'stock': 'Stock',
-            'fd': 'Fixed Deposit',
-            'rd': 'Recurring Deposit',
-            'real_estate': 'Real Estate'
-            };
-            return types[type] || type;
-            }
+                function formatInvestmentType(type) {
+                    const types = {
+                        'mutual_fund': 'Mutual Fund',
+                        'stock': 'Stock',
+                        'fd': 'Fixed Deposit',
+                        'rd': 'Recurring Deposit',
+                        'real_estate': 'Real Estate'
+                    };
+                    return types[type] || type;
+                }
 
-            function getInvestmentStats(inv) {
-            if (inv.type === 'mutual_fund') {
-            return `
+                function getInvestmentStats(inv) {
+                    if (inv.type === 'mutual_fund') {
+                        return `
             <div class="stat">
                 <div class="stat-label">Units</div>
                 <div class="stat-value">${inv.units ? inv.units.toFixed(4) : '0'}</div>
@@ -406,8 +407,8 @@
                 <div class="stat-value">${JARVIS.formatCurrency(inv.currentValue)}</div>
             </div>
             `;
-            } else if (inv.type === 'stock') {
-            return `
+                    } else if (inv.type === 'stock') {
+                        return `
             <div class="stat">
                 <div class="stat-label">Shares</div>
                 <div class="stat-value">${inv.quantity}</div>
@@ -425,8 +426,8 @@
                 <div class="stat-value">${JARVIS.formatCurrency(inv.currentValue)}</div>
             </div>
             `;
-            } else if (inv.type === 'fd' || inv.type === 'rd') {
-            return `
+                    } else if (inv.type === 'fd' || inv.type === 'rd') {
+                        return `
             <div class="stat">
                 <div class="stat-label">Amount</div>
                 <div class="stat-value">${JARVIS.formatCurrency(inv.amount)}</div>
@@ -444,8 +445,8 @@
                 <div class="stat-value">${JARVIS.formatCurrency(inv.maturityAmount)}</div>
             </div>
             `;
-            } else if (inv.type === 'real_estate') {
-            return `
+                    } else if (inv.type === 'real_estate') {
+                        return `
             <div class="stat">
                 <div class="stat-label">Purchase Price</div>
                 <div class="stat-value">${JARVIS.formatCurrency(inv.purchasePrice)}</div>
@@ -463,185 +464,185 @@
                 <div class="stat-value">${JARVIS.formatCurrency(inv.currentValue - inv.purchasePrice)}</div>
             </div>
             `;
-            }
-            return '';
-            }
+                    }
+                    return '';
+                }
 
-            // Edit Modal Functions (Price Only)
-            function openEditModal(id) {
-            const inv = allInvestments.find(i => i.id === id);
-            if (!inv) return;
+                // Edit Modal Functions (Price Only)
+                function openEditModal(id) {
+                    const inv = allInvestments.find(i => i.id === id);
+                    if (!inv) return;
 
-            document.getElementById('editId').value = inv.id;
-            document.getElementById('editName').value = inv.name;
+                    document.getElementById('editId').value = inv.id;
+                    document.getElementById('editName').value = inv.name;
 
-            // Populate fields based on type
-            const priceInput = document.getElementById('editCurrentPrice');
+                    // Populate fields based on type
+                    const priceInput = document.getElementById('editCurrentPrice');
 
-            if (inv.type === 'mutual_fund') {
-            priceInput.value = inv.currentPrice || inv.buyPrice;
-            } else if (inv.type === 'stock') {
-            priceInput.value = inv.currentPrice || inv.buyPrice;
-            } else if (inv.type === 'real_estate') {
-            priceInput.value = inv.currentValue;
-            } else {
-            // For FD/RD, maybe just allow name edit for now
-            priceInput.parentElement.style.display = 'none';
-            }
+                    if (inv.type === 'mutual_fund') {
+                        priceInput.value = inv.currentPrice || inv.buyPrice;
+                    } else if (inv.type === 'stock') {
+                        priceInput.value = inv.currentPrice || inv.buyPrice;
+                    } else if (inv.type === 'real_estate') {
+                        priceInput.value = inv.currentValue;
+                    } else {
+                        // For FD/RD, maybe just allow name edit for now
+                        priceInput.parentElement.style.display = 'none';
+                    }
 
-            document.getElementById('editModal').classList.add('active');
-            }
+                    document.getElementById('editModal').classList.add('active');
+                }
 
-            function closeEditModal() {
-            document.getElementById('editModal').classList.remove('active');
-            }
+                function closeEditModal() {
+                    document.getElementById('editModal').classList.remove('active');
+                }
 
-            function handleEditSubmit(event) {
-            event.preventDefault();
-            const id = parseInt(document.getElementById('editId').value);
-            const inv = allInvestments.find(i => i.id === id);
+                function handleEditSubmit(event) {
+                    event.preventDefault();
+                    const id = parseInt(document.getElementById('editId').value);
+                    const inv = allInvestments.find(i => i.id === id);
 
-            if (inv) {
-            const newPrice = parseFloat(document.getElementById('editCurrentPrice').value);
+                    if (inv) {
+                        const newPrice = parseFloat(document.getElementById('editCurrentPrice').value);
 
-            if (inv.type === 'mutual_fund') {
-            inv.currentPrice = newPrice;
-            inv.currentValue = inv.units * inv.currentPrice;
-            } else if (inv.type === 'stock') {
-            inv.currentPrice = newPrice;
-            inv.currentValue = inv.quantity * inv.currentPrice;
-            } else if (inv.type === 'real_estate') {
-            inv.currentValue = newPrice;
-            }
+                        if (inv.type === 'mutual_fund') {
+                            inv.currentPrice = newPrice;
+                            inv.currentValue = inv.units * inv.currentPrice;
+                        } else if (inv.type === 'stock') {
+                            inv.currentPrice = newPrice;
+                            inv.currentValue = inv.quantity * inv.currentPrice;
+                        } else if (inv.type === 'real_estate') {
+                            inv.currentValue = newPrice;
+                        }
 
-            JARVIS.update('investments', id, inv);
-            closeEditModal();
-            loadInvestments();
-            showNotification('Investment value updated successfully', 'success');
-            }
-            }
+                        JARVIS.update('investments', id, inv);
+                        closeEditModal();
+                        loadInvestments();
+                        showNotification('Investment value updated successfully', 'success');
+                    }
+                }
 
-            // Sell Modal Functions
-            function openSellModal(id) {
-            const inv = allInvestments.find(i => i.id === id);
-            if (!inv) return;
+                // Sell Modal Functions
+                function openSellModal(id) {
+                    const inv = allInvestments.find(i => i.id === id);
+                    if (!inv) return;
 
-            document.getElementById('sellId').value = inv.id;
-            document.getElementById('sellName').value = inv.name;
+                    document.getElementById('sellId').value = inv.id;
+                    document.getElementById('sellName').value = inv.name;
 
-            const unitsInput = document.getElementById('sellUnits');
-            const priceInput = document.getElementById('sellPrice');
-            const availUnits = document.getElementById('availableUnits');
+                    const unitsInput = document.getElementById('sellUnits');
+                    const priceInput = document.getElementById('sellPrice');
+                    const availUnits = document.getElementById('availableUnits');
 
-            if (inv.type === 'mutual_fund') {
-            unitsInput.value = inv.units;
-            availUnits.textContent = `Available Units: ${inv.units}`;
-            priceInput.value = inv.currentPrice || inv.buyPrice;
-            } else if (inv.type === 'stock') {
-            unitsInput.value = inv.quantity;
-            availUnits.textContent = `Available Shares: ${inv.quantity}`;
-            priceInput.value = inv.currentPrice || inv.buyPrice;
-            } else {
-            // For FD/RD/Real Estate - logic might differ (full withdrawal)
-            // For now, let's treat 'units' as 'amount' for FD/RD? Or disable partial?
-            // Simplifying: Only MF/Stock partial sell. Others full sell?
-            // Let's stick to MF/Stock for now as per user request about "units"
-            if (inv.type === 'fd' || inv.type === 'rd') {
-            unitsInput.value = 1; // 1 FD
-            availUnits.textContent = 'Full Withdrawal';
-            priceInput.value = inv.maturityAmount; // Or current value
-            }
-            }
+                    if (inv.type === 'mutual_fund') {
+                        unitsInput.value = inv.units;
+                        availUnits.textContent = `Available Units: ${inv.units}`;
+                        priceInput.value = inv.currentPrice || inv.buyPrice;
+                    } else if (inv.type === 'stock') {
+                        unitsInput.value = inv.quantity;
+                        availUnits.textContent = `Available Shares: ${inv.quantity}`;
+                        priceInput.value = inv.currentPrice || inv.buyPrice;
+                    } else {
+                        // For FD/RD/Real Estate - logic might differ (full withdrawal)
+                        // For now, let's treat 'units' as 'amount' for FD/RD? Or disable partial?
+                        // Simplifying: Only MF/Stock partial sell. Others full sell?
+                        // Let's stick to MF/Stock for now as per user request about "units"
+                        if (inv.type === 'fd' || inv.type === 'rd') {
+                            unitsInput.value = 1; // 1 FD
+                            availUnits.textContent = 'Full Withdrawal';
+                            priceInput.value = inv.maturityAmount; // Or current value
+                        }
+                    }
 
-            // Load accounts
-            const accounts = JARVIS.get('accounts') || [];
-            const accSelect = document.getElementById('sellAccount');
-            accSelect.innerHTML = accounts.map(a => `<option value="${a.id}">${a.name} (₹${a.balance})</option>
+                    // Load accounts
+                    const accounts = JARVIS.get('accounts') || [];
+                    const accSelect = document.getElementById('sellAccount');
+                    accSelect.innerHTML = accounts.map(a => `<option value="${a.id}">${a.name} (₹${a.balance})</option>
             `).join('');
 
-            document.getElementById('sellModal').classList.add('active');
-            }
+                    document.getElementById('sellModal').classList.add('active');
+                }
 
-            function closeSellModal() {
-            document.getElementById('sellModal').classList.remove('active');
-            }
+                function closeSellModal() {
+                    document.getElementById('sellModal').classList.remove('active');
+                }
 
-            function handleSellSubmit(event) {
-            event.preventDefault();
-            const id = parseInt(document.getElementById('sellId').value);
-            const inv = allInvestments.find(i => i.id === id);
-            const unitsToSell = parseFloat(document.getElementById('sellUnits').value);
-            const sellPrice = parseFloat(document.getElementById('sellPrice').value);
-            const accountId = parseInt(document.getElementById('sellAccount').value);
-            const date = document.getElementById('sellDate').value;
+                function handleSellSubmit(event) {
+                    event.preventDefault();
+                    const id = parseInt(document.getElementById('sellId').value);
+                    const inv = allInvestments.find(i => i.id === id);
+                    const unitsToSell = parseFloat(document.getElementById('sellUnits').value);
+                    const sellPrice = parseFloat(document.getElementById('sellPrice').value);
+                    const accountId = parseInt(document.getElementById('sellAccount').value);
+                    const date = document.getElementById('sellDate').value;
 
-            if (!inv) return;
+                    if (!inv) return;
 
-            // Calculate total amount
-            const totalAmount = unitsToSell * sellPrice;
+                    // Calculate total amount
+                    const totalAmount = unitsToSell * sellPrice;
 
-            // Update Investment
-            if (inv.type === 'mutual_fund') {
-            if (unitsToSell > inv.units) {
-            showNotification('Cannot sell more units than available!', 'error');
-            return;
-            }
-            inv.units -= unitsToSell;
-            inv.currentValue = inv.units * (inv.currentPrice || inv.buyPrice);
-            inv.invested = (inv.invested / (inv.units + unitsToSell)) * inv.units; // Proportional reduction in invested
-            amount? Or FIFO?
+                    // Update Investment
+                    if (inv.type === 'mutual_fund') {
+                        if (unitsToSell > inv.units) {
+                            showNotification('Cannot sell more units than available!', 'error');
+                            return;
+                        }
+                        inv.units -= unitsToSell;
+                        inv.currentValue = inv.units * (inv.currentPrice || inv.buyPrice);
+                        inv.invested = (inv.invested / (inv.units + unitsToSell)) * inv.units; // Proportional reduction in invested
+                        amount ? Or FIFO ?
             // Simple proportional for now:
             // New Invested = Old Invested * (New Units / Old Units)
             // Actually, let's just reduce invested proportionally
             } else if (inv.type === 'stock') {
-            if (unitsToSell > inv.quantity) {
-            showNotification('Cannot sell more shares than available!', 'error');
-            return;
-            }
-            inv.quantity -= unitsToSell;
-            inv.currentValue = inv.quantity * (inv.currentPrice || inv.buyPrice);
-            }
+                        if (unitsToSell > inv.quantity) {
+                            showNotification('Cannot sell more shares than available!', 'error');
+                            return;
+                        }
+                        inv.quantity -= unitsToSell;
+                        inv.currentValue = inv.quantity * (inv.currentPrice || inv.buyPrice);
+                    }
 
-            // If units 0, maybe mark as closed or delete?
-            // For now, keep it with 0 units or delete if user wants.
-            // Let's keep it but maybe hide it or show as closed.
+                    // If units 0, maybe mark as closed or delete?
+                    // For now, keep it with 0 units or delete if user wants.
+                    // Let's keep it but maybe hide it or show as closed.
 
-            JARVIS.update('investments', id, inv);
+                    JARVIS.update('investments', id, inv);
 
-            // Update Account
-            const accounts = JARVIS.get('accounts') || [];
-            const acc = accounts.find(a => a.id === accountId);
-            if (acc) {
-            acc.balance += totalAmount;
-            JARVIS.update('accounts', accountId, acc);
-            }
+                    // Update Account
+                    const accounts = JARVIS.get('accounts') || [];
+                    const acc = accounts.find(a => a.id === accountId);
+                    if (acc) {
+                        acc.balance += totalAmount;
+                        JARVIS.update('accounts', accountId, acc);
+                    }
 
-            // Record Transaction
-            const transaction = {
-            date: date,
-            type: 'income', // It's money coming in
-            category: 'Investment Return',
-            amount: totalAmount,
-            account: acc ? acc.name : 'Unknown',
-            description: `Sold ${unitsToSell} units of ${inv.name} @ ₹${sellPrice}`
-            };
-            JARVIS.add('transactions', transaction);
+                    // Record Transaction
+                    const transaction = {
+                        date: date,
+                        type: 'income', // It's money coming in
+                        category: 'Investment Return',
+                        amount: totalAmount,
+                        account: acc ? acc.name : 'Unknown',
+                        description: `Sold ${unitsToSell} units of ${inv.name} @ ₹${sellPrice}`
+                    };
+                    JARVIS.add('transactions', transaction);
 
-            closeSellModal();
-            loadInvestments();
-            showNotification('Investment sold and transaction recorded!', 'success');
-            }
-            function setMaxUnits() {
-            const id = parseInt(document.getElementById('sellId').value);
-            const inv = allInvestments.find(i => i.id === id);
-            if (inv) {
-            if (inv.type === 'mutual_fund') {
-            document.getElementById('sellUnits').value = inv.units;
-            } else if (inv.type === 'stock') {
-            document.getElementById('sellUnits').value = inv.quantity;
-            }
-            }
-            }
+                    closeSellModal();
+                    loadInvestments();
+                    showNotification('Investment sold and transaction recorded!', 'success');
+                }
+                function setMaxUnits() {
+                    const id = parseInt(document.getElementById('sellId').value);
+                    const inv = allInvestments.find(i => i.id === id);
+                    if (inv) {
+                        if (inv.type === 'mutual_fund') {
+                            document.getElementById('sellUnits').value = inv.units;
+                        } else if (inv.type === 'stock') {
+                            document.getElementById('sellUnits').value = inv.quantity;
+                        }
+                    }
+                }
             </script>
 </body>
 
