@@ -5,6 +5,20 @@ const JARVIS = {
         if (!localStorage.getItem('jarvis_initialized')) {
             this.setDefaultData();
             localStorage.setItem('jarvis_initialized', 'true');
+        } else {
+            // Check for missing data (e.g. investments added later)
+            const investments = this.get('investments');
+            if (!investments || investments.length === 0) {
+                const defaultData = {
+                    investments: [
+                        { id: 1, type: 'mutual_fund', name: 'HDFC Balanced Advantage Fund', units: 1250, buyPrice: 80, currentPrice: 85.50, invested: 100000, currentValue: 106875 },
+                        { id: 2, type: 'stock', name: 'Reliance Industries', quantity: 10, buyPrice: 2500, currentPrice: 2650, invested: 25000, currentValue: 26500 },
+                        { id: 3, type: 'fd', name: 'HDFC Fixed Deposit', amount: 100000, interestRate: 7, maturityDate: '2026-11-26', maturityAmount: 107000 },
+                        { id: 4, type: 'real_estate', name: 'Plot in Sector 45', purchasePrice: 5000000, currentValue: 6000000, purchaseDate: '2024-01-01' }
+                    ]
+                };
+                this.set('investments', defaultData.investments);
+            }
         }
     },
 
@@ -107,13 +121,13 @@ const JARVIS = {
         const transactions = this.get('transactions') || [];
         const currentMonth = new Date().getMonth();
         const currentYear = new Date().getFullYear();
-        
+
         return transactions
             .filter(t => {
                 const date = new Date(t.date);
-                return t.type === 'income' && 
-                       date.getMonth() === currentMonth && 
-                       date.getFullYear() === currentYear;
+                return t.type === 'income' &&
+                    date.getMonth() === currentMonth &&
+                    date.getFullYear() === currentYear;
             })
             .reduce((sum, t) => sum + t.amount, 0);
     },
@@ -123,13 +137,13 @@ const JARVIS = {
         const transactions = this.get('transactions') || [];
         const currentMonth = new Date().getMonth();
         const currentYear = new Date().getFullYear();
-        
+
         return transactions
             .filter(t => {
                 const date = new Date(t.date);
-                return t.type === 'expense' && 
-                       date.getMonth() === currentMonth && 
-                       date.getFullYear() === currentYear;
+                return t.type === 'expense' &&
+                    date.getMonth() === currentMonth &&
+                    date.getFullYear() === currentYear;
             })
             .reduce((sum, t) => sum + t.amount, 0);
     },
@@ -145,19 +159,19 @@ const JARVIS = {
         const transactions = this.get('transactions') || [];
         const currentMonth = new Date().getMonth();
         const currentYear = new Date().getFullYear();
-        
+
         const breakdown = {};
         transactions
             .filter(t => {
                 const date = new Date(t.date);
-                return t.type === 'expense' && 
-                       date.getMonth() === currentMonth && 
-                       date.getFullYear() === currentYear;
+                return t.type === 'expense' &&
+                    date.getMonth() === currentMonth &&
+                    date.getFullYear() === currentYear;
             })
             .forEach(t => {
                 breakdown[t.category] = (breakdown[t.category] || 0) + t.amount;
             });
-        
+
         return breakdown;
     },
 
