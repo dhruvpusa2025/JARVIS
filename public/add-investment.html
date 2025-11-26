@@ -69,7 +69,16 @@
             <a href="investments.html" class="nav-item active"><i
                     class="fas fa-chart-line"></i><span>Investments</span></a>
             <a href="loans.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i><span>Loans</span></a>
-            <a href="lendings.html" class="nav-item"><i class="fas fa-handshake"></i><span>Lendings</span></a>
+            <a href="lendings.html" class="nav-item"><i class="fas fa-handshake"></i><span>Lendings</span></a> <a
+                href="transfer.html" class="nav-item">
+                <i class="fas fa-exchange-alt"></i>
+                <span>Transfer</span>
+            </a>
+            <a href="categories.html" class="nav-item">
+                <i class="fas fa-tags"></i>
+                <span>Categories</span>
+            </a>
+
             <a href="reports.html" class="nav-item"><i class="fas fa-chart-pie"></i><span>Reports</span></a>
         </nav>
     </div>
@@ -105,204 +114,442 @@
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label>Name</label>
-                        <input type="text" name="name" placeholder="e.g., HDFC Balanced Fund, Reliance Stock" required>
-                    </div>
+                    <!DOCTYPE html>
+                    <html lang="en">
 
-                    <!-- Mutual Fund Fields -->
-                    <div id="mutual_fund_fields" class="type-fields">
-                        <div class="form-group">
-                            <label>Units</label>
-                            <input type="number" name="units" step="0.0001" placeholder="1250">
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <title>Add Investment - JARVIS</title>
+                        <link rel="stylesheet" href="css/style.css">
+                        <link rel="stylesheet"
+                            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+                        <style>
+                            .form-container {
+                                max-width: 700px;
+                                margin: 0 auto;
+                                padding: 1rem;
+                            }
+
+                            .form-card {
+                                background: var(--bg-secondary);
+                                border-radius: var(--radius-lg);
+                                padding: 2rem;
+                            }
+
+                            .form-group {
+                                margin-bottom: 1.5rem;
+                            }
+
+                            .form-group label {
+                                display: block;
+                                margin-bottom: 0.5rem;
+                                color: var(--text-secondary);
+                                font-weight: 500;
+                            }
+
+                            .form-group input,
+                            .form-group select {
+                                width: 100%;
+                                padding: 0.75rem;
+                                background: var(--bg-tertiary);
+                                border: 2px solid transparent;
+                                border-radius: var(--radius-md);
+                                color: var(--text-primary);
+                                font-size: 1rem;
+                            }
+
+                            .form-group input:focus,
+                            .form-group select:focus {
+                                outline: none;
+                                border-color: var(--primary-green);
+                            }
+
+                            .type-fields {
+                                display: none;
+                            }
+
+                            .type-fields.active {
+                                display: block;
+                            }
+                        </style>
+                    </head>
+
+                    <body>
+                        <div class="sidebar" id="sidebar">
+                            <div class="logo"><i class="fas fa-robot"></i><span>JARVIS</span></div>
+                            <nav class="nav-menu">
+                                <a href="index.html" class="nav-item"><i
+                                        class="fas fa-home"></i><span>Dashboard</span></a>
+                                <a href="accounts.html" class="nav-item"><i
+                                        class="fas fa-wallet"></i><span>Accounts</span></a>
+                                <a href="transactions.html" class="nav-item"><i
+                                        class="fas fa-exchange-alt"></i><span>Transactions</span></a>
+                                <a href="investments.html" class="nav-item active"><i
+                                        class="fas fa-chart-line"></i><span>Investments</span></a>
+                                <a href="loans.html" class="nav-item"><i
+                                        class="fas fa-hand-holding-usd"></i><span>Loans</span></a>
+                                <a href="lendings.html" class="nav-item"><i
+                                        class="fas fa-handshake"></i><span>Lendings</span></a> <a href="transfer.html"
+                                    class="nav-item">
+                                    <i class="fas fa-exchange-alt"></i>
+                                    <span>Transfer</span>
+                                </a>
+                                <a href="categories.html" class="nav-item">
+                                    <i class="fas fa-tags"></i>
+                                    <span>Categories</span>
+                                </a>
+
+                                <a href="reports.html" class="nav-item"><i
+                                        class="fas fa-chart-pie"></i><span>Reports</span></a>
+                            </nav>
                         </div>
-                        <div class="form-group">
-                            <label>Buy Price (NAV)</label>
-                            <input type="number" name="buyPrice" step="0.01" placeholder="80.00">
+
+                        <div class="mobile-nav">
+                            <a href="index.html" class="mobile-nav-item"><i
+                                    class="fas fa-home"></i><span>Home</span></a>
+                            <a href="add-transaction.html" class="mobile-nav-item"><i
+                                    class="fas fa-plus-circle"></i><span>Add</span></a>
+                            <a href="investments.html" class="mobile-nav-item active"><i
+                                    class="fas fa-chart-line"></i><span>Invest</span></a>
+                            <a href="reports.html" class="mobile-nav-item"><i
+                                    class="fas fa-chart-pie"></i><span>Reports</span></a>
                         </div>
-                        <div class="form-group">
-                            <label>Current Price (NAV)</label>
-                            <input type="number" name="currentPrice" step="0.01" placeholder="85.50">
+
+                        <div class="main-content">
+                            <header class="header">
+                                <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+                                <h1>Add Investment</h1>
+                                <a href="investments.html" class="btn-link">View Portfolio</a>
+                            </header>
+
+                            <div class="form-container">
+                                <div class="form-card">
+                                    <h2 style="margin-bottom: 1.5rem;">New Investment</h2>
+                                    <form id="investmentForm" onsubmit="handleAddInvestment(event)">
+                                        <div class="form-group">
+                                            <label>Investment Type</label>
+                                            <select name="type" required onchange="toggleFields(this.value)">
+                                                <option value="">Select type</option>
+                                                <option value="mutual_fund">Mutual Fund</option>
+                                                <option value="stock">Stock</option>
+                                                <option value="fd">Fixed Deposit (FD)</option>
+                                                <option value="rd">Recurring Deposit (RD)</option>
+                                                <option value="real_estate">Real Estate</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label>Name</label>
+                                            <input type="text" name="name"
+                                                placeholder="e.g., HDFC Balanced Fund, Reliance Stock" required>
+                                        </div>
+
+                                        <!-- Mutual Fund Fields -->
+                                        <div id="mutual_fund_fields" class="type-fields">
+                                            <div class="form-group">
+                                                <label>Investment Mode</label>
+                                                <div style="display: flex; gap: 1rem;">
+                                                    <label
+                                                        style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                                        <input type="radio" name="mf_mode" value="lumpsum" checked
+                                                            onchange="toggleSIP(false)"> One-time (Lumpsum)
+                                                    </label>
+                                                    <label
+                                                        style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                                        <input type="radio" name="mf_mode" value="sip"
+                                                            onchange="toggleSIP(true)"> SIP (Systematic Investment Plan)
+                                                    </label>
+                                                </div>
+                                            </div>
+
+                                            <div id="sip_fields"
+                                                style="display: none; background: rgba(34, 197, 94, 0.1); padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1.5rem; border: 1px solid var(--primary-green);">
+                                                <div class="form-group">
+                                                    <label>SIP Amount (per installment)</label>
+                                                    <input type="number" name="sip_amount" step="0.01"
+                                                        placeholder="5000">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>SIP Frequency</label>
+                                                    <select name="sip_frequency">
+                                                        <option value="monthly">Monthly</option>
+                                                        <option value="quarterly">Quarterly</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>SIP Deduction Date</label>
+                                                    <select name="sip_date">
+                                                        <option value="1">1st of month</option>
+                                                        <option value="5">5th of month</option>
+                                                        <option value="10">10th of month</option>
+                                                        <option value="15">15th of month</option>
+                                                        <option value="20">20th of month</option>
+                                                        <option value="25">25th of month</option>
+                                                    </select>
+                                                </div>
+                                                <p
+                                                    style="font-size: 0.875rem; color: var(--primary-green); margin-top: 0.5rem;">
+                                                    <i class="fas fa-info-circle"></i> Amount will be auto-deducted from
+                                                    the selected bank account on this date.
+                                                </p>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label>Units (Initial)</label>
+                                                <input type="number" name="units" step="0.0001" placeholder="1250">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Buy Price (NAV)</label>
+                                                <input type="number" name="buyPrice" step="0.01" placeholder="80.00">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Current Price (NAV)</label>
+                                                <input type="number" name="currentPrice" step="0.01"
+                                                    placeholder="85.50">
+                                            </div>
+                                        </div>
+
+                                        <!-- Stock Fields -->
+                                        <div id="stock_fields" class="type-fields">
+                                            <div class="form-group">
+                                                <label>Quantity (Shares)</label>
+                                                <input type="number" name="quantity" placeholder="10">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Buy Price per Share</label>
+                                                <input type="number" name="buyPrice" step="0.01" placeholder="2500.00">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Current Price per Share</label>
+                                                <input type="number" name="currentPrice" step="0.01"
+                                                    placeholder="2650.00">
+                                            </div>
+                                        </div>
+
+                                        <!-- FD/RD Fields -->
+                                        <div id="fd_fields" class="type-fields">
+                                            <div class="form-group">
+                                                <label>Amount</label>
+                                                <input type="number" name="amount" step="0.01" placeholder="100000">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Interest Rate (% per annum)</label>
+                                                <input type="number" name="interestRate" step="0.01" placeholder="7.00">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Tenure (months)</label>
+                                                <input type="number" name="tenure" placeholder="12">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Maturity Date</label>
+                                                <input type="date" name="maturityDate">
+                                            </div>
+                                        </div>
+
+                                        <div id="rd_fields" class="type-fields">
+                                            <div class="form-group">
+                                                <label>Monthly Amount</label>
+                                                <input type="number" name="amount" step="0.01" placeholder="5000">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Interest Rate (% per annum)</label>
+                                                <input type="number" name="interestRate" step="0.01" placeholder="6.50">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Tenure (months)</label>
+                                                <input type="number" name="tenure" placeholder="24">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Maturity Date</label>
+                                                <input type="date" name="maturityDate">
+                                            </div>
+                                        </div>
+
+                                        <!-- Real Estate Fields -->
+                                        <div id="real_estate_fields" class="type-fields">
+                                            <div class="form-group">
+                                                <label>Purchase Price</label>
+                                                <input type="number" name="purchasePrice" step="0.01"
+                                                    placeholder="5000000">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Current Value</label>
+                                                <input type="number" name="currentValue" step="0.01"
+                                                    placeholder="6000000">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Purchase Date</label>
+                                                <input type="date" name="purchaseDate">
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label>Paid From Account</label>
+                                            <select name="accountId" id="accountSelect" required>
+                                                <option value="">Select account</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label>Purchase Date</label>
+                                            <input type="date" name="date" id="investmentDate" required>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label>Notes (Optional)</label>
+                                            <textarea name="notes" rows="3"
+                                                style="width: 100%; padding: 0.75rem; background: var(--bg-tertiary); border: none; border-radius: var(--radius-md); color: var(--text-primary);"></textarea>
+                                        </div>
+
+                                        <button type="submit" class="submit-btn"
+                                            style="width: 100%; padding: 1rem; background: var(--gradient-primary); border: none; border-radius: var(--radius-md); color: white; font-size: 1.125rem; font-weight: 600; cursor: pointer;">
+                                            <i class="fas fa-plus"></i> Add Investment
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- Stock Fields -->
-                    <div id="stock_fields" class="type-fields">
-                        <div class="form-group">
-                            <label>Quantity (Shares)</label>
-                            <input type="number" name="quantity" placeholder="10">
-                        </div>
-                        <div class="form-group">
-                            <label>Buy Price per Share</label>
-                            <input type="number" name="buyPrice" step="0.01" placeholder="2500.00">
-                        </div>
-                        <div class="form-group">
-                            <label>Current Price per Share</label>
-                            <input type="number" name="currentPrice" step="0.01" placeholder="2650.00">
-                        </div>
-                    </div>
+                        <script src="js/mock-data.js"></script>
+                        <script src="js/app.js"></script>
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function () {
+                                document.getElementById('investmentDate').valueAsDate = new Date();
+                                loadAccounts();
+                            });
 
-                    <!-- FD/RD Fields -->
-                    <div id="fd_fields" class="type-fields">
-                        <div class="form-group">
-                            <label>Amount</label>
-                            <input type="number" name="amount" step="0.01" placeholder="100000">
-                        </div>
-                        <div class="form-group">
-                            <label>Interest Rate (% per annum)</label>
-                            <input type="number" name="interestRate" step="0.01" placeholder="7.00">
-                        </div>
-                        <div class="form-group">
-                            <label>Tenure (months)</label>
-                            <input type="number" name="tenure" placeholder="12">
-                        </div>
-                        <div class="form-group">
-                            <label>Maturity Date</label>
-                            <input type="date" name="maturityDate">
-                        </div>
-                    </div>
+                            function loadAccounts() {
+                                const accounts = JARVIS.get('accounts') || [];
+                                const select = document.getElementById('accountSelect');
+                                accounts.forEach(acc => {
+                                    const option = document.createElement('option');
+                                    option.value = acc.id;
+                                    option.textContent = `${acc.name} (${JARVIS.formatCurrency(acc.balance)})`;
+                                    select.appendChild(option);
+                                });
+                            }
 
-                    <div id="rd_fields" class="type-fields">
-                        <div class="form-group">
-                            <label>Monthly Amount</label>
-                            <input type="number" name="amount" step="0.01" placeholder="5000">
-                        </div>
-                        <div class="form-group">
-                            <label>Interest Rate (% per annum)</label>
-                            <input type="number" name="interestRate" step="0.01" placeholder="6.50">
-                        </div>
-                        <div class="form-group">
-                            <label>Tenure (months)</label>
-                            <input type="number" name="tenure" placeholder="24">
-                        </div>
-                        <div class="form-group">
-                            <label>Maturity Date</label>
-                            <input type="date" name="maturityDate">
-                        </div>
-                    </div>
+                            function toggleFields(type) {
+                                document.querySelectorAll('.type-fields').forEach(el => el.classList.remove('active'));
+                                if (type) {
+                                    const fields = document.getElementById(`${type}_fields`);
+                                    if (fields) fields.classList.add('active');
+                                }
+                                // Reset SIP fields visibility when switching investment types
+                                if (type !== 'mutual_fund') {
+                                    toggleSIP(false);
+                                    document.querySelector('input[name="mf_mode"][value="lumpsum"]').checked = true;
+                                }
+                            }
 
-                    <!-- Real Estate Fields -->
-                    <div id="real_estate_fields" class="type-fields">
-                        <div class="form-group">
-                            <label>Purchase Price</label>
-                            <input type="number" name="purchasePrice" step="0.01" placeholder="5000000">
-                        </div>
-                        <div class="form-group">
-                            <label>Current Value</label>
-                            <input type="number" name="currentValue" step="0.01" placeholder="6000000">
-                        </div>
-                        <div class="form-group">
-                            <label>Purchase Date</label>
-                            <input type="date" name="purchaseDate">
-                        </div>
-                    </div>
+                            function toggleSIP(isSIP) {
+                                const sipFields = document.getElementById('sip_fields');
+                                const accountLabel = document.querySelector('label[for="accountSelect"]') || document.querySelector('#accountSelect').previousElementSibling;
 
-                    <div class="form-group">
-                        <label>Paid From Account</label>
-                        <select name="accountId" id="accountSelect" required>
-                            <option value="">Select account</option>
-                        </select>
-                    </div>
+                                if (isSIP) {
+                                    sipFields.style.display = 'block';
+                                    accountLabel.textContent = 'Auto-deduct from Account';
+                                    accountLabel.innerHTML += ' <i class="fas fa-sync-alt" style="color: var(--primary-green)"></i>';
+                                } else {
+                                    sipFields.style.display = 'none';
+                                    accountLabel.textContent = 'Paid From Account';
+                                }
+                            }
 
-                    <div class="form-group">
-                        <label>Purchase Date</label>
-                        <input type="date" name="date" id="investmentDate" required>
-                    </div>
+                            function handleAddInvestment(event) {
+                                event.preventDefault();
+                                const formData = new FormData(event.target);
+                                const type = formData.get('type');
 
-                    <div class="form-group">
-                        <label>Notes (Optional)</label>
-                        <textarea name="notes" rows="3"
-                            style="width: 100%; padding: 0.75rem; background: var(--bg-tertiary); border: none; border-radius: var(--radius-md); color: var(--text-primary);"></textarea>
-                    </div>
+                                let investment = {
+                                    type: type,
+                                    name: formData.get('name'),
+                                    notes: formData.get('notes')
+                                };
 
-                    <button type="submit" class="submit-btn"
-                        style="width: 100%; padding: 1rem; background: var(--gradient-primary); border: none; border-radius: var(--radius-md); color: white; font-size: 1.125rem; font-weight: 600; cursor: pointer;">
-                        <i class="fas fa-plus"></i> Add Investment
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
+                                if (type === 'mutual_fund' || type === 'stock') {
+                                    const qty = type === 'mutual_fund' ? parseFloat(formData.get('units')) : parseFloat(formData.get('quantity'));
+                                    const buyPrice = parseFloat(formData.get('buyPrice'));
+                                    const currentPrice = parseFloat(formData.get('currentPrice'));
 
-    <script src="js/mock-data.js"></script>
-    <script src="js/app.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            document.getElementById('investmentDate').valueAsDate = new Date();
-            loadAccounts();
-        });
+                                    investment.units = type === 'mutual_fund' ? qty : undefined;
+                                    investment.quantity = type === 'stock' ? qty : undefined;
+                                    investment.buyPrice = buyPrice;
+                                    investment.currentPrice = currentPrice;
+                                    investment.invested = qty * buyPrice;
+                                    investment.currentValue = qty * currentPrice;
 
-        function loadAccounts() {
-            const accounts = JARVIS.get('accounts') || [];
-            const select = document.getElementById('accountSelect');
-            accounts.forEach(acc => {
-                const option = document.createElement('option');
-                option.value = acc.id;
-                option.textContent = `${acc.name} (${JARVIS.formatCurrency(acc.balance)})`;
-                select.appendChild(option);
-            });
-        }
+                                    // Handle SIP
+                                    if (type === 'mutual_fund') {
+                                        const mode = formData.get('mf_mode');
+                                        if (mode === 'sip') {
+                                            investment.isSIP = true;
+                                            investment.sipAmount = parseFloat(formData.get('sip_amount'));
+                                            investment.sipFrequency = formData.get('sip_frequency');
+                                            investment.sipDate = parseInt(formData.get('sip_date'));
+                                            investment.autoDeduct = true;
+                                            // For SIP, the initial invested amount is just the first installment or based on units * nav
+                                            // If units are provided, we assume that's the initial purchase
+                                        }
+                                    }
+                                } else if (type === 'fd' || type === 'rd') {
+                                    const amount = parseFloat(formData.get('amount'));
+                                    const rate = parseFloat(formData.get('interestRate'));
+                                    const tenure = parseInt(formData.get('tenure'));
 
-        function toggleFields(type) {
-            document.querySelectorAll('.type-fields').forEach(el => el.classList.remove('active'));
-            if (type) {
-                const fields = document.getElementById(`${type}_fields`);
-                if (fields) fields.classList.add('active');
-            }
-        }
+                                    investment.amount = amount;
+                                    investment.interestRate = rate;
+                                    investment.maturityDate = formData.get('maturityDate');
+                                    investment.maturityAmount = amount + (amount * rate * tenure / 1200);
+                                } else if (type === 'real_estate') {
+                                    investment.purchasePrice = parseFloat(formData.get('purchasePrice'));
+                                    investment.currentValue = parseFloat(formData.get('currentValue'));
+                                    investment.purchaseDate = formData.get('purchaseDate');
+                                }
 
-        function handleAddInvestment(event) {
-            event.preventDefault();
-            const formData = new FormData(event.target);
-            const type = formData.get('type');
+                                // Deduct from account
+                                const accountId = parseInt(formData.get('accountId'));
+                                const accounts = JARVIS.get('accounts') || [];
+                                const account = accounts.find(a => a.id === accountId);
 
-            let investment = {
-                type: type,
-                name: formData.get('name'),
-                notes: formData.get('notes')
-            };
+                                if (account) {
+                                    // Determine amount to deduct
+                                    let amountToDeduct = 0;
+                                    if (investment.isSIP) {
+                                        // For SIP, we deduct the initial invested amount (if units were entered)
+                                        // or the first SIP installment if no initial units were specified.
+                                        // Assuming 'invested' is calculated from initial units * buyPrice.
+                                        amountToDeduct = investment.invested || investment.sipAmount;
+                                    } else {
+                                        amountToDeduct = investment.invested || investment.amount || investment.purchasePrice;
+                                    }
 
-            if (type === 'mutual_fund' || type === 'stock') {
-                const qty = type === 'mutual_fund' ? parseFloat(formData.get('units')) : parseFloat(formData.get('quantity'));
-                const buyPrice = parseFloat(formData.get('buyPrice'));
-                const currentPrice = parseFloat(formData.get('currentPrice'));
+                                    if (amountToDeduct > 0) {
+                                        account.balance -= amountToDeduct;
+                                        JARVIS.update('accounts', accountId, { balance: account.balance });
 
-                investment.units = type === 'mutual_fund' ? qty : undefined;
-                investment.quantity = type === 'stock' ? qty : undefined;
-                investment.buyPrice = buyPrice;
-                investment.currentPrice = currentPrice;
-                investment.invested = qty * buyPrice;
-                investment.currentValue = qty * currentPrice;
-            } else if (type === 'fd' || type === 'rd') {
-                const amount = parseFloat(formData.get('amount'));
-                const rate = parseFloat(formData.get('interestRate'));
-                const tenure = parseInt(formData.get('tenure'));
+                                        // Add transaction record
+                                        JARVIS.add('transactions', {
+                                            type: 'expense',
+                                            amount: amountToDeduct,
+                                            category: 'Investment',
+                                            accountId: accountId,
+                                            date: new Date().toISOString(),
+                                            description: `Investment in ${investment.name}`
+                                        });
+                                    }
 
-                investment.amount = amount;
-                investment.interestRate = rate;
-                investment.maturityDate = formData.get('maturityDate');
-                investment.maturityAmount = amount + (amount * rate * tenure / 1200);
-            } else if (type === 'real_estate') {
-                investment.purchasePrice = parseFloat(formData.get('purchasePrice'));
-                investment.currentValue = parseFloat(formData.get('currentValue'));
-                investment.purchaseDate = formData.get('purchaseDate');
-            }
+                                    if (investment.isSIP) {
+                                        investment.linkedAccountId = accountId;
+                                    }
+                                }
 
-            // Deduct from account
-            const accountId = parseInt(formData.get('accountId'));
-            const accounts = JARVIS.get('accounts') || [];
-            const account = accounts.find(a => a.id === accountId);
-            if (account) {
-                const amount = investment.invested || investment.amount || investment.purchasePrice;
-                account.balance -= amount;
-                JARVIS.update('accounts', accountId, { balance: account.balance });
-            }
+                                JARVIS.add('investments', investment);
+                                showNotification('Investment added successfully!', 'success');
+                                setTimeout(() => window.location.href = 'investments.html', 1000);
+                            }
+                        </script>
+                    </body>
 
-            JARVIS.add('investments', investment);
-            showNotification('Investment added successfully!', 'success');
-            setTimeout(() => window.location.href = 'investments.html', 1000);
-        }
-    </script>
-</body>
-
-</html>
+                    </html>
