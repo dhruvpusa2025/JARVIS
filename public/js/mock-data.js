@@ -2,9 +2,9 @@
 const JARVIS = {
     // Initialize default data
     init() {
-        if (!localStorage.getItem('jarvis_initialized')) {
+        if (!localStorage.getItem('jarvis_initialized_v2')) {
             this.setDefaultData();
-            localStorage.setItem('jarvis_initialized', 'true');
+            localStorage.setItem('jarvis_initialized_v2', 'true');
         } else {
             // Check for missing data (e.g. investments added later)
             const investments = this.get('investments');

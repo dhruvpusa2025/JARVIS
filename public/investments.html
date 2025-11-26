@@ -325,53 +325,12 @@
                     renderGroupCards(allInvestments);
 
                     const filtered = type === 'all'
-                        ? allInvestments
-                        : allInvestments.filter(inv => inv.type === type);
-
-                    displayInvestments(filtered);
-                }
-                const current = inv.currentValue || inv.amount || inv.purchasePrice;
-                const profit = current - invested;
-                const profitPercent = invested ? ((profit / invested) * 100).toFixed(2) : 0;
-
-                return `
-            <div class="investment-card ${inv.type}">
-                <div class="card-actions">
-                    <button class="action-btn" onclick="openEditModal(${inv.id})" title="Update Price">
-                        <i class="fas fa-pencil-alt"></i>
-                    </button>
-                    <button class="action-btn sell" onclick="openSellModal(${inv.id})" title="Sell/Withdraw">
-                        <i class="fas fa-minus-circle"></i>
-                    </button>
-                </div>
-                <div class="investment-header">
-                    <div>
-                        <div class="investment-type">${formatInvestmentType(inv.type)}</div>
-                        <div class="investment-name">${inv.name}</div>
-                    </div>
-                    <div class="profit-badge ${profit >= 0 ? 'positive' : 'negative'}">
-                        <i class="fas fa-arrow-${profit >= 0 ? 'up' : 'down'}"></i>
-                        ${profit >= 0 ? '+' : ''}${profitPercent}%
-                    </div>
-                </div>
-
-                <div class="investment-stats">
-                    ${getInvestmentStats(inv)}
-                </div>
-            </div>
-            `;
-                    }).join('');
-                }
-
-                function formatInvestmentType(type) {
-                    const types = {
-                        'mutual_fund': 'Mutual Fund',
-                        'stock': 'Stock',
+                    'stock': 'Stock',
                         'fd': 'Fixed Deposit',
-                        'rd': 'Recurring Deposit',
-                        'real_estate': 'Real Estate'
-                    };
-                    return types[type] || type;
+                            'rd': 'Recurring Deposit',
+                                'real_estate': 'Real Estate'
+                };
+                return types[type] || type;
                 }
 
                 function getInvestmentStats(inv) {

@@ -185,22 +185,6 @@
         function loadLendings() {
             const lendings = JARVIS.get('lendings') || [];
 
-            // Calculate totals
-            const totalLent = lendings.reduce((sum, l) => sum + l.amount, 0);
-            const totalOutstanding = lendings.reduce((sum, l) => sum + l.outstanding, 0);
-            const totalInterest = 15000; // Mock data for now
-
-            document.getElementById('totalLent').textContent = JARVIS.formatCurrency(totalLent);
-            'quarterly': 'per quarter',
-                'yearly': 'per year',
-                    'none': ''
-        };
-        return frequencies[freq] || '';
-        }
-
-        function receiveInterest(id) {
-            const lending = JARVIS.get('lendings').find(l => l.id === id);
-            if (!lending) return;
 
             document.getElementById('intLendingId').value = lending.id;
             document.getElementById('intBorrower').value = lending.borrower;
