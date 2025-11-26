@@ -11,7 +11,7 @@ tests/
 phpunit.xml
 .phpunit.result.cache
 
-# Development dependencies
+# Development dependencies (node_modules will be rebuilt)
 node_modules/
 .npm/
 
@@ -33,22 +33,13 @@ Thumbs.db
 
 # Documentation
 README.md
-*.md
-!vercel.json
-
-# Storage (will be created at runtime)
-storage/logs/*
-storage/framework/cache/*
-storage/framework/sessions/*
-storage/framework/views/*
 
 # Development tools
 .editorconfig
 .php-cs-fixer.php
 .php-cs-fixer.cache
 
-# Package manager files
+# Package manager lock files (except composer.lock - needed for PHP dependencies)
 package-lock.json
-composer.lock
 yarn.lock
 pnpm-lock.yaml
