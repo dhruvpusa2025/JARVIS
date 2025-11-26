@@ -19,6 +19,27 @@ const JARVIS = {
                 };
                 this.set('investments', defaultData.investments);
             }
+
+            const loans = this.get('loans');
+            if (!loans || loans.length === 0) {
+                const defaultData = {
+                    loans: [
+                        { id: 1, type: 'home', lender: 'HDFC Bank', principal: 5000000, interestRate: 8.5, emiAmount: 43391, emiDay: 10, outstanding: 4950000, startDate: '2024-01-01' }
+                    ]
+                };
+                this.set('loans', defaultData.loans);
+            }
+
+            const lendings = this.get('lendings');
+            if (!lendings || lendings.length === 0) {
+                const defaultData = {
+                    lendings: [
+                        { id: 1, borrower: 'Rajesh', amount: 50000, interestRate: 2, frequency: 'monthly', outstanding: 40000, startDate: '2025-06-01', nextInterestDate: '2025-12-01' },
+                        { id: 2, borrower: 'Amit', amount: 15000, interestRate: 0, frequency: 'none', outstanding: 15000, startDate: '2025-11-15', returnDate: '2026-01-15' }
+                    ]
+                };
+                this.set('lendings', defaultData.lendings);
+            }
         }
     },
 
