@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transfer - JARVIS</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .transfer-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .transfer-card {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .transfer-visual {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .account-box {
+            flex: 1;
+            background: var(--bg-tertiary);
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            text-align: center;
+        }
+
+        .account-box.selected {
+            border: 2px solid var(--primary-green);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .transfer-arrow {
+            font-size: 2rem;
+            color: var(--primary-green);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            border: 2px solid transparent;
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-green);
+        }
+
+        .amount-input {
+            font-size: 2rem !important;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 1.25rem;
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: var(--radius-md);
+            color: white;
+            font-size: 1.125rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            transform: scale(1.02);
+        }
+
+        .balance-info {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar" id="sidebar">
+        <div class="logo"><i class="fas fa-robot"></i><span>JARVIS</span></div>
+        <nav class="nav-menu">
+            <a href="index.html" class="nav-item"><i class="fas fa-home"></i><span>Dashboard</span></a>
+            <a href="accounts.html" class="nav-item"><i class="fas fa-wallet"></i><span>Accounts</span></a>
+            <a href="transactions.html" class="nav-item"><i
+                    class="fas fa-exchange-alt"></i><span>Transactions</span></a>
+            <a href="investments.html" class="nav-item"><i class="fas fa-chart-line"></i><span>Investments</span></a>
+            <a href="loans.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i><span>Loans</span></a>
+            <a href="lendings.html" class="nav-item"><i class="fas fa-handshake"></i><span>Lendings</span></a>
+            <a href="reports.html" class="nav-item"><i class="fas fa-chart-pie"></i><span>Reports</span></a>
+        </nav>
+    </div>
+
+    <div class="mobile-nav">
+        <a href="index.html" class="mobile-nav-item"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="add-transaction.html" class="mobile-nav-item"><i class="fas fa-plus-circle"></i><span>Add</span></a>
+        <a href="investments.html" class="mobile-nav-item"><i class="fas fa-chart-line"></i><span>Invest</span></a>
+        <a href="reports.html" class="mobile-nav-item"><i class="fas fa-chart-pie"></i><span>Reports</span></a>
+    </div>
+
+    <div class="main-content">
+        <header class="header">
+            <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+            <h1>Transfer Money</h1>
+            <a href="accounts.html" class="btn-link">View Accounts</a>
+        </header>
+
+        <div class="transfer-container">
+            <div class="transfer-card">
+                <div style="margin-bottom: 2rem;">
+                    <h2>Transfer Between Accounts</h2>
+                    <p style="color: var(--text-muted);">Move money between your accounts</p>
+                </div>
+
+                <form id="transferForm" onsubmit="handleTransfer(event)">
+                    <!-- From Account -->
+                    <div class="form-group">
+                        <label>From Account</label>
+                        <select name="fromAccount" id="fromAccount" required onchange="updateBalanceInfo()">
+                            <option value="">Select source account</option>
+                        </select>
+                        <div class="balance-info" id="fromBalance"></div>
+                    </div>
+
+                    <!-- Visual Transfer Arrow -->
+                    <div class="transfer-visual">
+                        <div class="account-box" id="fromBox">
+                            <i class="fas fa-university" style="font-size: 2rem; color: var(--text-muted);"></i>
+                            <div style="margin-top: 0.5rem; color: var(--text-muted);">Source</div>
+                        </div>
+                        <div class="transfer-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                        <div class="account-box" id="toBox">
+                            <i class="fas fa-wallet" style="font-size: 2rem; color: var(--text-muted);"></i>
+                            <div style="margin-top: 0.5rem; color: var(--text-muted);">Destination</div>
+                        </div>
+                    </div>
+
+                    <!-- To Account -->
+                    <div class="form-group">
+                        <label>To Account</label>
+                        <select name="toAccount" id="toAccount" required onchange="updateBalanceInfo()">
+                            <option value="">Select destination account</option>
+                        </select>
+                        <div class="balance-info" id="toBalance"></div>
+                    </div>
+
+                    <!-- Amount -->
+                    <div class="form-group">
+                        <label>Amount</label>
+                        <input type="number" name="amount" class="amount-input" placeholder="₹ 0" step="0.01" required>
+                    </div>
+
+                    <!-- Date -->
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" name="date" id="transferDate" required>
+                    </div>
+
+                    <!-- Notes -->
+                    <div class="form-group">
+                        <label>Notes (Optional)</label>
+                        <input type="text" name="notes" placeholder="e.g., ATM withdrawal, Bank transfer">
+                    </div>
+
+                    <!-- Submit -->
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-exchange-alt"></i> Transfer Money
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/mock-data.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('transferDate').valueAsDate = new Date();
+            loadAccounts();
+        });
+
+        function loadAccounts() {
+            const accounts = JARVIS.get('accounts') || [];
+            const fromSelect = document.getElementById('fromAccount');
+            const toSelect = document.getElementById('toAccount');
+
+            accounts.forEach(acc => {
+                const option1 = document.createElement('option');
+                option1.value = acc.id;
+                option1.textContent = `${acc.name} (${JARVIS.formatCurrency(acc.balance)})`;
+                option1.dataset.balance = acc.balance;
+                option1.dataset.name = acc.name;
+                fromSelect.appendChild(option1);
+
+                const option2 = document.createElement('option');
+                option2.value = acc.id;
+                option2.textContent = `${acc.name} (${JARVIS.formatCurrency(acc.balance)})`;
+                option2.dataset.balance = acc.balance;
+                option2.dataset.name = acc.name;
+                toSelect.appendChild(option2);
+            });
+        }
+
+        function updateBalanceInfo() {
+            const fromSelect = document.getElementById('fromAccount');
+            const toSelect = document.getElementById('toAccount');
+            const fromOption = fromSelect.options[fromSelect.selectedIndex];
+            const toOption = toSelect.options[toSelect.selectedIndex];
+
+            if (fromOption && fromOption.value) {
+                document.getElementById('fromBalance').textContent = `Available: ${JARVIS.formatCurrency(fromOption.dataset.balance)}`;
+                document.getElementById('fromBox').classList.add('selected');
+                document.getElementById('fromBox').innerHTML = `
+                    <i class="fas fa-university" style="font-size: 2rem; color: var(--primary-green);"></i>
+                    <div style="margin-top: 0.5rem; font-weight: 600;">${fromOption.dataset.name}</div>
+                `;
+            } else {
+                document.getElementById('fromBalance').textContent = '';
+                document.getElementById('fromBox').classList.remove('selected');
+            }
+
+            if (toOption && toOption.value) {
+                document.getElementById('toBalance').textContent = `Current: ${JARVIS.formatCurrency(toOption.dataset.balance)}`;
+                document.getElementById('toBox').classList.add('selected');
+                document.getElementById('toBox').innerHTML = `
+                    <i class="fas fa-wallet" style="font-size: 2rem; color: var(--primary-green);"></i>
+                    <div style="margin-top: 0.5rem; font-weight: 600;">${toOption.dataset.name}</div>
+                `;
+            } else {
+                document.getElementById('toBalance').textContent = '';
+                document.getElementById('toBox').classList.remove('selected');
+            }
+        }
+
+        function handleTransfer(event) {
+            event.preventDefault();
+
+            const formData = new FormData(event.target);
+            const fromId = parseInt(formData.get('fromAccount'));
+            const toId = parseInt(formData.get('toAccount'));
+            const amount = parseFloat(formData.get('amount'));
+            const date = formData.get('date');
+            const notes = formData.get('notes');
+
+            // Validation
+            if (fromId === toId) {
+                showNotification('Cannot transfer to the same account!', 'error');
+                return;
+            }
+
+            const accounts = JARVIS.get('accounts') || [];
+            const fromAccount = accounts.find(a => a.id === fromId);
+            const toAccount = accounts.find(a => a.id === toId);
+
+            if (!fromAccount || !toAccount) {
+                showNotification('Invalid account selection!', 'error');
+                return;
+            }
+
+            if (fromAccount.balance < amount) {
+                showNotification('Insufficient balance!', 'error');
+                return;
+            }
+
+            // Update balances
+            fromAccount.balance -= amount;
+            toAccount.balance += amount;
+
+            JARVIS.update('accounts', fromId, { balance: fromAccount.balance });
+            JARVIS.update('accounts', toId, { balance: toAccount.balance });
+
+            // Record transaction
+            const transaction = {
+                date: date,
+                type: 'transfer',
+                category: 'Transfer',
+                amount: amount,
+                account: fromAccount.name,
+                toAccount: toAccount.name,
+                description: notes || `Transfer from ${fromAccount.name} to ${toAccount.name}`
+            };
+
+            JARVIS.add('transactions', transaction);
+
+            showNotification('Transfer completed successfully!', 'success');
+            setTimeout(() => {
+                window.location.href = 'accounts.html';
+            }, 1000);
+        }
+    </script>
+</body>
+
+</html>
