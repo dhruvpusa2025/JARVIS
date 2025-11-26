@@ -191,90 +191,11 @@
             const totalInterest = 15000; // Mock data for now
 
             document.getElementById('totalLent').textContent = JARVIS.formatCurrency(totalLent);
-            document.getElementById('totalOutstanding').textContent = JARVIS.formatCurrency(totalOutstanding);
-            document.getElementById('totalInterest').textContent = JARVIS.formatCurrency(totalInterest);
-
-            displayLendings(lendings);
-        }
-
-        function displayLendings(lendings) {
-            const container = document.getElementById('lendingsList');
-
-            if (lendings.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 2rem;">No lendings yet</p>';
-                return;
-            }
-
-            container.innerHTML = lendings.map(lending => {
-                const isDue = lending.nextInterestDate && new Date(lending.nextInterestDate) <= new Date();
-                const isCompleted = lending.outstanding === 0;
-
-                return `
-                    <div class="lending-card ${isDue ? 'due' : ''} ${isCompleted ? 'completed' : ''}">
-                        <div class="lending-header">
-                            <div>
-                                <div class="borrower-name">
-                                    ${lending.borrower}
-                                    ${isDue ? '<span class="due-badge"><i class="fas fa-bell"></i> Interest Due</span>' : ''}
-                                </div>
-                            </div>
-                            <div class="lending-amount">
-                                ${JARVIS.formatCurrency(lending.outstanding)}
-                            </div>
-                        </div>
-
-                        <div class="lending-details">
-                            <div class="detail-item">
-                                <div class="detail-label">Original Amount</div>
-                                <div class="detail-value">${JARVIS.formatCurrency(lending.amount)}</div>
-                            </div>
-                            <div class="detail-item">
-                                <div class="detail-label">Interest Rate</div>
-                                <div class="detail-value">${lending.interestRate}% ${formatFrequency(lending.frequency)}</div>
-                            </div>
-                            <div class="detail-item">
-                                <div class="detail-label">Start Date</div>
-                                <div class="detail-value">${JARVIS.formatDate(lending.startDate)}</div>
-                            </div>
-                            ${lending.nextInterestDate ? `
-                            <div class="detail-item">
-                                <div class="detail-label">Next Interest Due</div>
-                                <div class="detail-value">${JARVIS.formatDate(lending.nextInterestDate)}</div>
-                            </div>
-                            ` : ''}
-                            ${lending.returnDate ? `
-                            <div class="detail-item">
-                                <div class="detail-label">Expected Return</div>
-                                <div class="detail-value">${JARVIS.formatDate(lending.returnDate)}</div>
-                            </div>
-                            ` : ''}
-                        </div>
-
-                        ${!isCompleted ? `
-                        <div class="lending-actions">
-                            ${lending.interestRate > 0 ? `
-                            <button class="btn-small btn-success" onclick="receiveInterest(${lending.id})">
-                                <i class="fas fa-coins"></i> Receive Interest
-                            </button>
-                            ` : ''}
-                            <button class="btn-small btn-info" onclick="receiveRepayment(${lending.id})">
-                                <i class="fas fa-hand-holding-usd"></i> Receive Repayment
-                            </button>
-                        </div>
-                        ` : '<p style="color: var(--success); font-weight: 600;"><i class="fas fa-check-circle"></i> Fully Repaid</p>'}
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function formatFrequency(freq) {
-            const frequencies = {
-                'monthly': 'per month',
-                'quarterly': 'per quarter',
+            'quarterly': 'per quarter',
                 'yearly': 'per year',
-                'none': ''
-            };
-            return frequencies[freq] || '';
+                    'none': ''
+        };
+        return frequencies[freq] || '';
         }
 
         function receiveInterest(id) {
