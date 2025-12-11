@@ -8,12 +8,20 @@
     },
     "routes": [
         {
-            "src": "/build/assets/(.*)",
-            "dest": "/public/build/assets/$1"
+            "src": "/build/(.*)",
+            "dest": "/public/build/$1"
         },
         {
             "src": "/(css|js|images|storage)/(.*)",
             "dest": "/public/$1/$2"
+        },
+        {
+            "src": "/favicon.ico",
+            "dest": "/public/favicon.ico"
+        },
+        {
+            "src": "/robots.txt",
+            "dest": "/public/robots.txt"
         },
         {
             "src": "/(.*)",
@@ -21,6 +29,7 @@
         }
     ],
     "env": {
+        "ASSET_URL": "/",
         "APP_ENV": "production",
         "APP_DEBUG": "true",
         "APP_URL": "https://jarvis-chi-three.vercel.app",
