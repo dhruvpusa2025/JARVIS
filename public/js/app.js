@@ -19,16 +19,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Set active nav item based on current page
-    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-    document.querySelectorAll('.nav-item, .mobile-nav-item').forEach(item => {
-        const href = item.getAttribute('href');
-        if (href === currentPage || (currentPage === '' && href === 'index.html')) {
-            item.classList.add('active');
-        } else {
-            item.classList.remove('active');
-        }
-    });
+
 });
 
 // Utility functions
