@@ -1,9 +1,9 @@
 {
     "version": 2,
-    "framework": "laravel",
     "functions": {
-        "api/index.php": { "runtime": "vercel-php@0.7.3" },
-        "public/index.php": { "runtime": "vercel-php@0.7.3" }
+        "public/index.php": {
+            "runtime": "vercel-php@0.6.2"
+        }
     },
     "routes": [
         {
@@ -11,7 +11,7 @@
             "dest": "/public/build/assets/$1"
         },
         {
-            "src": "/(css|js|images)/(.*)",
+            "src": "/(css|js|images|storage)/(.*)",
             "dest": "/public/$1/$2"
         },
         {
@@ -23,14 +23,8 @@
         "APP_ENV": "production",
         "APP_DEBUG": "true",
         "APP_URL": "https://jarvis-chi-three.vercel.app",
-        "APP_CONFIG_CACHE": "/tmp/config.php",
-        "APP_EVENTS_CACHE": "/tmp/events.php",
-        "APP_PACKAGES_CACHE": "/tmp/packages.php",
-        "APP_ROUTES_CACHE": "/tmp/routes.php",
-        "APP_SERVICES_CACHE": "/tmp/services.php",
-        "VIEW_COMPILED_PATH": "/tmp",
         "CACHE_DRIVER": "array",
-        "LOG_CHANNEL": "stderr",
-        "SESSION_DRIVER": "cookie"
+        "SESSION_DRIVER": "cookie",
+        "LOG_CHANNEL": "stderr"
     }
 }
