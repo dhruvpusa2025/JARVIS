@@ -1,10 +1,13 @@
 // Dashboard specific JavaScript
-document.addEventListener('DOMContentLoaded', function () {
-    // Load dashboard data
-    loadDashboardData();
-
-    // Initialize charts
-    initializeCharts();
+document.addEventListener('DOMContentLoaded', async function () {
+    // Initialize Data Store
+    const success = await JARVIS.init();
+    if (success) {
+        // Load dashboard data
+        loadDashboardData();
+        // Initialize charts
+        initializeCharts();
+    }
 });
 
 function loadDashboardData() {

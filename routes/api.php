@@ -1,0 +1,18 @@
+<?php
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+
+Route::get('/user', function (Request $request) {
+    return $request->user();
+})->middleware('auth:sanctum');
+
+use App\Http\Controllers\Api\AccountController;
+use App\Http\Controllers\Api\TransactionController;
+use App\Http\Controllers\Api\InvestmentController;
+use App\Http\Controllers\Api\CategoryController;
+
+Route::apiResource('accounts', AccountController::class);
+Route::apiResource('transactions', TransactionController::class);
+Route::apiResource('investments', InvestmentController::class);
+Route::apiResource('categories', CategoryController::class);
