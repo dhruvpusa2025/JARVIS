@@ -1,144 +1,114 @@
-// Add Transaction JavaScript
-let currentType = 'expense';
-
-document.addEventListener('DOMContentLoaded', function () {
-    // Set today's date
-    document.getElementById('transactionDate').valueAsDate = new Date();
-
-    // Load categories and accounts
-    loadCategories();
-    loadPaymentMethods();
+document.addEventListener('DOMContentLoaded', async function () {
+    await JARVIS.init();
+    loadFormDependencies();
 });
 
+const commonCategories = {
+    expense: ['Food', 'Transport', 'Shopping', 'Bills', 'Entertainment', 'Health', 'Travel', 'Education', 'Other'],
+    income: ['Salary', 'Freelance', 'Investment', 'Refund', 'Gift', 'Other']
+};
+
+const commonIcons = {
+    'Food': 'fa-utensils',
+    'Transport': 'fa-car',
+    'Shopping': 'fa-shopping-bag',
+    'Bills': 'fa-file-invoice-dollar',
+    'Entertainment': 'fa-film',
+    'Other': 'fa-circle'
+};
+
 function setTransactionType(type) {
-    currentType = type;
+    document.querySelectorAll('.type-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelector(`.type-btn[data-type="${type}"]`).classList.add('active');
     document.getElementById('transactionType').value = type;
-
-    // Update button states
-    document.querySelectorAll('.type-btn').forEach(btn => {
-        if (btn.dataset.type === type) {
-            btn.classList.add('active');
-        } else {
-            btn.classList.remove('active');
-        }
-    });
-
-    // Reload categories for the selected type
-    loadCategories();
+    loadCategories(type);
 }
 
-function loadCategories() {
-    const categories = JARVIS.get('categories') || [];
-    const filtered = categories.filter(c => c.type === currentType);
-    const container = document.getElementById('categoryGrid');
+function loadCategories(type) {
+    // In our new system, categories come from DB.
+    // If DB is empty, we fall back to static list? No, we should assume DB Categories exist or user creates them.
+    // But for "Add Transaction" ease of use, we might want to show all categories filtered by type.
+    const categories = JARVIS.get('categories').filter(c => c.type === type);
+    const grid = document.getElementById('categoryGrid');
 
-    container.innerHTML = filtered.map(cat => `
-        <div class="category-item" onclick="selectCategory('${cat.name}', this)">
-            <i class="fas ${cat.icon}" style="color: ${cat.color}"></i>
+    if (categories.length === 0) {
+        grid.innerHTML = '<p style="color:var(--text-muted); grid-column: 1/-1; text-align:center;">No categories found. Please add some in Categories manager.</p>';
+        return;
+    }
+
+    grid.innerHTML = categories.map(cat => `
+        <div class="category-item" onclick="selectCategory(this, '${cat.id}')">
+            <i class="fas ${cat.icon || 'fa-circle'}" style="color: ${cat.color}"></i>
             <div class="category-name">${cat.name}</div>
         </div>
     `).join('');
 }
 
-function selectCategory(category, element) {
-    // Remove previous selection
-    document.querySelectorAll('.category-item').forEach(item => {
-        item.classList.remove('selected');
-    });
-
-    // Add selection to clicked item
-    element.classList.add('selected');
-    document.getElementById('selectedCategory').value = category;
+function selectCategory(el, id) {
+    document.querySelectorAll('.category-item').forEach(item => item.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('selectedCategory').value = id;
 }
 
-function loadPaymentMethods() {
+function loadFormDependencies() {
+    // Load Categories
+    setTransactionType('expense');
+
+    // Load Accounts
     const accounts = JARVIS.get('accounts') || [];
-    const container = document.getElementById('paymentMethods');
+    const paymentMethodsContainer = document.getElementById('paymentMethods');
 
     if (accounts.length === 0) {
-        container.innerHTML = '<p style="color: var(--text-muted); text-align: center; grid-column: 1/-1;">No accounts found. Please add an account first.</p>';
+        paymentMethodsContainer.innerHTML = '<p>No accounts found.</p>';
         return;
     }
 
-    container.innerHTML = accounts.map(acc => `
-        <div class="payment-method" onclick="selectPaymentMethod('${acc.name}', this)">
-            <i class="fas fa-${getAccountIcon(acc.type)}"></i>
+    paymentMethodsContainer.innerHTML = accounts.map(acc => `
+        <div class="payment-method" onclick="selectAccount(this, ${acc.id})">
+            <i class="fas fa-wallet" style="color: var(--primary-green)"></i>
             <div class="method-name">${acc.name}</div>
-            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">
-                ${JARVIS.formatCurrency(acc.balance)}
-            </div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">${JARVIS.formatCurrency(acc.balance)}</div>
         </div>
     `).join('');
+
+    // Set default date
+    document.getElementById('transactionDate').valueAsDate = new Date();
 }
 
-function getAccountIcon(type) {
-    const icons = {
-        'bank': 'university',
-        'cash': 'money-bill-wave',
-        'credit_card': 'credit-card'
-    };
-    return icons[type] || 'wallet';
+function selectAccount(el, id) {
+    document.querySelectorAll('.payment-method').forEach(item => item.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('selectedAccount').value = id;
 }
 
-function selectPaymentMethod(accountName, element) {
-    // Remove previous selection
-    document.querySelectorAll('.payment-method').forEach(item => {
-        item.classList.remove('selected');
-    });
 
-    // Add selection to clicked item
-    element.classList.add('selected');
-    document.getElementById('selectedAccount').value = accountName;
-}
-
-function handleAddTransaction(event) {
+async function handleAddTransaction(event) {
     event.preventDefault();
 
     const formData = new FormData(event.target);
+    const amount = parseFloat(formData.get('amount'));
+    const categoryId = parseInt(formData.get('category'));
+    const accountId = parseInt(formData.get('account'));
+
+    if (!amount || !categoryId || !accountId) {
+        showNotification('Please fill in all required fields', 'error');
+        return;
+    }
+
     const transaction = {
-        date: formData.get('date'),
+        amount: amount,
         type: formData.get('type'),
-        category: formData.get('category'),
-        amount: parseFloat(formData.get('amount')),
-        account: formData.get('account'),
-        description: formData.get('description') || ''
+        category_id: categoryId,
+        account_id: accountId,
+        date: formData.get('date'),
+        description: formData.get('description')
     };
 
-    // Validate
-    if (!transaction.category) {
-        showNotification('Please select a category', 'error');
-        return;
-    }
-
-    if (!transaction.account) {
-        showNotification('Please select a payment method', 'error');
-        return;
-    }
-
-    // Add transaction
-    JARVIS.add('transactions', transaction);
-
-    // Update account balance
-    updateAccountBalance(transaction);
-
-    // Show success and redirect
-    showNotification('Transaction added successfully!', 'success');
-    setTimeout(() => {
-        window.location.href = 'index.html';
-    }, 1000);
-}
-
-function updateAccountBalance(transaction) {
-    const accounts = JARVIS.get('accounts') || [];
-    const account = accounts.find(a => a.name === transaction.account);
-
-    if (account) {
-        if (transaction.type === 'income') {
-            account.balance += transaction.amount;
-        } else {
-            account.balance -= transaction.amount;
-        }
-
-        JARVIS.update('accounts', account.id, { balance: account.balance });
+    try {
+        await JARVIS.add('transactions', transaction);
+        showNotification('Transaction added successfully!', 'success');
+        setTimeout(() => window.location.href = '/transactions', 1000);
+    } catch (error) {
+        showNotification('Failed to save transaction', 'error');
     }
 }

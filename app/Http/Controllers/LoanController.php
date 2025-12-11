@@ -11,7 +11,7 @@ class LoanController extends Controller
      */
     public function index()
     {
-        //
+        return view('loans.index');
     }
 
     /**
@@ -19,7 +19,7 @@ class LoanController extends Controller
      */
     public function create()
     {
-        //
+        return view('loans.create');
     }
 
     /**

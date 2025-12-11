@@ -16,3 +16,9 @@ Route::apiResource('accounts', AccountController::class);
 Route::apiResource('transactions', TransactionController::class);
 Route::apiResource('investments', InvestmentController::class);
 Route::apiResource('categories', CategoryController::class);
+
+use App\Http\Controllers\Api\LoanController;
+use App\Http\Controllers\Api\LendingController;
+
+Route::apiResource('loans', LoanController::class);
+Route::apiResource('lendings', LendingController::class);
