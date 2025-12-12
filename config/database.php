@@ -60,8 +60,7 @@ return [
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
-                defined('PDO::MYSQL_ATTR_SSL_MODE') ? PDO::MYSQL_ATTR_SSL_MODE : null => env('DB_SSL_MODE'),
-            ], fn($k) => $k !== null, ARRAY_FILTER_USE_KEY) : [],
+            ]) + (defined('PDO::MYSQL_ATTR_SSL_MODE') && env('DB_SSL_MODE') ? [PDO::MYSQL_ATTR_SSL_MODE => env('DB_SSL_MODE')] : []) : [],
         ],
 
         'mariadb' => [
