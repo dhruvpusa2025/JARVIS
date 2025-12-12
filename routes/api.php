@@ -12,13 +12,15 @@ use App\Http\Controllers\Api\TransactionController;
 use App\Http\Controllers\Api\InvestmentController;
 use App\Http\Controllers\Api\CategoryController;
 
-Route::apiResource('accounts', AccountController::class);
-Route::apiResource('transactions', TransactionController::class);
-Route::apiResource('investments', InvestmentController::class);
-Route::apiResource('categories', CategoryController::class);
-
 use App\Http\Controllers\Api\LoanController;
 use App\Http\Controllers\Api\LendingController;
 
-Route::apiResource('loans', LoanController::class);
-Route::apiResource('lendings', LendingController::class);
+Route::name('api.')->group(function () {
+    Route::apiResource('accounts', AccountController::class);
+    Route::apiResource('transactions', TransactionController::class);
+    Route::apiResource('investments', InvestmentController::class);
+    Route::apiResource('categories', CategoryController::class);
+
+    Route::apiResource('loans', LoanController::class);
+    Route::apiResource('lendings', LendingController::class);
+});
