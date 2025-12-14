@@ -31,9 +31,14 @@ function toggleSipFields() {
     if (isSip) {
         sipFields.classList.add('active');
         sipFields.querySelectorAll('input').forEach(i => i.required = true);
+        document.getElementById('sourceAccountGroup').style.display = 'block';
     } else {
         sipFields.classList.remove('active');
         sipFields.querySelectorAll('input').forEach(i => i.required = false);
+        document.getElementById('sourceAccountGroup').style.display = 'none';
+
+        // Clear selection if hidden
+        document.querySelector('select[name="source_account_id"]').value = "";
     }
 }
 
@@ -58,6 +63,9 @@ async function handleAddInvestment(event) {
     // Add optional fields
     const accountId = formData.get('investment_account_id');
     if (accountId) investment.investment_account_id = parseInt(accountId);
+
+    const sourceAccountId = formData.get('source_account_id');
+    if (sourceAccountId) investment.source_account_id = parseInt(sourceAccountId);
     const units = formData.get('units');
     if (units) investment.units = parseFloat(units);
 

@@ -11,6 +11,7 @@ class Investment extends Model
 
     protected $fillable = [
         'investment_account_id',
+        'source_account_id',
         'name',
         'type', // STOCK, MF, GOLD, P2P, FD
         'symbol',
@@ -45,5 +46,15 @@ class Investment extends Model
     public function account()
     {
         return $this->belongsTo(InvestmentAccount::class, 'investment_account_id');
+    }
+
+    public function sourceAccount()
+    {
+        return $this->belongsTo(Account::class, 'source_account_id');
+    }
+
+    public function entries()
+    {
+        return $this->hasMany(InvestmentEntry::class)->orderBy('date', 'desc');
     }
 }

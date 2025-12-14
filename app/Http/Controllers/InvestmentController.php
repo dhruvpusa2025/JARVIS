@@ -22,8 +22,12 @@ class InvestmentController extends Controller
      */
     public function create()
     {
-        $accounts = InvestmentAccount::all();
-        return view('investments.create', compact('accounts'));
+        $investmentAccounts = InvestmentAccount::all();
+        $sourceAccounts = Account::whereIn('type', ['bank', 'savings'])->get();
+        return view('investments.create', [
+            'investmentAccounts' => $investmentAccounts,
+            'sourceAccounts' => $sourceAccounts
+        ]);
     }
 
     /**
@@ -39,7 +43,7 @@ class InvestmentController extends Controller
      */
     public function show(string $id)
     {
-        $investment = Investment::with('account')->findOrFail($id);
+        $investment = Investment::with(['account', 'sourceAccount', 'entries'])->findOrFail($id);
         return view('investments.show', compact('investment'));
     }
 

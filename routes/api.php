@@ -21,6 +21,8 @@ Route::name('api.')->group(function () {
     Route::apiResource('accounts', AccountController::class);
     Route::apiResource('transactions', TransactionController::class);
     Route::apiResource('investments', InvestmentController::class);
+    Route::post('investments/{investment}/installment', [InvestmentController::class, 'recordInstallment']);
+    Route::put('investment-entries/{entry}', [InvestmentController::class, 'updateEntry']);
     Route::apiResource('categories', CategoryController::class);
 
     Route::apiResource('loans', LoanController::class);

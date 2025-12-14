@@ -136,11 +136,22 @@
                 <div class="form-group">
                     <label>Investment Account (Optional)</label>
                     <select name="investment_account_id">
-                        <option value="">-- Select Account (e.g. Zerodha) --</option>
-                        @foreach($accounts as $account)
+                        <option value="">-- Select Broker/Platform (e.g. Zerodha) --</option>
+                        @foreach($investmentAccounts as $account)
                             <option value="{{ $account->id }}">{{ $account->name }} ({{ $account->broker }})</option>
                         @endforeach
                     </select>
+                </div>
+
+                <div class="form-group" id="sourceAccountGroup" style="display: none;">
+                    <label>Deduct Money From (Source Bank Account)</label>
+                    <select name="source_account_id">
+                        <option value="">-- Select Bank Account --</option>
+                        @foreach($sourceAccounts as $account)
+                            <option value="{{ $account->id }}">{{ $account->name }} (₹{{ $account->balance }})</option>
+                        @endforeach
+                    </select>
+                    <small class="text-muted">Required for auto-deducting SIP installments.</small>
                 </div>
 
                 <div class="form-group">
