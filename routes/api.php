@@ -25,4 +25,6 @@ Route::name('api.')->group(function () {
 
     Route::apiResource('loans', LoanController::class);
     Route::apiResource('lendings', LendingController::class);
+    Route::apiResource('investment-accounts', \App\Http\Controllers\Api\InvestmentAccountController::class);
+    Route::post('investment-accounts/{id}/upload', [\App\Http\Controllers\Api\InvestmentAccountController::class, 'uploadHoldings']);
 });

@@ -9,6 +9,7 @@ use App\Http\Controllers\LendingController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TransferController;
+use App\Http\Controllers\Api\InvestmentAccountController;
 
 Route::get('/', function () {
     return view('dashboard');
@@ -23,3 +24,5 @@ Route::resource('categories', CategoryController::class);
 
 Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
 Route::get('transfer', [TransferController::class, 'index'])->name('transfer.index');
+
+Route::view('investment-accounts', 'investment-accounts.index')->name('investment-accounts.index');

@@ -10,17 +10,39 @@ class Investment extends Model
     use HasFactory;
 
     protected $fillable = [
+        'investment_account_id',
         'name',
-        'type',
+        'type', // STOCK, MF, GOLD, P2P, FD
+        'symbol',
+        'isin',
+        'sector',
         'units',
-        'buy_price',
+        'buy_price', // average price
         'current_price',
+        'previous_close_price',
         'invested_amount',
         'current_value',
         'interest_rate',
         'maturity_date',
         'is_sip',
         'sip_amount',
-        'sip_date'
+        'sip_frequency', // MONTHLY, WEEKLY
+        'sip_date', // Day of month
+        'unrealized_pnl',
+        'unrealized_pnl_pct',
+        'quantity_discrepant',
+        'quantity_long_term',
+        'quantity_pledged_margin',
+        'quantity_pledged_loan',
     ];
+
+    protected $casts = [
+        'maturity_date' => 'date',
+        'is_sip' => 'boolean',
+    ];
+
+    public function account()
+    {
+        return $this->belongsTo(InvestmentAccount::class, 'investment_account_id');
+    }
 }

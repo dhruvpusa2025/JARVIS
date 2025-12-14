@@ -15,6 +15,10 @@
             class="nav-item {{ Request::routeIs('investments.*') ? 'active' : '' }}">
             <i class="fas fa-chart-line"></i><span>Investments</span>
         </a>
+        <a href="{{ route('investment-accounts.index') }}"
+            class="nav-item {{ Request::routeIs('investment-accounts.*') ? 'active' : '' }}">
+            <i class="fas fa-briefcase"></i><span>Inv. Accounts</span>
+        </a>
         <a href="{{ route('loans.index') }}" class="nav-item {{ Request::routeIs('loans.*') ? 'active' : '' }}">
             <i class="fas fa-hand-holding-usd"></i><span>Loans</span>
         </a>
