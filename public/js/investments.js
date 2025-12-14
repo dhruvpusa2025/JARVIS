@@ -1,20 +1,37 @@
-let currentFilter = 'all';
+let currentFilter = 'all'; // 'all' or accountId (number)
 let allInvestments = [];
+let allAccounts = [];
+let searchQuery = '';
+let sortBy = 'value_desc';
 
 document.addEventListener('DOMContentLoaded', async function () {
     await JARVIS.init();
-    loadInvestments();
+    loadData();
+
+    // Event Listeners
+    document.getElementById('investmentSearch').addEventListener('input', (e) => {
+        searchQuery = e.target.value.toLowerCase();
+        renderTable();
+    });
+
+    document.getElementById('sortBy').addEventListener('change', (e) => {
+        sortBy = e.target.value;
+        renderTable();
+    });
+
     const sellDateInput = document.getElementById('sellDate');
     if (sellDateInput) {
         sellDateInput.valueAsDate = new Date();
     }
 });
 
-function loadInvestments() {
+function loadData() {
     allInvestments = JARVIS.get('investments') || [];
+    allAccounts = JARVIS.get('accounts') || [];
+
     updateSummary(allInvestments);
-    renderGroupCards(allInvestments);
-    displayInvestments(allInvestments);
+    renderGroupCards();
+    renderTable();
 }
 
 function updateSummary(investments) {
@@ -38,105 +55,137 @@ function updateSummary(investments) {
     }
 }
 
-function renderGroupCards(investments) {
-    const groups = {
-        'all': { name: 'All Assets', amount: 0, count: 0 },
-        'mutual_fund': { name: 'Mutual Funds', amount: 0, count: 0 },
-        'stock': { name: 'Stocks', amount: 0, count: 0 },
-        'fd': { name: 'Fixed Deposits', amount: 0, count: 0 },
-        'rd': { name: 'Recurring Deposits', amount: 0, count: 0 },
-        'real_estate': { name: 'Real Estate', amount: 0, count: 0 }
+function renderGroupCards() {
+    // Group by Accounts
+    const accountStats = {
+        'all': { name: 'All Accounts', amount: 0, count: 0, id: 'all' }
     };
 
-    investments.forEach(inv => {
+    // Initialize all accounts with 0
+    allAccounts.forEach(acc => {
+        accountStats[acc.id] = { name: acc.name, amount: 0, count: 0, id: acc.id };
+    });
+
+    // Aggregate stats
+    allInvestments.forEach(inv => {
         const val = parseFloat(inv.current_value) || parseFloat(inv.amount) || 0;
-        groups.all.amount += val;
 
-        groups.all.count++;
+        // Add to global
+        accountStats.all.amount += val;
+        accountStats.all.count++;
 
-        if (groups[inv.type]) {
-            groups[inv.type].amount += val;
-            groups[inv.type].count++;
+        // Add to specific account if exists
+        if (inv.investment_account_id && accountStats[inv.investment_account_id]) {
+            accountStats[inv.investment_account_id].amount += val;
+            accountStats[inv.investment_account_id].count++;
         }
     });
 
     const container = document.getElementById('groupCards');
     if (container) {
-        container.innerHTML = Object.entries(groups).map(([key, data]) => {
-            if (data.count === 0 && key !== 'all') return '';
+        // Convert to array and handle 'all' first
+        const cards = [accountStats.all, ...allAccounts.map(acc => accountStats[acc.id])];
+
+        container.innerHTML = cards.map(data => {
             return `
-            <div class="group-card ${currentFilter === key ? 'active' : ''}" onclick="filterInvestments('${key}')">
+            <div class="group-card ${currentFilter == data.id ? 'active' : ''}" onclick="filterByAccount('${data.id}')">
                 <h3>${data.name}</h3>
                 <div class="amount">${JARVIS.formatCurrency(data.amount)}</div>
-                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">${data.count} items
-                </div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">${data.count} items</div>
             </div>
             `;
         }).join('');
     }
 }
 
-function filterInvestments(type) {
-    currentFilter = type;
-    renderGroupCards(allInvestments);
-    displayInvestments(allInvestments);
+function filterByAccount(accountId) {
+    currentFilter = accountId === 'all' ? 'all' : parseInt(accountId);
+    renderGroupCards();
+    renderTable();
 }
 
-function displayInvestments(investments) {
-    const container = document.querySelector('.investment-grid'); // Changed logic to rely on class if ID not present? Or add simple ID in PHP
-    // In original code, where was displayInvestments?
-    // It seems displayInvestments wasn't in the original view_file output I saw?
-    // Wait, let me check the view_file output again.
-    // Lines 268 calls displayInvestments(allInvestments).
-    // The definition of displayInvestments is MISSING in the view_file output for lines 1-595??
-    // Ah, wait. I scrolled past it? No.
-    // Let me check line 323: function filterInvestments...
-    // Line 336: function getInvestmentStats...
-    // The previous user tool output might have been truncated? No, it says "The above content shows the entire...".
-    // Wait, line 327-328 syntax looks broken in the tool output:
-    // 327:                     const filtered = type === 'all'
-    // 328:                     'stock': 'Stock',
-    // That looks like the tool output got garbled or the file itself is corrupt.
-    // Line 327-331 seems to contain a random object map?
-}
+function renderTable() {
+    const list = document.getElementById('investmentsList');
+    if (!list) return;
 
-// Re-implementing displayInvestments properly based on logical inference
-function displayInvestments(investments) {
-    const container = document.createElement('div');
-    container.className = 'investment-grid';
-    // Actually we should append to a container in DOM.
-    // There is <div class="container"> but no specific ID for grid.
-    // The original HTML had:
-    // .investment-grid { display: grid ... }
-    // But where is the HTML element using this class?
-    // It's likely dynamically created or I missed it.
-    // Let's assume there's a div with ID 'investmentsList' or similar, or I should add one.
-    // I will add <div id="investmentsList" class="investment-grid"></div> in the Blade file.
+    // Filter
+    let filtered = allInvestments.filter(inv => {
+        // Account Filter
+        if (currentFilter !== 'all' && inv.investment_account_id !== currentFilter) {
+            return false;
+        }
 
-    const target = document.getElementById('investmentsList');
-    if (!target) return;
+        // Search Filter
+        if (searchQuery) {
+            const name = (inv.name || '').toLowerCase();
+            const symbol = (inv.symbol || '').toLowerCase();
+            return name.includes(searchQuery) || symbol.includes(searchQuery);
+        }
 
-    const filtered = currentFilter === 'all'
-        ? investments
-        : investments.filter(i => i.type === currentFilter);
+        return true;
+    });
 
-    target.innerHTML = filtered.map(inv => `
-        <div class="investment-card ${inv.type.toLowerCase()}">
-            <div class="card-actions">
-                <button class="action-btn" onclick="openEditModal(${inv.id})"><i class="fas fa-pencil-alt"></i></button>
-            </div>
-            <div class="investment-header">
-                <div>
-                    <div class="investment-type">${formatType(inv.type)}</div>
-                    <div class="investment-name">${inv.name}</div>
-                    <small class="text-muted">${inv.symbol || ''}</small>
-                </div>
-            </div>
-            <div class="investment-stats">
-                ${getInvestmentStats(inv)}
-            </div>
-        </div>
-    `).join('');
+    // Sort
+    filtered.sort((a, b) => {
+        const valA = parseFloat(a.current_value) || 0;
+        const valB = parseFloat(b.current_value) || 0;
+        const retA = (parseFloat(a.current_value) || 0) - (parseFloat(a.invested_amount) || 0);
+        const retB = (parseFloat(b.current_value) || 0) - (parseFloat(b.invested_amount) || 0);
+        const nameA = (a.name || '').toLowerCase();
+        const nameB = (b.name || '').toLowerCase();
+
+        switch (sortBy) {
+            case 'name': return nameA.localeCompare(nameB);
+            case 'value_desc': return valB - valA;
+            case 'value_asc': return valA - valB;
+            case 'return_desc': return retB - retA;
+            case 'return_asc': return retA - retB;
+            default: return 0;
+        }
+    });
+
+    if (filtered.length === 0) {
+        list.innerHTML = '<tr><td colspan="9" class="text-center p-4 text-muted">No investments found matching your criteria.</td></tr>';
+        return;
+    }
+
+    list.innerHTML = filtered.map(inv => {
+        const invested = parseFloat(inv.invested_amount) || 0;
+        const current = parseFloat(inv.current_value) || 0;
+        const profit = current - invested;
+        const profitPct = invested > 0 ? (profit / invested) * 100 : 0;
+        const units = parseFloat(inv.units) || parseFloat(inv.quantity) || 0;
+
+        const buyPrice = parseFloat(inv.buy_price) || 0;
+        const currentPrice = parseFloat(inv.current_price) || 0;
+
+        return `
+            <tr style="background: var(--bg-secondary); transition: background 0.2s;">
+                <td style="padding: 1rem; border-top: 1px solid var(--border-color); border-radius: var(--radius-md) 0 0 var(--radius-md);">
+                    <div style="font-weight: 600;">${inv.name}</div>
+                    <small style="color: var(--text-muted);">${inv.symbol || formatType(inv.type)}</small>
+                </td>
+                <td style="padding: 1rem; border-top: 1px solid var(--border-color);">${units > 0 ? units.toFixed(2) : '-'}</td>
+                <td style="padding: 1rem; border-top: 1px solid var(--border-color);">₹${buyPrice > 0 ? buyPrice.toFixed(2) : '-'}</td>
+                <td style="padding: 1rem; border-top: 1px solid var(--border-color);">₹${currentPrice > 0 ? currentPrice.toFixed(2) : '-'}</td>
+                <td style="padding: 1rem; border-top: 1px solid var(--border-color);">${JARVIS.formatCurrency(invested)}</td>
+                <td style="padding: 1rem; border-top: 1px solid var(--border-color); font-weight: 500;">${JARVIS.formatCurrency(current)}</td>
+                <td style="padding: 1rem; border-top: 1px solid var(--border-color);">
+                    <span class="${profit >= 0 ? 'text-success' : 'text-danger'}">
+                        ${profit >= 0 ? '+' : ''}${JARVIS.formatCurrency(profit)}
+                    </span>
+                </td>
+                <td style="padding: 1rem; border-top: 1px solid var(--border-color);">
+                    <span class="badge ${profit >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'}" style="padding: 0.25rem 0.5rem; border-radius: 4px;">
+                        ${profit >= 0 ? '+' : ''}${profitPct.toFixed(2)}%
+                    </span>
+                </td>
+                <td style="padding: 1rem; border-top: 1px solid var(--border-color); border-radius: 0 var(--radius-md) var(--radius-md) 0;">
+                    <button class="action-btn" onclick="openEditModal(${inv.id})"><i class="fas fa-pencil-alt"></i></button>
+                </td>
+            </tr>
+        `;
+    }).join('');
 }
 
 
@@ -146,67 +195,12 @@ function formatType(type) {
         'stock': 'Stock',
         'fd': 'Fixed Deposit',
         'rd': 'Recurring Deposit',
-        'real_estate': 'Real Estate'
+        'real_estate': 'Real Estate',
+        'MF': 'Mutual Fund',
+        'STOCK': 'Stock'
     };
     return types[type] || type;
 }
-
-function getInvestmentStats(inv) {
-    // Helper to safety check numbers
-    const fmt = (val) => JARVIS.formatCurrency(val || 0);
-
-    if (inv.type === 'mutual_fund' || inv.type === 'MF') {
-        return `
-            <div class="stat">
-                <div class="stat-label">Units</div>
-                <div class="stat-value">${parseFloat(inv.units).toFixed(4)}</div>
-            </div>
-            <div class="stat">
-                <div class="stat-label">NAV</div>
-                <div class="stat-value">₹${inv.current_price || inv.buy_price}</div>
-            </div>
-            <div class="stat">
-                <div class="stat-label">Invested</div>
-                <div class="stat-value">${fmt(inv.invested_amount)}</div>
-            </div>
-            <div class="stat">
-                <div class="stat-label">Current Value</div>
-                <div class="stat-value">${fmt(inv.current_value)}</div>
-            </div>
-        `;
-    } else if (inv.type === 'stock' || inv.type === 'STOCK') {
-        return `
-            <div class="stat">
-                <div class="stat-label">Shares</div>
-                <div class="stat-value">${inv.units}</div>
-            </div>
-            <div class="stat">
-                <div class="stat-label">Price</div>
-                <div class="stat-value">₹${inv.current_price || inv.buy_price}</div>
-            </div>
-            <div class="stat">
-                <div class="stat-label">Invested</div>
-                <div class="stat-value">${fmt(inv.invested_amount)}</div>
-            </div>
-            <div class="stat">
-                <div class="stat-label">Current Value</div>
-                <div class="stat-value">${fmt(inv.current_value)}</div>
-            </div>
-        `;
-    }
-    // Fallback for others
-    return `
-        <div class="stat">
-            <div class="stat-label">Invested</div>
-            <div class="stat-value">${fmt(inv.invested_amount)}</div>
-        </div>
-        <div class="stat">
-            <div class="stat-label">Current Value</div>
-            <div class="stat-value">${fmt(inv.current_value)}</div>
-        </div>
-    `;
-}
-
 
 // Edit Modal Functions (Price Only)
 function openEditModal(id) {
@@ -218,17 +212,7 @@ function openEditModal(id) {
 
     // Populate fields based on type
     const priceInput = document.getElementById('editCurrentPrice');
-
-    if (inv.type === 'mutual_fund') {
-        priceInput.value = inv.currentPrice || inv.buyPrice;
-    } else if (inv.type === 'stock') {
-        priceInput.value = inv.currentPrice || inv.buyPrice;
-    } else if (inv.type === 'real_estate') {
-        priceInput.value = inv.currentValue;
-    } else {
-        // For FD/RD, maybe just allow name edit for now
-        priceInput.parentElement.style.display = 'none';
-    }
+    priceInput.value = inv.current_price || inv.buy_price || inv.current_value;
 
     document.getElementById('editModal').classList.add('active');
 }
@@ -245,170 +229,26 @@ function handleEditSubmit(event) {
     if (inv) {
         const newPrice = parseFloat(document.getElementById('editCurrentPrice').value);
 
-        if (inv.type === 'mutual_fund') {
-            inv.currentPrice = newPrice;
-            inv.currentValue = inv.units * inv.currentPrice;
-        } else if (inv.type === 'stock') {
-            inv.currentPrice = newPrice;
-            inv.currentValue = inv.quantity * inv.currentPrice;
-        } else if (inv.type === 'real_estate') {
-            inv.currentValue = newPrice;
-        }
-
-        JARVIS.update('investments', id, inv);
-        closeEditModal();
-        loadInvestments();
-        showNotification('Investment value updated successfully', 'success');
-    }
-}
-
-// Sell Modal Functions
-function openSellModal(id) {
-    const inv = allInvestments.find(i => i.id === id);
-    if (!inv) return;
-
-    document.getElementById('sellId').value = inv.id;
-    document.getElementById('sellName').value = inv.name;
-
-    const unitsInput = document.getElementById('sellUnits');
-    const priceInput = document.getElementById('sellPrice');
-    const availUnits = document.getElementById('availableUnits');
-
-    if (inv.type === 'mutual_fund') {
-        unitsInput.value = inv.units;
-        availUnits.textContent = `Available Units: ${inv.units}`;
-        priceInput.value = inv.currentPrice || inv.buyPrice;
-        unitsInput.parentElement.style.display = 'block';
-    } else if (inv.type === 'stock') {
-        unitsInput.value = inv.quantity;
-        availUnits.textContent = `Available Shares: ${inv.quantity}`;
-        priceInput.value = inv.currentPrice || inv.buyPrice;
-        unitsInput.parentElement.style.display = 'block';
-    } else {
-        // For FD/RD/Real Estate
-        if (inv.type === 'fd' || inv.type === 'rd') {
-            unitsInput.value = 1;
-            availUnits.textContent = 'Full Withdrawal';
-            priceInput.value = inv.maturityAmount;
-            unitsInput.parentElement.style.display = 'none'; // Lock unit selection
+        // Optimistic update logic
+        if (inv.type === 'mutual_fund' || inv.type === 'MF') {
+            inv.current_price = newPrice;
+            inv.current_value = inv.units * inv.current_price;
+        } else if (inv.type === 'stock' || inv.type === 'STOCK') {
+            inv.current_price = newPrice;
+            inv.current_value = inv.units * inv.current_price;
         } else {
-            unitsInput.value = 1;
-            availUnits.textContent = 'Full Sale';
-            priceInput.value = inv.currentValue;
-            unitsInput.parentElement.style.display = 'none';
+            inv.current_value = newPrice;
         }
-    }
 
-    // Load accounts
-    const accounts = JARVIS.get('accounts') || [];
-    const accSelect = document.getElementById('sellAccount');
-    if (accSelect) {
-        accSelect.innerHTML = accounts.map(a => `<option value="${a.id}">${a.name} (₹${a.balance})</option>`).join('');
-    }
-
-    document.getElementById('sellModal').classList.add('active');
-}
-
-function closeSellModal() {
-    document.getElementById('sellModal').classList.remove('active');
-}
-
-function handleSellSubmit(event) {
-    event.preventDefault();
-    const id = parseInt(document.getElementById('sellId').value);
-    const inv = allInvestments.find(i => i.id === id);
-    let unitsToSell = parseFloat(document.getElementById('sellUnits').value);
-    const sellPrice = parseFloat(document.getElementById('sellPrice').value);
-    const accountId = parseInt(document.getElementById('sellAccount').value);
-    const date = document.getElementById('sellDate').value;
-
-    if (!inv) return;
-
-    // For non-unit types, assume units = 1
-    if (inv.type !== 'mutual_fund' && inv.type !== 'stock') {
-        unitsToSell = 1;
-    }
-
-    // Calculate total amount
-    const totalAmount = unitsToSell * sellPrice;
-
-    // Update Investment
-    if (inv.type === 'mutual_fund') {
-        if (unitsToSell > inv.units) {
-            showNotification('Cannot sell more units than available!', 'error');
-            return;
-        }
-        inv.units -= unitsToSell;
-        inv.currentValue = inv.units * (inv.currentPrice || inv.buyPrice);
-        inv.invested = (inv.invested / (inv.units + unitsToSell)) * inv.units;
-    } else if (inv.type === 'stock') {
-        if (unitsToSell > inv.quantity) {
-            showNotification('Cannot sell more shares than available!', 'error');
-            return;
-        }
-        inv.quantity -= unitsToSell;
-        inv.currentValue = inv.quantity * (inv.currentPrice || inv.buyPrice);
-    } else {
-        // Full sell for others, remove investment?
-        JARVIS.delete('investments', id);
-        // Skip update call for inv since it's deleted, but need to handle below logic.
-        // Actually for this prototype logic, let's just delete it.
-        const accounts = JARVIS.get('accounts') || [];
-        const acc = accounts.find(a => a.id === accountId);
-        if (acc) {
-            acc.balance += totalAmount;
-            JARVIS.update('accounts', accountId, acc);
-        }
-        const transaction = {
-            date: date,
-            type: 'income',
-            category: 'Investment Return',
-            amount: totalAmount,
-            account: acc ? acc.name : 'Unknown',
-            description: `Sold ${inv.name}`
+        // Send snake_case to API
+        const updates = {
+            current_price: inv.current_price,
+            current_value: inv.current_value
         };
-        JARVIS.add('transactions', transaction);
 
-        closeSellModal();
-        loadInvestments();
-        showNotification('Investment sold and transaction recorded!', 'success');
-        return;
-    }
-
-    JARVIS.update('investments', id, inv);
-
-    // Update Account
-    const accounts = JARVIS.get('accounts') || [];
-    const acc = accounts.find(a => a.id === accountId);
-    if (acc) {
-        acc.balance += totalAmount;
-        JARVIS.update('accounts', accountId, acc);
-    }
-
-    // Record Transaction
-    const transaction = {
-        date: date,
-        type: 'income',
-        category: 'Investment Return',
-        amount: totalAmount,
-        account: acc ? acc.name : 'Unknown',
-        description: `Sold ${unitsToSell} units of ${inv.name} @ ₹${sellPrice}`
-    };
-    JARVIS.add('transactions', transaction);
-
-    closeSellModal();
-    loadInvestments();
-    showNotification('Investment sold and transaction recorded!', 'success');
-}
-
-function setMaxUnits() {
-    const id = parseInt(document.getElementById('sellId').value);
-    const inv = allInvestments.find(i => i.id === id);
-    if (inv) {
-        if (inv.type === 'mutual_fund') {
-            document.getElementById('sellUnits').value = inv.units;
-        } else if (inv.type === 'stock') {
-            document.getElementById('sellUnits').value = inv.quantity;
-        }
+        JARVIS.update('investments', id, updates);
+        closeEditModal();
+        loadData(); // Reload to refresh table
+        JARVIS.showToast('Investment value updated successfully', 'success');
     }
 }

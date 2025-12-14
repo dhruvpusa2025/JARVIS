@@ -210,15 +210,54 @@
             </div>
         </div>
 
-        <!-- Grouping/Filter Cards -->
+        <!-- Grouping/Filter Cards (Accounts) -->
         <h3 style="margin: 1.5rem 0 1rem;">Portfolio Breakdown</h3>
         <div class="group-scroll" id="groupCards">
             <!-- Populated by JS -->
         </div>
 
-        <div id="investmentsList" class="investment-grid">
-            <!-- Populated by JS -->
+        <!-- Search and Sort Controls -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="search-box" style="position: relative; width: 300px;">
+                <i class="fas fa-search" style="position: absolute; left: 10px; top: 12px; color: var(--text-muted);"></i>
+                <input type="text" id="investmentSearch" placeholder="Search investments..."
+                    style="width: 100%; padding: 0.5rem 0.5rem 0.5rem 2.2rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary);">
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span style="color: var(--text-muted); font-size: 0.875rem;">Sort by:</span>
+                <select id="sortBy"
+                    style="padding: 0.5rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary); cursor: pointer;">
+                    <option value="name">Name</option>
+                    <option value="value_desc" selected>Current Value (High to Low)</option>
+                    <option value="value_asc">Current Value (Low to High)</option>
+                    <option value="return_desc">Return (High to Low)</option>
+                    <option value="return_asc">Return (Low to High)</option>
+                </select>
+            </div>
         </div>
+
+        <!-- Investment Table -->
+        <div class="table-responsive">
+            <table class="table" style="width: 100%; border-collapse: separate; border-spacing: 0 0.5rem;">
+                <thead>
+                    <tr style="color: var(--text-muted); font-size: 0.875rem; text-align: left;">
+                        <th style="padding: 1rem;">Name</th>
+                        <th style="padding: 1rem;">Quantity</th>
+                        <th style="padding: 1rem;">Buy Price</th>
+                        <th style="padding: 1rem;">Current Price</th>
+                        <th style="padding: 1rem;">Invested</th> <!-- Helper -->
+                        <th style="padding: 1rem;">Current Value</th>
+                        <th style="padding: 1rem;">Return</th>
+                        <th style="padding: 1rem;">Return %</th>
+                        <th style="padding: 1rem;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="investmentsList">
+                    <!-- Populated by JS -->
+                </tbody>
+            </table>
+        </div>
+
     </div>
 
     <!-- Edit Modal -->
