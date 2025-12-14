@@ -147,6 +147,63 @@
         <!-- Lendings List -->
         <div id="lendingsList"></div>
     </div>
+
+    <!-- Receive Interest Modal -->
+    <div class="modal" id="receiveInterestModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Receive Interest</h3>
+                <button class="close-btn" onclick="closeInterestModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="interestForm" onsubmit="handleInterestSubmit(event)">
+                    <input type="hidden" id="interestLendingId">
+                    <div class="form-group">
+                        <label>Interest Amount</label>
+                        <input type="number" id="interestAmount" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Date Received</label>
+                        <input type="date" id="interestDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Deposit To Account</label>
+                        <select id="interestAccount" required></select>
+                    </div>
+                    <button type="submit" class="submit-btn">Record Interest</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Receive Repayment Modal -->
+    <div class="modal" id="receiveRepaymentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Receive Repayment</h3>
+                <button class="close-btn" onclick="closeRepaymentModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="repaymentForm" onsubmit="handleRepaymentSubmit(event)">
+                    <input type="hidden" id="repaymentLendingId">
+                    <div class="form-group">
+                        <label>Repayment Amount</label>
+                        <input type="number" id="repaymentAmount" step="0.01" required>
+                        <small style="color: var(--text-muted);" id="maxRepaymentHint">Max: ₹0</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Date Received</label>
+                        <input type="date" id="repaymentDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Deposit To Account</label>
+                        <select id="repaymentAccount" required></select>
+                    </div>
+                    <button type="submit" class="submit-btn">Record Repayment</button>
+                </form>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('scripts')
