@@ -1,32 +1,65 @@
 // Accounts page JavaScript
 document.addEventListener('DOMContentLoaded', async function () {
-    await JARVIS.init();
+    // Optimization: Don't use JARVIS.init() which loads everything.
+    // Just load accounts for this page.
     loadAccountsData();
 });
 
-function loadAccountsData() {
-    const accounts = JARVIS.get('accounts') || [];
+async function loadAccountsData() {
+    try {
+        // Direct fetch for speed
+        const response = await fetch('/api/accounts', {
+            headers: { 'Accept': 'application/json' }
+        });
 
-    // Calculate summaries
-    const bankAccounts = accounts.filter(a => a.type === 'bank');
-    const cashAccounts = accounts.filter(a => a.type === 'cash');
-    const creditCards = accounts.filter(a => a.type === 'credit_card');
+        if (!response.ok) throw new Error('Failed to load accounts');
 
-    const bankTotal = bankAccounts.reduce((sum, a) => sum + parseFloat(a.balance), 0);
-    const cashTotal = cashAccounts.reduce((sum, a) => sum + parseFloat(a.balance), 0);
-    const creditTotal = creditCards.reduce((sum, a) => sum + parseFloat(a.balance), 0);
-    const netBalance = bankTotal + cashTotal + creditTotal;
+        const accounts = await response.json();
 
-    // Update summary cards
-    document.getElementById('bankTotal').textContent = JARVIS.formatCurrency(bankTotal);
-    document.getElementById('bankCount').textContent = `${bankAccounts.length} account${bankAccounts.length !== 1 ? 's' : ''}`;
-    document.getElementById('cashTotal').textContent = JARVIS.formatCurrency(cashTotal);
-    document.getElementById('creditTotal').textContent = JARVIS.formatCurrency(Math.abs(creditTotal));
-    document.getElementById('creditCount').textContent = `${creditCards.length} card${creditCards.length !== 1 ? 's' : ''}`;
-    document.getElementById('netBalance').textContent = JARVIS.formatCurrency(netBalance);
+        // Sync with global state so add/delete works
+        JARVIS.state.accounts = accounts;
 
-    // Load accounts list
-    loadAccountsList(accounts);
+        // Calculate summaries
+        const bankAccounts = accounts.filter(a => a.type === 'bank');
+        const cashAccounts = accounts.filter(a => a.type === 'cash');
+        const creditCards = accounts.filter(a => a.type === 'credit_card');
+
+        // Fix NaN: Use safe parsing (defaults to 0 if null/undefined/NaN)
+        const safeBalance = (val) => {
+            const num = parseFloat(val);
+            return isNaN(num) ? 0 : num;
+        };
+
+        const bankTotal = bankAccounts.reduce((sum, a) => sum + safeBalance(a.balance), 0);
+        const cashTotal = cashAccounts.reduce((sum, a) => sum + safeBalance(a.balance), 0);
+        const creditTotal = creditCards.reduce((sum, a) => sum + safeBalance(a.balance), 0); // Credit cards usually have +ve balance in this app logic? Or is it debt?
+        // If credit card balance is debt, it might be stored as positive number but logically negative.
+        // Based on previous code: `Math.abs(creditTotal)` for display, and `netBalance = bank + cash + credit`.
+        // If credit balance is entered as negative in DB for debt, then this math works.
+        // If entered as positive, `netBalance` addition would be wrong if it's debt.
+        // However, based on user request "Net Balance shows NaN", preventing NaN is the priority.
+        // We will stick to the existing logic but fixing the parsing.
+
+        // Note: Usually credit card balance is LIABILITY. If stored as positive, Net Worth = Assets - Liabilities.
+        // But original code was `bank + cash + credit`. Assuming `credit` balance is stored as negative for debt?
+        // Let's assume standard behavior: we just fix the NaN.
+
+        const netBalance = bankTotal + cashTotal + creditTotal;
+
+        // Update summary cards
+        document.getElementById('bankTotal').textContent = JARVIS.formatCurrency(bankTotal);
+        document.getElementById('bankCount').textContent = `${bankAccounts.length} account${bankAccounts.length !== 1 ? 's' : ''}`;
+        document.getElementById('cashTotal').textContent = JARVIS.formatCurrency(cashTotal);
+        document.getElementById('creditTotal').textContent = JARVIS.formatCurrency(Math.abs(creditTotal));
+        document.getElementById('creditCount').textContent = `${creditCards.length} card${creditCards.length !== 1 ? 's' : ''}`;
+        document.getElementById('netBalance').textContent = JARVIS.formatCurrency(netBalance);
+
+        // Load accounts list
+        loadAccountsList(accounts);
+    } catch (error) {
+        console.error('Error loading accounts:', error);
+        showNotification('Failed to load accounts', 'error');
+    }
 }
 
 function loadAccountsList(accounts) {
@@ -36,6 +69,11 @@ function loadAccountsList(accounts) {
         container.innerHTML = '<p class="text-center" style="color: var(--text-muted); padding: 2rem;">No accounts yet. Add your first account!</p>';
         return;
     }
+
+    const safeBalance = (val) => {
+        const num = parseFloat(val);
+        return isNaN(num) ? 0 : num;
+    };
 
     container.innerHTML = accounts.map(account => `
         <div class="account-card">
@@ -47,12 +85,12 @@ function loadAccountsList(accounts) {
                 <div class="account-type">
                     ${formatAccountType(account.type)}
                     ${account.account_number ? ' • ' + account.account_number : ''}
-                    ${account.type === 'credit_card' ? ' • Limit: ' + JARVIS.formatCurrency(account.credit_limit) : ''}
+                    ${account.type === 'credit_card' ? ' • Limit: ' + JARVIS.formatCurrency(account.credit_limit || 0) : ''}
                 </div>
             </div>
             <div style="text-align: right;">
-                <div class="account-balance ${account.balance >= 0 ? 'positive' : 'negative'}">
-                    ${JARVIS.formatCurrency(Math.abs(account.balance))}
+                <div class="account-balance ${safeBalance(account.balance) >= 0 ? 'positive' : 'negative'}">
+                    ${JARVIS.formatCurrency(Math.abs(safeBalance(account.balance)))}
                 </div>
                 <div class="account-actions" style="margin-top: 0.5rem;">
                     <button class="btn-icon-small" onclick="editAccount(${account.id})" title="Edit">
@@ -126,7 +164,7 @@ async function handleAddAccount(event) {
     try {
         await JARVIS.add('accounts', account);
         closeAddAccountModal();
-        loadAccountsData();
+        loadAccountsData(); // Reload to refresh list and sums
         showNotification('Account added successfully!', 'success');
     } catch (error) {
         // Notification handled in JARVIS.add
