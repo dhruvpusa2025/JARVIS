@@ -114,10 +114,13 @@ function filterByAccount(accountId) {
 
 function renderTable() {
     const list = document.getElementById('investmentsList');
+    const summaryCard = document.getElementById('filteredSummary');
+
     if (!list) return;
 
     if (currentFilter === null) {
         list.innerHTML = '<tr><td colspan="9" class="text-center p-5 text-muted"><i class="fas fa-arrow-up mb-3" style="font-size: 2rem;"></i><br>Please select an <strong>Investment Account</strong> above to view holdings.</td></tr>';
+        if (summaryCard) summaryCard.style.display = 'none';
         return;
     }
 
@@ -137,6 +140,28 @@ function renderTable() {
 
         return true;
     });
+
+    // --- Calculate Filtered Summary ---
+    if (summaryCard) {
+        summaryCard.style.display = 'block';
+
+        const fInvested = filtered.reduce((s, i) => s + (parseFloat(i.invested_amount) || 0), 0);
+        const fCurrent = filtered.reduce((s, i) => s + (parseFloat(i.current_value) || 0), 0);
+        const fReturn = fCurrent - fInvested;
+        const fReturnPct = fInvested > 0 ? (fReturn / fInvested) * 100 : 0;
+
+        document.getElementById('fsInvested').textContent = JARVIS.formatCurrency(fInvested);
+        document.getElementById('fsCurrent').textContent = JARVIS.formatCurrency(fCurrent);
+
+        const elReturn = document.getElementById('fsReturn');
+        elReturn.textContent = `${fReturn >= 0 ? '+' : ''}${JARVIS.formatCurrency(fReturn)}`;
+        elReturn.className = fReturn >= 0 ? 'text-success' : 'text-danger';
+
+        const elReturnPct = document.getElementById('fsReturnPct');
+        elReturnPct.textContent = `${fReturn >= 0 ? '+' : ''}${fReturnPct.toFixed(2)}%`;
+        elReturnPct.className = fReturn >= 0 ? 'text-success' : 'text-danger';
+    }
+    // ----------------------------------
 
     // Sort
     filtered.sort((a, b) => {

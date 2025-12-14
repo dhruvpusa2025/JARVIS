@@ -236,6 +236,29 @@
             </div>
         </div>
 
+        <!-- Filtered View Summary -->
+        <div id="filteredSummary"
+            style="background: var(--bg-secondary); padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1.5rem; display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <span style="color: var(--text-muted); font-size: 0.875rem; display: block;">Total Invested</span>
+                    <strong style="font-size: 1.25rem;" id="fsInvested">₹0</strong>
+                </div>
+                <div>
+                    <span style="color: var(--text-muted); font-size: 0.875rem; display: block;">Current Value</span>
+                    <strong style="font-size: 1.25rem;" id="fsCurrent">₹0</strong>
+                </div>
+                <div>
+                    <span style="color: var(--text-muted); font-size: 0.875rem; display: block;">Total Return</span>
+                    <strong style="font-size: 1.25rem;" id="fsReturn">₹0</strong>
+                </div>
+                <div>
+                    <span style="color: var(--text-muted); font-size: 0.875rem; display: block;">Return %</span>
+                    <strong style="font-size: 1.25rem;" id="fsReturnPct">0%</strong>
+                </div>
+            </div>
+        </div>
+
         <!-- Investment Table -->
         <div class="table-responsive">
             <table class="table" style="width: 100%; border-collapse: separate; border-spacing: 0 0.5rem;">
