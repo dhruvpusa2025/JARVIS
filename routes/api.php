@@ -14,8 +14,10 @@ use App\Http\Controllers\Api\CategoryController;
 
 use App\Http\Controllers\Api\LoanController;
 use App\Http\Controllers\Api\LendingController;
+use App\Http\Controllers\Api\DashboardController;
 
 Route::name('api.')->group(function () {
+    Route::get('dashboard', [DashboardController::class, 'index']);
     Route::apiResource('accounts', AccountController::class);
     Route::apiResource('transactions', TransactionController::class);
     Route::apiResource('investments', InvestmentController::class);
