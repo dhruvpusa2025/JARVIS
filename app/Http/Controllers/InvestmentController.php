@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 
 use App\Models\Investment;
 use App\Models\InvestmentAccount;
+use App\Models\Account;
 
 class InvestmentController extends Controller
 {
