@@ -26,14 +26,23 @@ document.addEventListener('DOMContentLoaded', async function () {
 });
 
 async function loadData() {
-    allInvestments = JARVIS.get('investments') || [];
-    // Fetch Investment Accounts specifically
     try {
+        // Fetch accounts first to map names
         allAccounts = await JARVIS.request('GET', '/api/investment-accounts');
     } catch (e) {
         console.error("Failed to load investment accounts", e);
         allAccounts = [];
     }
+
+    // Then fetch investments, now including account relation if possible, or we map manually
+    // The API returns 'investment_account_id', we can map it to account object
+    let investmentsData = await JARVIS.get('investments') || [];
+
+    // Manual mapping of account object to investment for display
+    allInvestments = investmentsData.map(inv => {
+        inv.account = allAccounts.find(a => a.id === inv.investment_account_id);
+        return inv;
+    });
 
     updateSummary(allInvestments);
     renderGroupCards();
@@ -135,7 +144,8 @@ function renderTable() {
         if (searchQuery) {
             const name = (inv.name || '').toLowerCase();
             const symbol = (inv.symbol || '').toLowerCase();
-            return name.includes(searchQuery) || symbol.includes(searchQuery);
+            const accountName = (inv.account ? inv.account.name : '').toLowerCase();
+            return name.includes(searchQuery) || symbol.includes(searchQuery) || accountName.includes(searchQuery);
         }
 
         return true;
@@ -197,12 +207,21 @@ function renderTable() {
         const buyPrice = parseFloat(inv.buy_price) || 0;
         const currentPrice = parseFloat(inv.current_price) || 0;
 
+        const accountName = inv.account ? inv.account.name : '-';
+        const sipBadge = inv.is_sip ?
+            `<span class="badge ${inv.sip_status === 'ACTIVE' ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'}" style="font-size: 0.7em;">SIP ${inv.sip_status}</span>`
+            : '';
+
         return `
             <tr style="background: var(--bg-secondary); transition: background 0.2s;">
                 <td style="padding: 1rem; border-top: 1px solid var(--border-color); border-radius: var(--radius-md) 0 0 var(--radius-md);">
-                    <div style="font-weight: 600;">${inv.name}</div>
-                    <small style="color: var(--text-muted);">${inv.symbol || formatType(inv.type)}</small>
+                    <a href="/investments/${inv.id}" style="font-weight: 600; text-decoration: none; color: inherit;">${inv.name}</a>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <small style="color: var(--text-muted);">${inv.symbol || formatType(inv.type)}</small>
+                        ${sipBadge}
+                    </div>
                 </td>
+                <td style="padding: 1rem; border-top: 1px solid var(--border-color); font-size: 0.9em; color: var(--text-muted);">${accountName}</td>
                 <td style="padding: 1rem; border-top: 1px solid var(--border-color);">${units > 0 ? units.toFixed(2) : '-'}</td>
                 <td style="padding: 1rem; border-top: 1px solid var(--border-color);">₹${buyPrice > 0 ? buyPrice.toFixed(2) : '-'}</td>
                 <td style="padding: 1rem; border-top: 1px solid var(--border-color);">₹${currentPrice > 0 ? currentPrice.toFixed(2) : '-'}</td>
@@ -220,6 +239,11 @@ function renderTable() {
                 </td>
                 <td style="padding: 1rem; border-top: 1px solid var(--border-color); border-radius: 0 var(--radius-md) var(--radius-md) 0;">
                     <button class="action-btn" onclick="openEditModal(${inv.id})"><i class="fas fa-pencil-alt"></i></button>
+                    ${inv.is_sip ? `
+                        <button class="action-btn" onclick="toggleSip(${inv.id}, '${inv.sip_status === 'ACTIVE' ? 'STOPPED' : 'ACTIVE'}')" title="${inv.sip_status === 'ACTIVE' ? 'Stop' : 'Start'} SIP">
+                            <i class="fas fa-${inv.sip_status === 'ACTIVE' ? 'stop-circle' : 'play-circle'}" style="color: ${inv.sip_status === 'ACTIVE' ? 'var(--danger)' : 'var(--success)'}"></i>
+                        </button>
+                    ` : ''}
                 </td>
             </tr>
         `;
@@ -288,5 +312,19 @@ function handleEditSubmit(event) {
         closeEditModal();
         loadData(); // Reload to refresh table
         JARVIS.showToast('Investment value updated successfully', 'success');
+    }
+}
+
+async function toggleSip(id, status) {
+    if (!confirm(`Are you sure you want to ${status === 'ACTIVE' ? 'restart' : 'stop'} this SIP?`)) return;
+
+    try {
+        await JARVIS.request('PUT', `/api/investments/${id}`, {
+            sip_status: status
+        });
+        loadData(); // Refresh list
+    } catch (e) {
+        console.error(e);
+        JARVIS.showToast('Failed to update SIP status', 'error');
     }
 }

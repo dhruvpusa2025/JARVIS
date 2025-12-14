@@ -134,6 +134,16 @@
                 </div>
 
                 <div class="form-group">
+                    <label>Investment Account (Optional)</label>
+                    <select name="investment_account_id">
+                        <option value="">-- Select Account (e.g. Zerodha) --</option>
+                        @foreach($accounts as $account)
+                            <option value="{{ $account->id }}">{{ $account->name }} ({{ $account->broker }})</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="form-group">
                     <label>Asset Type</label>
                     <select name="type" id="typeSelect" onchange="toggleTypeFields()" required>
                         <option value="">Select Type</option>

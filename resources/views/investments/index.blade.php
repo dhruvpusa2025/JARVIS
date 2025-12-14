@@ -265,6 +265,7 @@
                 <thead>
                     <tr style="color: var(--text-muted); font-size: 0.875rem; text-align: left;">
                         <th style="padding: 1rem;">Name</th>
+                        <th style="padding: 1rem;">Account</th>
                         <th style="padding: 1rem;">Quantity</th>
                         <th style="padding: 1rem;">Buy Price</th>
                         <th style="padding: 1rem;">Current Price</th>

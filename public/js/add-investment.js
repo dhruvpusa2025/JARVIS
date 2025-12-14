@@ -56,6 +56,8 @@ async function handleAddInvestment(event) {
     };
 
     // Add optional fields
+    const accountId = formData.get('investment_account_id');
+    if (accountId) investment.investment_account_id = parseInt(accountId);
     const units = formData.get('units');
     if (units) investment.units = parseFloat(units);
 

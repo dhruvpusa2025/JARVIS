@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
+use App\Models\Investment;
+use App\Models\InvestmentAccount;
+
 class InvestmentController extends Controller
 {
     /**
@@ -19,7 +22,8 @@ class InvestmentController extends Controller
      */
     public function create()
     {
-        return view('investments.create');
+        $accounts = InvestmentAccount::all();
+        return view('investments.create', compact('accounts'));
     }
 
     /**
@@ -35,7 +39,8 @@ class InvestmentController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $investment = Investment::with('account')->findOrFail($id);
+        return view('investments.show', compact('investment'));
     }
 
     /**

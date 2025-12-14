@@ -16,6 +16,7 @@ class InvestmentController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
+            'investment_account_id' => 'nullable|exists:investment_accounts,id',
             'name' => 'required|string',
             'type' => 'required|string',
             'invested_amount' => 'required|numeric',
@@ -26,9 +27,14 @@ class InvestmentController extends Controller
             'maturity_date' => 'nullable|date',
             'interest_rate' => 'nullable|numeric',
             'is_sip' => 'boolean',
+            'sip_status' => 'nullable|string|in:ACTIVE,STOPPED,PAUSED',
             'sip_amount' => 'nullable|numeric',
             'sip_date' => 'nullable|integer'
         ]);
+
+        if ($request->is_sip && !isset($validated['sip_status'])) {
+            $validated['sip_status'] = 'ACTIVE';
+        }
 
         $investment = Investment::create($validated);
         return response()->json($investment, 201);

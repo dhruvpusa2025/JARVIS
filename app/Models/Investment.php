@@ -25,6 +25,7 @@ class Investment extends Model
         'interest_rate',
         'maturity_date',
         'is_sip',
+        'sip_status',
         'sip_amount',
         'sip_frequency', // MONTHLY, WEEKLY
         'sip_date', // Day of month
