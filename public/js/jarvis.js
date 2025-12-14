@@ -179,5 +179,27 @@ const JARVIS = {
         return [...this.state.transactions]
             .sort((a, b) => new Date(b.date) - new Date(a.date))
             .slice(0, limit);
+    },
+    async request(method, url, data = null) {
+        const options = {
+            method,
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+            }
+        };
+        if (data) options.body = JSON.stringify(data);
+
+        const response = await fetch(url, options);
+        if (!response.ok) {
+            const res = await response.json().catch(() => ({}));
+            throw new Error(res.message || 'Request failed');
+        }
+        return await response.json();
+    },
+
+    post(url, data) {
+        return this.request('POST', url, data);
     }
 };

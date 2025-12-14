@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function () {
 function loadAccounts() {
     const list = document.getElementById('investment-accounts-list');
 
-    JARVIS.get('/api/investment-accounts')
+    JARVIS.request('GET', '/api/investment-accounts')
         .then(accounts => {
             list.innerHTML = '';
             if (accounts.length === 0) {

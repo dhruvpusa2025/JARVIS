@@ -21,6 +21,7 @@ return new class extends Migration {
         Schema::table('investments', function (Blueprint $table) {
             $table->foreignId('investment_account_id')->nullable()->constrained('investment_accounts')->onDelete('cascade');
             $table->string('isin')->nullable()->index(); // Unique ID for stocks/MFs
+            $table->string('symbol')->nullable()->after('name');
             $table->string('sector')->nullable();
 
             // Extended fields for Zerodha support
@@ -44,6 +45,7 @@ return new class extends Migration {
             $table->dropColumn([
                 'investment_account_id',
                 'isin',
+                'symbol',
                 'sector',
                 'previous_close_price',
                 'unrealized_pnl',

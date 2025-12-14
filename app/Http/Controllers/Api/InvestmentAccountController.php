@@ -71,95 +71,108 @@ class InvestmentAccountController extends Controller
 
     public function uploadHoldings(Request $request, string $id)
     {
-        $request->validate([
-            'file' => 'required|file|mimes:xlsx,xls,csv',
-        ]);
+        try {
+            $request->validate([
+                'file' => 'required|file|mimes:xlsx,xls,csv',
+            ]);
 
-        $account = InvestmentAccount::findOrFail($id);
-        $file = $request->file('file');
-        $path = $file->getPathname();
+            $account = InvestmentAccount::findOrFail($id);
+            $file = $request->file('file');
+            $path = $file->getPathname();
 
-        // OpenSpout v4 direct instantiation
-        $reader = new \OpenSpout\Reader\XLSX\Reader();
-        $reader->open($path);
-
-        $headers = [];
-        $headerMap = [];
-        $rowsProcessed = 0;
-
-        foreach ($reader->getSheetIterator() as $sheet) {
-            foreach ($sheet->getRowIterator() as $row) {
-                $cells = $row->getCells();
-                $data = [];
-                foreach ($cells as $cell) {
-                    $data[] = $cell->getValue();
-                }
-
-                if (empty($headers)) {
-                    $headers = $data;
-                    // Lowercase and trim headers for easier matching
-                    foreach ($headers as $index => $header) {
-                        $headerMap[trim(strtolower($header))] = $index;
-                    }
-                    continue;
-                }
-
-                // Helper to safely get value by header name
-                $getVal = function ($key) use ($data, $headerMap) {
-                    $idx = $headerMap[$key] ?? null;
-                    return $idx !== null ? ($data[$idx] ?? null) : null;
-                };
-
-                $isin = $getVal('isin');
-                $symbol = $getVal('symbol');
-
-                if (!$isin || !$symbol)
-                    continue; // Skip invalid rows
-
-                $units = (float) $getVal('quantity available');
-                $buyPrice = (float) $getVal('average price');
-                $prevClose = (float) $getVal('previous closing price');
-                $pnl = (float) $getVal('unrealized p&l');
-                $pnlPct = (float) $getVal('unrealized p&l pct.');
-
-                $sector = $getVal('sector');
-
-                $investedAmount = $units * $buyPrice;
-                // Current value = Invested + PnL
-                $currentValue = $investedAmount + $pnl;
-
-                \App\Models\Investment::updateOrCreate(
-                    [
-                        'investment_account_id' => $account->id,
-                        'isin' => $isin,
-                    ],
-                    [
-                        'name' => $symbol,
-                        'symbol' => $symbol,
-                        'sector' => $sector,
-                        'type' => 'STOCK', // Default to STOCK for now
-                        'units' => $units,
-                        'buy_price' => $buyPrice,
-                        'previous_close_price' => $prevClose,
-                        'current_price' => $prevClose, // Use prev close as current proxy
-                        'invested_amount' => $investedAmount,
-                        'current_value' => $currentValue,
-                        'unrealized_pnl' => $pnl,
-                        'unrealized_pnl_pct' => $pnlPct,
-                        'quantity_discrepant' => (float) $getVal('quantity discrepant'),
-                        'quantity_long_term' => (float) $getVal('quantity long term'),
-                        'quantity_pledged_margin' => (float) $getVal('quantity pledged (margin)'),
-                        'quantity_pledged_loan' => (float) $getVal('quantity pledged (loan)'),
-                    ]
-                );
-
-                $rowsProcessed++;
+            if (!class_exists(\OpenSpout\Reader\XLSX\Reader::class)) {
+                throw new \Exception('OpenSpout library not found. Please run composer install.');
             }
-            break; // Only process the first sheet
+
+            // OpenSpout v4 direct instantiation
+            $reader = new \OpenSpout\Reader\XLSX\Reader();
+            $reader->open($path);
+
+            $headers = [];
+            $headerMap = [];
+            $rowsProcessed = 0;
+
+            foreach ($reader->getSheetIterator() as $sheet) {
+                foreach ($sheet->getRowIterator() as $row) {
+                    $cells = $row->getCells();
+                    $data = [];
+                    foreach ($cells as $cell) {
+                        $data[] = $cell->getValue();
+                    }
+
+                    if (empty($headers)) {
+                        $headers = $data;
+                        // Lowercase and trim headers for easier matching
+                        foreach ($headers as $index => $header) {
+                            $headerMap[trim(strtolower($header))] = $index;
+                        }
+                        continue;
+                    }
+
+                    // Helper to safely get value by header name
+                    $getVal = function ($key) use ($data, $headerMap) {
+                        $idx = $headerMap[$key] ?? null;
+                        return $idx !== null ? ($data[$idx] ?? null) : null;
+                    };
+
+                    $isin = $getVal('isin');
+                    $symbol = $getVal('symbol');
+
+                    if (!$isin || !$symbol)
+                        continue; // Skip invalid rows
+
+                    $units = (float) $getVal('quantity available');
+                    $buyPrice = (float) $getVal('average price');
+                    $prevClose = (float) $getVal('previous closing price');
+                    $pnl = (float) $getVal('unrealized p&l');
+                    $pnlPct = (float) $getVal('unrealized p&l pct.');
+
+                    $sector = $getVal('sector');
+
+                    $investedAmount = $units * $buyPrice;
+                    // Current value = Invested + PnL
+                    $currentValue = $investedAmount + $pnl;
+
+                    \App\Models\Investment::updateOrCreate(
+                        [
+                            'investment_account_id' => $account->id,
+                            'isin' => $isin,
+                        ],
+                        [
+                            'name' => $symbol,
+                            'symbol' => $symbol,
+                            'sector' => $sector,
+                            'type' => 'STOCK', // Default to STOCK for now
+                            'units' => $units,
+                            'buy_price' => $buyPrice,
+                            'previous_close_price' => $prevClose,
+                            'current_price' => $prevClose, // Use prev close as current proxy
+                            'invested_amount' => $investedAmount,
+                            'current_value' => $currentValue,
+                            'unrealized_pnl' => $pnl,
+                            'unrealized_pnl_pct' => $pnlPct,
+                            'quantity_discrepant' => (float) $getVal('quantity discrepant'),
+                            'quantity_long_term' => (float) $getVal('quantity long term'),
+                            'quantity_pledged_margin' => (float) $getVal('quantity pledged (margin)'),
+                            'quantity_pledged_loan' => (float) $getVal('quantity pledged (loan)'),
+                        ]
+                    );
+
+                    $rowsProcessed++;
+                }
+                break; // Only process the first sheet
+            }
+
+            $reader->close();
+
+            return response()->json(['message' => "Processed $rowsProcessed holdings."]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'message' => 'Error processing file',
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ], 500);
         }
-
-        $reader->close();
-
-        return response()->json(['message' => "Processed $rowsProcessed holdings."]);
     }
 }
