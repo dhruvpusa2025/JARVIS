@@ -1,4 +1,4 @@
-let currentFilter = 'all'; // 'all' or accountId (number)
+let currentFilter = null; // null = No selection, 'all' = All, number = Account ID
 let allInvestments = [];
 let allAccounts = [];
 let searchQuery = '';
@@ -25,9 +25,15 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 });
 
-function loadData() {
+async function loadData() {
     allInvestments = JARVIS.get('investments') || [];
-    allAccounts = JARVIS.get('accounts') || [];
+    // Fetch Investment Accounts specifically
+    try {
+        allAccounts = await JARVIS.request('GET', '/api/investment-accounts');
+    } catch (e) {
+        console.error("Failed to load investment accounts", e);
+        allAccounts = [];
+    }
 
     updateSummary(allInvestments);
     renderGroupCards();
@@ -83,8 +89,9 @@ function renderGroupCards() {
 
     const container = document.getElementById('groupCards');
     if (container) {
-        // Convert to array and handle 'all' first
-        const cards = [accountStats.all, ...allAccounts.map(acc => accountStats[acc.id])];
+        // Order: Specific Accounts first, then "All Accounts" at last
+        const specificCards = allAccounts.map(acc => accountStats[acc.id]);
+        const cards = [...specificCards, accountStats.all];
 
         container.innerHTML = cards.map(data => {
             return `
@@ -99,7 +106,8 @@ function renderGroupCards() {
 }
 
 function filterByAccount(accountId) {
-    currentFilter = accountId === 'all' ? 'all' : parseInt(accountId);
+    let newFilter = accountId === 'all' ? 'all' : parseInt(accountId);
+    currentFilter = newFilter;
     renderGroupCards();
     renderTable();
 }
@@ -107,6 +115,11 @@ function filterByAccount(accountId) {
 function renderTable() {
     const list = document.getElementById('investmentsList');
     if (!list) return;
+
+    if (currentFilter === null) {
+        list.innerHTML = '<tr><td colspan="9" class="text-center p-5 text-muted"><i class="fas fa-arrow-up mb-3" style="font-size: 2rem;"></i><br>Please select an <strong>Investment Account</strong> above to view holdings.</td></tr>';
+        return;
+    }
 
     // Filter
     let filtered = allInvestments.filter(inv => {
