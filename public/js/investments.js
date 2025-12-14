@@ -18,10 +18,9 @@ function loadInvestments() {
 }
 
 function updateSummary(investments) {
-    const totalInvested = investments.reduce((sum, inv) => sum + (inv.invested || inv.amount ||
-        inv.purchasePrice || 0), 0);
-    const currentValue = investments.reduce((sum, inv) => sum + (inv.currentValue || inv.amount ||
-        inv.purchasePrice || 0), 0);
+    const totalInvested = investments.reduce((sum, inv) => sum + (parseFloat(inv.invested_amount) || parseFloat(inv.amount) || 0), 0);
+    const currentValue = investments.reduce((sum, inv) => sum + (parseFloat(inv.current_value) || parseFloat(inv.amount) || 0), 0);
+
     const totalReturns = currentValue - totalInvested;
     const returnPercentage = totalInvested > 0 ? ((totalReturns / totalInvested) * 100).toFixed(2) : 0;
 
@@ -50,8 +49,9 @@ function renderGroupCards(investments) {
     };
 
     investments.forEach(inv => {
-        const val = inv.currentValue || inv.amount || inv.purchasePrice || 0;
+        const val = parseFloat(inv.current_value) || parseFloat(inv.amount) || 0;
         groups.all.amount += val;
+
         groups.all.count++;
 
         if (groups[inv.type]) {
@@ -121,15 +121,15 @@ function displayInvestments(investments) {
         : investments.filter(i => i.type === currentFilter);
 
     target.innerHTML = filtered.map(inv => `
-        <div class="investment-card ${inv.type}">
+        <div class="investment-card ${inv.type.toLowerCase()}">
             <div class="card-actions">
                 <button class="action-btn" onclick="openEditModal(${inv.id})"><i class="fas fa-pencil-alt"></i></button>
-                <button class="action-btn sell" onclick="openSellModal(${inv.id})"><i class="fas fa-money-bill-wave"></i></button>
             </div>
             <div class="investment-header">
                 <div>
                     <div class="investment-type">${formatType(inv.type)}</div>
                     <div class="investment-name">${inv.name}</div>
+                    <small class="text-muted">${inv.symbol || ''}</small>
                 </div>
             </div>
             <div class="investment-stats">
@@ -138,6 +138,7 @@ function displayInvestments(investments) {
         </div>
     `).join('');
 }
+
 
 function formatType(type) {
     const types = {
@@ -151,85 +152,61 @@ function formatType(type) {
 }
 
 function getInvestmentStats(inv) {
-    if (inv.type === 'mutual_fund') {
+    // Helper to safety check numbers
+    const fmt = (val) => JARVIS.formatCurrency(val || 0);
+
+    if (inv.type === 'mutual_fund' || inv.type === 'MF') {
         return `
             <div class="stat">
                 <div class="stat-label">Units</div>
-                <div class="stat-value">${inv.units ? inv.units.toFixed(4) : '0'}</div>
+                <div class="stat-value">${parseFloat(inv.units).toFixed(4)}</div>
             </div>
             <div class="stat">
                 <div class="stat-label">NAV</div>
-                <div class="stat-value">₹${inv.currentPrice || inv.buyPrice}</div>
+                <div class="stat-value">₹${inv.current_price || inv.buy_price}</div>
             </div>
             <div class="stat">
                 <div class="stat-label">Invested</div>
-                <div class="stat-value">${JARVIS.formatCurrency(inv.invested)}</div>
+                <div class="stat-value">${fmt(inv.invested_amount)}</div>
             </div>
             <div class="stat">
                 <div class="stat-label">Current Value</div>
-                <div class="stat-value">${JARVIS.formatCurrency(inv.currentValue)}</div>
+                <div class="stat-value">${fmt(inv.current_value)}</div>
             </div>
         `;
-    } else if (inv.type === 'stock') {
+    } else if (inv.type === 'stock' || inv.type === 'STOCK') {
         return `
             <div class="stat">
                 <div class="stat-label">Shares</div>
-                <div class="stat-value">${inv.quantity}</div>
+                <div class="stat-value">${inv.units}</div>
             </div>
             <div class="stat">
                 <div class="stat-label">Price</div>
-                <div class="stat-value">₹${inv.currentPrice || inv.buyPrice}</div>
+                <div class="stat-value">₹${inv.current_price || inv.buy_price}</div>
             </div>
             <div class="stat">
                 <div class="stat-label">Invested</div>
-                <div class="stat-value">${JARVIS.formatCurrency(inv.invested)}</div>
+                <div class="stat-value">${fmt(inv.invested_amount)}</div>
             </div>
             <div class="stat">
                 <div class="stat-label">Current Value</div>
-                <div class="stat-value">${JARVIS.formatCurrency(inv.currentValue)}</div>
-            </div>
-        `;
-    } else if (inv.type === 'fd' || inv.type === 'rd') {
-        return `
-            <div class="stat">
-                <div class="stat-label">Amount</div>
-                <div class="stat-value">${JARVIS.formatCurrency(inv.amount)}</div>
-            </div>
-            <div class="stat">
-                <div class="stat-label">Interest Rate</div>
-                <div class="stat-value">${inv.interestRate}% p.a.</div>
-            </div>
-            <div class="stat">
-                <div class="stat-label">Maturity Date</div>
-                <div class="stat-value">${JARVIS.formatDate(inv.maturityDate)}</div>
-            </div>
-            <div class="stat">
-                <div class="stat-label">Maturity Amount</div>
-                <div class="stat-value">${JARVIS.formatCurrency(inv.maturityAmount)}</div>
-            </div>
-        `;
-    } else if (inv.type === 'real_estate') {
-        return `
-            <div class="stat">
-                <div class="stat-label">Purchase Price</div>
-                <div class="stat-value">${JARVIS.formatCurrency(inv.purchasePrice)}</div>
-            </div>
-            <div class="stat">
-                <div class="stat-label">Current Value</div>
-                <div class="stat-value">${JARVIS.formatCurrency(inv.currentValue)}</div>
-            </div>
-            <div class="stat">
-                <div class="stat-label">Purchase Date</div>
-                <div class="stat-value">${JARVIS.formatDate(inv.purchaseDate)}</div>
-            </div>
-             <div class="stat">
-                <div class="stat-label">Appreciation</div>
-                <div class="stat-value">${JARVIS.formatCurrency(inv.currentValue - inv.purchasePrice)}</div>
+                <div class="stat-value">${fmt(inv.current_value)}</div>
             </div>
         `;
     }
-    return '';
+    // Fallback for others
+    return `
+        <div class="stat">
+            <div class="stat-label">Invested</div>
+            <div class="stat-value">${fmt(inv.invested_amount)}</div>
+        </div>
+        <div class="stat">
+            <div class="stat-label">Current Value</div>
+            <div class="stat-value">${fmt(inv.current_value)}</div>
+        </div>
+    `;
 }
+
 
 // Edit Modal Functions (Price Only)
 function openEditModal(id) {

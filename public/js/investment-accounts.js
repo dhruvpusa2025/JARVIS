@@ -96,7 +96,12 @@ function loadAccounts() {
                             <p class="card-text">
                                 <strong>${account.investments_count || 0}</strong> Investments
                             </p>
+                            <div class="mb-3">
+                                <small class="text-muted d-block">Invested: ${JARVIS.formatCurrency(account.total_invested || 0)}</small>
+                                <strong class="text-success">Current: ${JARVIS.formatCurrency(account.current_value || 0)}</strong>
+                            </div>
                             <div class="d-grid gap-2">
+
                                 <button class="btn btn-outline-primary btn-sm" onclick="openUploadModal(${account.id})">
                                     <i class="fas fa-file-upload"></i> Upload Holdings
                                 </button>

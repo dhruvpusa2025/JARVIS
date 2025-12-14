@@ -13,7 +13,11 @@ class InvestmentAccountController extends Controller
      */
     public function index()
     {
-        return InvestmentAccount::withCount('investments')->get();
+        return InvestmentAccount::withCount('investments')
+            ->withSum('investments as total_invested', 'invested_amount')
+            ->withSum('investments as current_value', 'current_value')
+            ->get();
+
     }
 
     /**
