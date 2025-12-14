@@ -149,9 +149,18 @@ function receiveInterest(id) {
 
     document.getElementById('interestLendingId').value = id;
 
-    // Estimate Interest logic could go here (P * R * T)
-    // For now simpler manual input
-    document.getElementById('interestAmount').value = '';
+    // Auto-fill Interest Logic
+    // Assumption: Interest Rate is per frequency period (e.g. 1% per month or 12% per year)
+    // So calculation is always: Outstanding * Rate / 100
+    const outstanding = parseFloat(lending.outstanding_amount || lending.outstanding);
+    const rate = parseFloat(lending.interest_rate || lending.interestRate);
+
+    if (outstanding > 0 && rate > 0) {
+        const expectedInterest = (outstanding * rate / 100).toFixed(2);
+        document.getElementById('interestAmount').value = expectedInterest;
+    } else {
+        document.getElementById('interestAmount').value = '';
+    }
 
     populateAccountSelect('interestAccount');
     document.getElementById('receiveInterestModal').classList.add('active');
