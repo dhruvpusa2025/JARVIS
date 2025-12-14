@@ -201,5 +201,15 @@ const JARVIS = {
 
     post(url, data) {
         return this.request('POST', url, data);
+    },
+
+    showToast(message, type = 'success') {
+        if (typeof showNotification === 'function') {
+            showNotification(message, type);
+        } else {
+            console.log(`[${type.toUpperCase()}] ${message}`);
+            alert(message);
+        }
     }
+
 };
