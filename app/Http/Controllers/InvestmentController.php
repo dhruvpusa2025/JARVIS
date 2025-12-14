@@ -19,7 +19,7 @@ class InvestmentController extends Controller
      */
     public function create()
     {
-        //
+        return view('investments.create');
     }
 
     /**

@@ -10,27 +10,20 @@ const JARVIS = {
     },
 
     async init() {
-        try {
-            const [accounts, transactions, investments, categories] = await Promise.all([
-                this.fetchData('accounts'),
-                this.fetchData('transactions'),
-                this.fetchData('investments'),
-                this.fetchData('categories')
-            ]);
+        const endpoints = ['accounts', 'transactions', 'investments', 'categories', 'loans', 'lendings'];
 
-            this.state.accounts = accounts;
-            this.state.transactions = transactions;
-            this.state.investments = investments;
-            this.state.categories = categories;
+        await Promise.all(endpoints.map(async (endpoint) => {
+            try {
+                this.state[endpoint] = await this.fetchData(endpoint);
+            } catch (error) {
+                console.error(`Failed to load ${endpoint}:`, error);
+                // Keep default empty array
+            }
+        }));
 
-            // Trigger any listeners if we add them later
-            console.log('JARVIS Initialized with API Data');
-            return true;
-        } catch (error) {
-            console.error('Failed to initialize JARVIS:', error);
-            showNotification('Failed to load data from server', 'error');
-            return false;
-        }
+        // Trigger any listeners if we add them later
+        console.log('JARVIS Initialized with API Data');
+        return true;
     },
 
     async fetchData(endpoint) {
