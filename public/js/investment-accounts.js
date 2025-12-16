@@ -127,9 +127,7 @@ function loadAccounts() {
 
                 return `
                     <div class="account-card">
-                    <div class="account-icon ${brokerClass}">
-                        <i class="fas fa-wallet"></i>
-                    </div>
+
                     <div class="account-details">
                         <div class="account-broker">${account.broker}</div>
                         <div class="account-balance">${JARVIS.formatCurrency(current)}</div>
