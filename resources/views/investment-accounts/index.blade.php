@@ -32,7 +32,7 @@
                 </button>
             </div>
 
-            <div class="row" id="investment-accounts-list">
+            <div class="summary-grid" id="investment-accounts-list">
                 <!-- Accounts will be loaded here -->
                 <div class="col-12 text-center">
                     <div class="spinner-border text-primary" role="status">

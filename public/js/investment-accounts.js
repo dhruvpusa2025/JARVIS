@@ -126,26 +126,24 @@ function loadAccounts() {
                 const brokerClass = account.broker ? account.broker.toLowerCase().replace(/\s+/g, '-') : 'other';
 
                 return `
-                <div class="col-12 col-md-6 col-lg-3 mb-4">
                     <div class="account-card">
-                        <div class="account-icon ${brokerClass}">
-                            <i class="fas fa-wallet"></i>
+                    <div class="account-icon ${brokerClass}">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <div class="account-details">
+                        <div class="account-broker">${account.broker}</div>
+                        <div class="account-balance">${JARVIS.formatCurrency(current)}</div>
+                        <div class="account-meta">
+                            ${count} Investments <br>
+                            <span class="text-muted">Inv: ${JARVIS.formatCurrency(invested)}</span>
                         </div>
-                        <div class="account-details">
-                            <div class="account-broker">${account.broker}</div>
-                            <div class="account-balance">${JARVIS.formatCurrency(current)}</div>
-                            <div class="account-meta">
-                                ${count} Investments <br>
-                                <span class="text-muted">Inv: ${JARVIS.formatCurrency(invested)}</span>
-                            </div>
-                        </div>
-                        <div class="account-actions-absolute">
-                            <div class="dropdown">
-                                <button class="action-btn" data-bs-toggle="dropdown" style="width: 24px; height: 24px;"><i class="fas fa-ellipsis-v" style="font-size: 0.8rem;"></i></button>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="#" onclick="openUploadModal(${account.id})"><i class="fas fa-file-upload me-2"></i> Upload Holdings</a></li>
-                                </ul>
-                            </div>
+                    </div>
+                    <div class="account-actions-absolute">
+                        <div class="dropdown">
+                            <button class="action-btn" data-bs-toggle="dropdown" style="width: 24px; height: 24px;"><i class="fas fa-ellipsis-v" style="font-size: 0.8rem;"></i></button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="#" onclick="openUploadModal(${account.id})"><i class="fas fa-file-upload me-2"></i> Upload Holdings</a></li>
+                            </ul>
                         </div>
                     </div>
                 </div>
@@ -176,7 +174,7 @@ async function loadSIPs() {
             const accountName = account ? account.name : 'Unknown Account';
 
             return `
-                <tr style="background: var(--bg-secondary); transition: background 0.2s;">
+                    < tr style = "background: var(--bg-secondary); transition: background 0.2s;" >
                     <td style="padding: 1rem; border-top: 1px solid var(--border-color);">
                         <div style="font-weight: 600;">${sip.name}</div>
                         <small style="color: var(--text-muted);">${sip.symbol || '-'}</small>
@@ -201,8 +199,8 @@ async function loadSIPs() {
                             <i class="fas fa-${sip.sip_status === 'ACTIVE' ? 'stop-circle' : 'play-circle'}" style="color: ${sip.sip_status === 'ACTIVE' ? 'var(--danger)' : 'var(--success)'}"></i>
                         </button>
                     </td>
-                </tr>
-            `;
+                </tr >
+                    `;
         }).join('');
 
     } catch (e) {
@@ -224,7 +222,7 @@ function openEditSipModal(id) {
     // We need to fetch the single investment details or find from cache
     // Since we don't have a global cache here like investments.js, fetch fresh or find from list if possible
     // Let's simplified fetch single
-    JARVIS.request('GET', `/api/investments/${id}`).then(inv => {
+    JARVIS.request('GET', `/ api / investments / ${id} `).then(inv => {
         document.getElementById('editSipId').value = inv.id;
         document.getElementById('editSipName').value = inv.name;
         document.getElementById('editSipAmount').value = inv.sip_amount;
@@ -233,7 +231,7 @@ function openEditSipModal(id) {
         const accountSelect = document.getElementById('editSipAccount');
         accountSelect.innerHTML = regularAccountsData
             .filter(acc => acc.type === 'bank' || acc.type === 'savings')
-            .map(acc => `<option value="${acc.id}" ${inv.source_account_id === acc.id ? 'selected' : ''}>${acc.name} (₹${JARVIS.formatCurrency(acc.balance)})</option>`)
+            .map(acc => `< option value = "${acc.id}" ${inv.source_account_id === acc.id ? 'selected' : ''}> ${acc.name} (₹${JARVIS.formatCurrency(acc.balance)})</option > `)
             .join('');
 
         document.getElementById('editSipModal').classList.add('active');
@@ -252,7 +250,7 @@ async function handleEditSipSubmit(event) {
     const accountId = document.getElementById('editSipAccount').value;
 
     try {
-        await JARVIS.request('PUT', `/api/investments/${id}`, {
+        await JARVIS.request('PUT', `/ api / investments / ${id} `, {
             sip_amount: amount,
             sip_date: date,
             source_account_id: accountId
@@ -268,14 +266,14 @@ async function handleEditSipSubmit(event) {
 }
 
 async function toggleSip(id, status) {
-    if (!confirm(`Are you sure you want to ${status === 'ACTIVE' ? 'restart' : 'stop'} this SIP?`)) return;
+    if (!confirm(`Are you sure you want to ${status === 'ACTIVE' ? 'restart' : 'stop'} this SIP ? `)) return;
 
     try {
-        await JARVIS.request('PUT', `/api/investments/${id}`, {
+        await JARVIS.request('PUT', `/ api / investments / ${id} `, {
             sip_status: status
         });
         loadSIPs();
-        JARVIS.showToast(`SIP ${status === 'ACTIVE' ? 'Restarted' : 'Stopped'}`, 'success');
+        JARVIS.showToast(`SIP ${status === 'ACTIVE' ? 'Restarted' : 'Stopped'} `, 'success');
     } catch (e) {
         console.error(e);
         JARVIS.showToast('Failed to update SIP status', 'error');
