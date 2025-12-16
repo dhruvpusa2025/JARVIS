@@ -3,6 +3,9 @@ document.addEventListener('DOMContentLoaded', async function () {
     loadAccounts();
     document.getElementById('loanDate').valueAsDate = new Date();
     toggleLoanFields(); // Init state
+
+    // Add listener for Interest Rate
+    document.querySelector('[name="interestRate"]').addEventListener('input', checkInterestRate);
 });
 
 function toggleLoanFields() {
@@ -13,29 +16,52 @@ function toggleLoanFields() {
     // Inputs to toggle 'required'
     const tenure = document.querySelector('[name="tenureMonths"]');
     const emiDay = document.querySelector('[name="emiDay"]');
+    const emiAccount = document.querySelector('[name="emiAccountId"]');
 
     if (type === 'BANK') {
         bankFields.style.display = 'block';
         personalFields.style.display = 'none';
         tenure.required = true;
         emiDay.required = true;
+        emiAccount.required = true;
     } else {
         bankFields.style.display = 'none';
         personalFields.style.display = 'block';
         tenure.required = false;
         emiDay.required = false;
+        emiAccount.required = false;
         document.getElementById('emiAmount').value = ''; // Clear EMI
+        checkInterestRate(); // Check if frequency fields should show
+    }
+}
+
+function checkInterestRate() {
+    const rate = parseFloat(document.querySelector('[name="interestRate"]').value) || 0;
+    const freqFields = document.getElementById('interestFreqFields');
+    // Show only if rate > 0 AND it's a Personal loan
+    const isPersonal = document.getElementById('loanCategory').value === 'PERSONAL';
+
+    if (isPersonal && rate > 0) {
+        freqFields.style.display = 'block';
+    } else {
+        freqFields.style.display = 'none';
     }
 }
 
 function loadAccounts() {
     const accounts = JARVIS.get('accounts') || [];
     const select = document.getElementById('accountSelect');
+    const emiSelect = document.getElementById('emiAccountSelect');
+
     accounts.forEach(acc => {
         const option = document.createElement('option');
         option.value = acc.id;
         option.textContent = `${acc.name} (${JARVIS.formatCurrency(acc.balance)})`;
-        select.appendChild(option);
+        select.appendChild(option.cloneNode(true));
+
+        if (emiSelect) {
+            emiSelect.appendChild(option.cloneNode(true));
+        }
     });
 }
 
@@ -50,8 +76,11 @@ function calculateEMI() {
         const emi = principal * monthlyRate * Math.pow(1 + monthlyRate, tenure) / (Math.pow(1 + monthlyRate, tenure) - 1);
         document.getElementById('emiAmount').value = Math.round(emi);
     } else {
-        // For Personal loan, maybe strictly 0 or allow manual? keeping 0 for now as it's non-EMI
         document.getElementById('emiAmount').value = '';
+    }
+
+    if (loanType === 'PERSONAL') {
+        checkInterestRate();
     }
 }
 
@@ -67,6 +96,12 @@ async function handleAddLoan(event) {
 
     const loanType = formData.get('loan_type');
 
+    // Bank Loan Validation
+    if (loanType === 'BANK' && !formData.get('emiAccountId')) {
+        showNotification('Please select an EMI Deduction Account', 'error');
+        return;
+    }
+
     const loan = {
         loan_type: loanType,
         type: formData.get('type'),
@@ -78,12 +113,13 @@ async function handleAddLoan(event) {
         start_date: formData.get('startDate'),
 
         // Bank Specific
-        tenure_months: loanType === 'BANK' ? parseInt(formData.get('tenureMonths')) : null, // Not in model but maybe useful? API ignores extra fields usually
+        tenure_months: loanType === 'BANK' ? parseInt(formData.get('tenureMonths')) : null,
         emi_amount: loanType === 'BANK' ? parseFloat(formData.get('emiAmount')) : null,
         emi_date: loanType === 'BANK' ? parseInt(formData.get('emiDay')) : null,
+        emi_account_id: loanType === 'BANK' ? parseInt(formData.get('emiAccountId')) : null,
 
         // Personal Specific
-        interest_payment_frequency: loanType === 'PERSONAL' ? formData.get('interestFrequency') : null,
+        interest_payment_frequency: (loanType === 'PERSONAL' && parseFloat(formData.get('interestRate')) > 0) ? formData.get('interestFrequency') : 'NONE',
         interest_payment_date: (loanType === 'PERSONAL' && formData.get('interestPaymentDate')) ? parseInt(formData.get('interestPaymentDate')) : null,
 
         is_active: true

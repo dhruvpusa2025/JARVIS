@@ -19,6 +19,7 @@ class Loan extends Model
         'interest_payment_date',
         'emi_amount',
         'emi_date',
+        'emi_account_id',
         'outstanding_amount',
         'start_date'
     ];

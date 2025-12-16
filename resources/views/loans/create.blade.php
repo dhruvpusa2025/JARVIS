@@ -128,24 +128,33 @@
                         <label>EMI Deduction Date (Day of month)</label>
                         <input type="number" name="emiDay" min="1" max="31" placeholder="10">
                     </div>
+
+                    <div class="form-group">
+                        <label>EMI Deduction Account</label>
+                        <select name="emiAccountId" id="emiAccountSelect">
+                            <option value="">Select account</option>
+                        </select>
+                    </div>
                 </div>
 
                 <!-- Personal Loan Specific -->
                 <div id="personalFields" style="display: none;">
-                    <div class="form-group">
-                        <label>Interest Payment Frequency</label>
-                        <select name="interestFrequency">
-                            <option value="NONE">None (Principal Only)</option>
-                            <option value="MONTHLY">Monthly</option>
-                            <option value="WEEKLY">Weekly</option>
-                        </select>
-                    </div>
+                    <div id="interestFreqFields" style="display: none;">
+                        <div class="form-group">
+                            <label>Interest Payment Frequency</label>
+                            <select name="interestFrequency">
+                                <option value="NONE">None (Principal Only)</option>
+                                <option value="MONTHLY">Monthly</option>
+                                <option value="WEEKLY">Weekly</option>
+                            </select>
+                        </div>
 
-                    <div class="form-group">
-                        <label>Payment Date (Day)</label>
-                        <input type="number" name="interestPaymentDate" min="1" max="31"
-                            placeholder="Day of month or 1-7 for week">
-                        <small style="color: var(--text-muted)">1-31 for Monthly, 1-7 for Weekly</small>
+                        <div class="form-group">
+                            <label>Payment Date (Day)</label>
+                            <input type="number" name="interestPaymentDate" min="1" max="31"
+                                placeholder="Day of month or 1-7 for week">
+                            <small style="color: var(--text-muted)">1-31 for Monthly, 1-7 for Weekly</small>
+                        </div>
                     </div>
                 </div>
 

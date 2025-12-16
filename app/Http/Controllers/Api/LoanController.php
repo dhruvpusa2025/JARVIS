@@ -30,6 +30,7 @@ class LoanController extends Controller
             'interest_rate' => 'nullable|required_if:loan_type,BANK|numeric',
             'emi_amount' => 'nullable|required_if:loan_type,BANK|numeric',
             'emi_date' => 'nullable|required_if:loan_type,BANK|integer',
+            'emi_account_id' => 'nullable|required_if:loan_type,BANK|exists:accounts,id', // Account for EMI deduction
             // Personal Loan Specific
             'interest_payment_frequency' => 'nullable|string|in:MONTHLY,WEEKLY,NONE',
             'interest_payment_date' => 'nullable|integer'
