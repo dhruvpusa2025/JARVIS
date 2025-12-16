@@ -76,9 +76,17 @@
             <h2 style="margin-bottom: 1.5rem;">New Loan</h2>
             <form id="loanForm" onsubmit="handleAddLoan(event)">
                 <div class="form-group">
-                    <label>Loan Type</label>
+                    <label>Loan Category</label>
+                    <select name="loan_type" id="loanCategory" required onchange="toggleLoanFields()">
+                        <option value="BANK">Bank Loan</option>
+                        <option value="PERSONAL">Personal / Friend</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Loan Purpose</label>
                     <select name="type" required>
-                        <option value="">Select type</option>
+                        <option value="">Select purpose</option>
                         <option value="home">Home Loan</option>
                         <option value="car">Car Loan</option>
                         <option value="personal">Personal Loan</option>
@@ -89,7 +97,7 @@
 
                 <div class="form-group">
                     <label>Lender Name</label>
-                    <input type="text" name="lender" placeholder="e.g., HDFC Bank, SBI" required>
+                    <input type="text" name="lender" placeholder="e.g., HDFC Bank, SBI, Friend Name" required>
                 </div>
 
                 <div class="form-group">
@@ -100,23 +108,45 @@
 
                 <div class="form-group">
                     <label>Interest Rate (% per annum)</label>
-                    <input type="number" name="interestRate" step="0.01" placeholder="8.5" required
-                        oninput="calculateEMI()">
+                    <input type="number" name="interestRate" step="0.01" placeholder="8.5" oninput="calculateEMI()">
+                    <small style="color: var(--text-muted)">Leave empty for 0% interest</small>
                 </div>
 
-                <div class="form-group">
-                    <label>Tenure (months)</label>
-                    <input type="number" name="tenureMonths" placeholder="240" required oninput="calculateEMI()">
+                <!-- Bank Loan Specific -->
+                <div id="bankFields">
+                    <div class="form-group">
+                        <label>Tenure (months)</label>
+                        <input type="number" name="tenureMonths" placeholder="240" oninput="calculateEMI()">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Monthly EMI (Auto-calculated)</label>
+                        <input type="number" name="emiAmount" id="emiAmount" class="calculated-field" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label>EMI Deduction Date (Day of month)</label>
+                        <input type="number" name="emiDay" min="1" max="31" placeholder="10">
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label>Monthly EMI (Auto-calculated)</label>
-                    <input type="number" name="emiAmount" id="emiAmount" class="calculated-field" readonly>
-                </div>
+                <!-- Personal Loan Specific -->
+                <div id="personalFields" style="display: none;">
+                    <div class="form-group">
+                        <label>Interest Payment Frequency</label>
+                        <select name="interestFrequency">
+                            <option value="NONE">None (Principal Only)</option>
+                            <option value="MONTHLY">Monthly</option>
+                            <option value="WEEKLY">Weekly</option>
+                        </select>
+                    </div>
 
-                <div class="form-group">
-                    <label>EMI Deduction Date (Day of month)</label>
-                    <input type="number" name="emiDay" min="1" max="31" placeholder="10" required>
+                    <div class="form-group">
+                        <label>Payment Date (Day)</label>
+                        <input type="number" name="interestPaymentDate" min="1" max="31"
+                            placeholder="Day of month or 1-7 for week">
+                        <small style="color: var(--text-muted)">1-31 for Monthly, 1-7 for Weekly</small>
+                    </div>
                 </div>
 
                 <div class="form-group">

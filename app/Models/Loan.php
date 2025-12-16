@@ -12,8 +12,11 @@ class Loan extends Model
     protected $fillable = [
         'lender',
         'type',
+        'loan_type', // BANK, PERSONAL
         'principal_amount',
         'interest_rate',
+        'interest_payment_frequency',
+        'interest_payment_date',
         'emi_amount',
         'emi_date',
         'outstanding_amount',

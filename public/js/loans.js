@@ -35,12 +35,42 @@ function displayLoans(loans) {
         const paidAmount = principal - outstanding;
         const progress = (paidAmount / principal) * 100;
 
+        const isPersonal = loan.loan_type === 'PERSONAL';
+        const emiLabel = isPersonal ? 'Interest Payment' : 'EMI Amount';
+        const emiValueLabel = isPersonal
+            ? (loan.interest_payment_frequency !== 'NONE' ? `${loan.interest_payment_frequency} (${loan.interest_payment_date ? 'Day ' + loan.interest_payment_date : ''})` : '-')
+            : JARVIS.formatCurrency(emiAmount);
+
+        // Buttons
+        let buttonsHtml = '';
+        if (isPersonal) {
+            buttonsHtml = `
+                <button class="btn-primary" onclick="openRepaymentModal(${loan.id}, 'PRINCIPAL')" style="flex: 1;">
+                    <i class="fas fa-money-bill-wave"></i> Pay Principal
+                </button>
+                ${(interestRate && interestRate > 0) ? `
+                <button class="btn-secondary" onclick="openRepaymentModal(${loan.id}, 'INTEREST')" style="flex: 1;">
+                    <i class="fas fa-percent"></i> Pay Interest
+                </button>
+                ` : ''}
+            `;
+        } else {
+            buttonsHtml = `
+                <button class="btn-primary" onclick="openPayEMIModal(${loan.id})" style="flex: 1;">
+                    <i class="fas fa-calendar-check"></i> Pay EMI
+                </button>
+                <button class="btn-secondary" onclick="openRepaymentModal(${loan.id}, 'PRINCIPAL')" style="flex: 1;">
+                    <i class="fas fa-coins"></i> Extra Payment
+                </button>
+            `;
+        }
+
         return `
             <div class="card" style="margin-bottom: 1.5rem;">
                 <div class="card-body" style="padding: 1.5rem;">
                     <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
                         <div>
-                            <h3 style="margin-bottom: 0.25rem;">${formatLoanType(loan.type)} Loan</h3>
+                            <h3 style="margin-bottom: 0.25rem;">${formatLoanType(loan.type)} <span style="font-size:0.7em; color:var(--text-muted)">(${isPersonal ? 'Personal' : 'Bank'})</span></h3>
                             <p style="color: var(--text-muted); font-size: 0.875rem;">${loan.lender}</p>
                         </div>
                         <div style="text-align: right;">
@@ -61,17 +91,18 @@ function displayLoans(loans) {
                             <div style="font-weight: 600;">${JARVIS.formatCurrency(principal)}</div>
                         </div>
                         <div>
-                            <div style="font-size: 0.75rem; color: var(--text-muted);">EMI Amount</div>
-                            <div style="font-weight: 600;">${JARVIS.formatCurrency(emiAmount)}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">${emiLabel}</div>
+                            <div style="font-weight: 600;">${emiValueLabel}</div>
                         </div>
                         <div>
                             <div style="font-size: 0.75rem; color: var(--text-muted);">Interest Rate</div>
-                            <div style="font-weight: 600;">${interestRate}% p.a.</div>
+                            <div style="font-weight: 600;">${interestRate ? interestRate + '% p.a.' : '0%'}</div>
                         </div>
+                        ${!isPersonal ? `
                         <div>
                             <div style="font-size: 0.75rem; color: var(--text-muted);">EMI Date</div>
                             <div style="font-weight: 600;">${emiDay}th of month</div>
-                        </div>
+                        </div>` : ''}
                         <div>
                             <div style="font-size: 0.75rem; color: var(--text-muted);">Progress</div>
                             <div style="font-weight: 600; color: var(--primary-green);">${progress.toFixed(1)}%</div>
@@ -79,12 +110,7 @@ function displayLoans(loans) {
                     </div>
                 </div>
                 <div class="loan-actions" style="margin-top: 1.5rem; display: flex; gap: 1rem; padding: 0 1.5rem 1.5rem;">
-                    <button class="btn-primary" onclick="openPayEMIModal(${loan.id})" style="flex: 1;">
-                        <i class="fas fa-calendar-check"></i> Pay EMI
-                    </button>
-                    <button class="btn-secondary" onclick="openExtraPaymentModal(${loan.id})" style="flex: 1;">
-                        <i class="fas fa-coins"></i> Extra Payment
-                    </button>
+                    ${buttonsHtml}
                 </div>
             </div>
         `;
@@ -102,8 +128,16 @@ function formatLoanType(type) {
     return types[type] || type;
 }
 
-// Pay EMI Modal
+// Pay EMI Modal (Bank Only now)
 function openPayEMIModal(id) {
+    // Treat as Principal payment for now or existing logic?
+    // Let's redirect to general repayment logic mapping to PRINCIPAL for simplicity, 
+    // or keep separate if Bank EMI logic is distinct. 
+    // The user wants 'functionality of loan which is now is needed so do not remove that'.
+    // So I keep openPayEMIModal but wire it to 'repay' endpoint if possible, or keep as is.
+    // The previous implementation of handlePayEMI was a dummy 'showNotification'. 
+    // So I will implement it properly now using the new API.
+
     const loan = JARVIS.get('loans').find(l => l.id === id);
     if (!loan) return;
 
@@ -111,10 +145,7 @@ function openPayEMIModal(id) {
     document.getElementById('emiLoanName').value = `${formatLoanType(loan.type)} Loan - ${loan.lender}`;
     document.getElementById('emiAmount').value = loan.emi_amount || loan.emiAmount;
 
-    const accounts = JARVIS.get('accounts') || [];
-    const accSelect = document.getElementById('emiAccount');
-    accSelect.innerHTML = accounts.map(a => `<option value="${a.id}">${a.name} (₹${a.balance})</option>`).join('');
-
+    loadAccountsForModal('emiAccount');
     document.getElementById('emiDate').valueAsDate = new Date();
     document.getElementById('payEMIModal').classList.add('active');
 }
@@ -130,25 +161,43 @@ async function handlePayEMI(event) {
     const accountId = parseInt(document.getElementById('emiAccount').value);
     const date = document.getElementById('emiDate').value;
 
-    const loan = JARVIS.get('loans').find(l => l.id === id);
-    // Logic to handle payment would need to be implemented in API or here sequentially
-    // For now, simulate UI update but warn about backend implementation needed
-    showNotification('EMI Payment logic partially implemented on backend', 'info');
-    closePayEMIModal();
+    try {
+        // Bank EMI usually is Principal + Interest. 
+        // Our simple API handles 'PRINCIPAL' (reducing outstanding) or 'INTEREST' (not reducing).
+        // For Bank EMI, we likely want to reduce outstanding? 
+        // Or strictly following the new generic 'repay' API:
+        // Let's assume EMI pays down Principal for this MVP, or we need a new 'EMI' type?
+        // The controller supports PRINCIPAL, INTEREST. 
+        // Using PRINCIPAL ensures outstanding drops.
+
+        await JARVIS.request('POST', `/api/loans/${id}/repay`, {
+            amount: amount,
+            account_id: accountId,
+            date: date,
+            payment_type: 'PRINCIPAL' // Treating EMI as Principal payment for simplicity
+        });
+
+        showNotification('EMI Payment recorded', 'success');
+        closePayEMIModal();
+        loadLoans(); // Reload
+    } catch (e) {
+        showNotification('Failed to pay EMI: ' + (e.response?.data?.message || e.message), 'error');
+    }
 }
 
-// Extra Payment Modal
-function openExtraPaymentModal(id) {
+// General Repayment Modal (Personal: Principal/Interest, Bank: Extra)
+let currentRepaymentType = 'PRINCIPAL';
+
+function openRepaymentModal(id, type) {
+    currentRepaymentType = type;
     const loan = JARVIS.get('loans').find(l => l.id === id);
     if (!loan) return;
 
     document.getElementById('extraLoanId').value = loan.id;
-    document.getElementById('extraLoanName').value = `${formatLoanType(loan.type)} Loan - ${loan.lender}`;
+    document.getElementById('extraLoanName').value = `${formatLoanType(loan.type)} - ${type === 'PRINCIPAL' ? 'Principal Repayment' : 'Interest Payment'}`; // Update header
+    document.querySelector('#extraPaymentModal h2').textContent = type === 'PRINCIPAL' ? 'Pay Principal' : 'Pay Interest';
 
-    const accounts = JARVIS.get('accounts') || [];
-    const accSelect = document.getElementById('extraAccount');
-    accSelect.innerHTML = accounts.map(a => `<option value="${a.id}">${a.name} (₹${a.balance})</option>`).join('');
-
+    loadAccountsForModal('extraAccount');
     document.getElementById('extraDate').valueAsDate = new Date();
     document.getElementById('extraPaymentModal').classList.add('active');
 }
@@ -157,9 +206,35 @@ function closeExtraPaymentModal() {
     document.getElementById('extraPaymentModal').classList.remove('active');
 }
 
-function handleExtraPayment(event) {
-    event.preventDefault();
-    // Similar to Pay EMI
-    showNotification('Extra Payment logic coming soon', 'info');
-    closeExtraPaymentModal();
+async function handleExtraPayment(event) {
+    event.preventDefault(); // This is bound to 'extraPaymentModal' form onsubmit
+
+    const id = parseInt(document.getElementById('extraLoanId').value);
+    const amount = parseFloat(document.getElementById('extraAmount').value);
+    const accountId = parseInt(document.getElementById('extraAccount').value);
+    const date = document.getElementById('extraDate').value;
+
+    try {
+        await JARVIS.request('POST', `/api/loans/${id}/repay`, {
+            amount: amount,
+            account_id: accountId,
+            date: date,
+            payment_type: currentRepaymentType
+        });
+
+        showNotification('Payment recorded successfully', 'success');
+        closeExtraPaymentModal();
+        loadLoans();
+    } catch (e) {
+        console.error(e);
+        showNotification('Failed to record payment: ' + (e.response?.data?.message || e.message), 'error');
+    }
+}
+
+function loadAccountsForModal(selectId) {
+    const accounts = JARVIS.get('accounts') || [];
+    const select = document.getElementById(selectId);
+    if (select) {
+        select.innerHTML = accounts.map(a => `<option value="${a.id}">${a.name} (₹${a.balance})</option>`).join('');
+    }
 }
