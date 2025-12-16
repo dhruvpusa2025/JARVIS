@@ -350,6 +350,51 @@
                 <button type="submit" class="submit-btn"
                     style="width: 100%; margin-top: 1rem; background: var(--danger);">Sell & Confirm</button>
             </form>
+            </form>
+        </div>
+    </div>
+
+    <!-- SIP Setup Modal -->
+    <div class="modal" id="sipModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Setup SIP</h3>
+                <button class="close-btn" onclick="closeSipModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="sipForm" onsubmit="handleSipSubmit(event)">
+                <input type="hidden" id="sipId">
+                <div class="form-group">
+                    <label>Investment Name</label>
+                    <input type="text" id="sipName" readonly style="background-color: var(--bg-tertiary);">
+                </div>
+
+                <div class="form-group">
+                    <label>SIP Amount (Monthly)</label>
+                    <input type="number" step="0.01" id="sipAmount" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Deduct from Account</label>
+                    <select id="sipAccount" required>
+                        <!-- Populated by JS -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Debit Date (Day of Month)</label>
+                    <select id="sipDate" required>
+                        <option value="">Select Date</option>
+                        @for ($i = 1; $i <= 28; $i++)
+                            <option value="{{ $i }}">{{ $i }}</option>
+                        @endfor
+                    </select>
+                    <small style="color: var(--text-muted); margin-top: 0.25rem;">SIPs are typically processed between 1st
+                        and 28th.</small>
+                </div>
+
+                <button type="submit" class="submit-btn"
+                    style="width: 100%; margin-top: 1rem; background: var(--primary-color);">Start SIP</button>
+            </form>
         </div>
     </div>
 @endsection

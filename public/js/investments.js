@@ -243,7 +243,11 @@ function renderTable() {
                         <button class="action-btn" onclick="toggleSip(${inv.id}, '${inv.sip_status === 'ACTIVE' ? 'STOPPED' : 'ACTIVE'}')" title="${inv.sip_status === 'ACTIVE' ? 'Stop' : 'Start'} SIP">
                             <i class="fas fa-${inv.sip_status === 'ACTIVE' ? 'stop-circle' : 'play-circle'}" style="color: ${inv.sip_status === 'ACTIVE' ? 'var(--danger)' : 'var(--success)'}"></i>
                         </button>
-                    ` : ''}
+                    ` : `
+                        <button class="action-btn" onclick="openSipModal(${inv.id})" title="Start SIP">
+                           <i class="fas fa-calendar-plus" style="color: var(--primary-color);"></i>
+                        </button>
+                    `}
                 </td>
             </tr>
         `;
@@ -315,6 +319,54 @@ function handleEditSubmit(event) {
     }
 }
 
+function closeSipModal() {
+    document.getElementById('sipModal').classList.remove('active');
+}
+
+function openSipModal(id) {
+    const inv = allInvestments.find(i => i.id === id);
+    if (!inv) return;
+
+    document.getElementById('sipId').value = inv.id;
+    document.getElementById('sipName').value = inv.name;
+    document.getElementById('sipAmount').value = inv.sip_amount || 1000;
+
+    // Populate Accounts
+    const accountSelect = document.getElementById('sipAccount');
+    accountSelect.innerHTML = allAccounts
+        .filter(acc => acc.type === 'bank' || acc.type === 'savings')
+        .map(acc => `<option value="${acc.id}" ${inv.source_account_id === acc.id ? 'selected' : ''}>${acc.name} (₹${JARVIS.formatCurrency(acc.balance)})</option>`)
+        .join('');
+
+    document.getElementById('sipModal').classList.add('active');
+}
+
+async function handleSipSubmit(event) {
+    event.preventDefault();
+    const id = document.getElementById('sipId').value;
+    const amount = document.getElementById('sipAmount').value;
+    const accountId = document.getElementById('sipAccount').value;
+    const date = document.getElementById('sipDate').value;
+
+    try {
+        await JARVIS.request('PUT', `/api/investments/${id}`, {
+            is_sip: true,
+            sip_status: 'ACTIVE',
+            sip_amount: amount,
+            source_account_id: accountId,
+            sip_date: date,
+            sip_frequency: 'MONTHLY'
+        });
+
+        closeSipModal();
+        loadData();
+        JARVIS.showToast('SIP Setup Successfully!', 'success');
+    } catch (e) {
+        console.error(e);
+        JARVIS.showToast('Failed to setup SIP', 'error');
+    }
+}
+
 async function toggleSip(id, status) {
     if (!confirm(`Are you sure you want to ${status === 'ACTIVE' ? 'restart' : 'stop'} this SIP?`)) return;
 
@@ -323,6 +375,7 @@ async function toggleSip(id, status) {
             sip_status: status
         });
         loadData(); // Refresh list
+        JARVIS.showToast(`SIP ${status === 'ACTIVE' ? 'Restarted' : 'Stopped'}`, 'success');
     } catch (e) {
         console.error(e);
         JARVIS.showToast('Failed to update SIP status', 'error');
