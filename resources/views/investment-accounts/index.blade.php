@@ -4,11 +4,11 @@
 
 @section('content')
     <div class="row mb-4">
-        <div class="col-md-12 d-flex justify-content-between align-items-center">
+        <div class="col-md-12">
 
             <!-- Tabs -->
             <ul class="nav nav-pills" id="pills-tab" role="tablist"
-                style="background: var(--bg-secondary); padding: 0.5rem; border-radius: var(--radius-md);">
+                style="background: var(--bg-secondary); padding: 0.5rem; border-radius: var(--radius-md); display: inline-flex;">
                 <li class="nav-item" role="presentation">
                     <button class="nav-link active" id="pills-accounts-tab" data-account-tab onclick="switchTab('accounts')"
                         type="button" role="tab">Investment Accounts</button>
@@ -18,10 +18,6 @@
                         role="tab">SIPs</button>
                 </li>
             </ul>
-
-            <button class="btn btn-premium" data-bs-toggle="modal" data-bs-target="#addAccountModal">
-                <i class="fas fa-plus"></i> Add Account
-            </button>
         </div>
     </div>
 
@@ -30,6 +26,12 @@
 
         <!-- Accounts Tab -->
         <div class="tab-pane fade show active" id="pills-accounts" role="tabpanel">
+            <div class="d-flex justify-content-end mb-3">
+                <button class="btn btn-premium" data-bs-toggle="modal" data-bs-target="#addAccountModal">
+                    <i class="fas fa-plus"></i> Add Account
+                </button>
+            </div>
+
             <div class="row" id="investment-accounts-list">
                 <!-- Accounts will be loaded here -->
                 <div class="col-12 text-center">
