@@ -25,6 +25,7 @@ class LoanController extends Controller
             'principal_amount' => 'required|numeric',
             'outstanding_amount' => 'required|numeric',
             'start_date' => 'nullable|date',
+            'account_id' => 'required|exists:accounts,id', // Account to receive money
             // Bank Loan Specific
             'interest_rate' => 'nullable|required_if:loan_type,BANK|numeric',
             'emi_amount' => 'nullable|required_if:loan_type,BANK|numeric',
@@ -34,8 +35,27 @@ class LoanController extends Controller
             'interest_payment_date' => 'nullable|integer'
         ]);
 
-        $loan = Loan::create($validated);
-        return response()->json($loan, 201);
+        return DB::transaction(function () use ($validated) {
+            // 1. Create Loan
+            $loan = Loan::create($validated);
+
+            // 2. Credit to Account
+            $account = Account::findOrFail($validated['account_id']);
+            $account->balance += $validated['principal_amount'];
+            $account->save();
+
+            // 3. Create Transaction (Income)
+            Transaction::create([
+                'account_id' => $account->id,
+                'type' => 'income', // Or specific Loan type if available
+                'amount' => $validated['principal_amount'],
+                'date' => $validated['start_date'] ?? now(),
+                'description' => "Loan Disbursement: {$validated['lender']}",
+                'category_id' => 1 // Using 'Salary' or similar income category for now
+            ]);
+
+            return response()->json($loan, 201);
+        });
     }
 
     public function update(Request $request, Loan $loan)

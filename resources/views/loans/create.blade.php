@@ -150,7 +150,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label>EMI Deduction Account</label>
+                    <label>Deposit to Account (Loan Amount)</label>
                     <select name="accountId" id="accountSelect" required>
                         <option value="">Select account</option>
                     </select>
