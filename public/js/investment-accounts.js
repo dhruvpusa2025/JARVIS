@@ -124,7 +124,7 @@ function loadAccounts() {
 
                 return `
                 <div class="col-md-4 mb-4">
-                    <div class="investment-card" style="border-left: 4px solid var(--primary-color);">
+                    <div class="investment-card">
                         <div class="investment-header">
                             <div>
                                 <div class="investment-type">${account.broker}</div>
@@ -133,8 +133,8 @@ function loadAccounts() {
                             </div>
                             <div class="dropdown">
                                 <button class="action-btn" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></button>
-                                <ul class="dropdown-menu dropdown-menu-end" style="background: var(--bg-tertiary); border: 1px solid var(--border-color);">
-                                    <li><a class="dropdown-item text-light" href="#" onclick="openUploadModal(${account.id})"><i class="fas fa-file-upload me-2"></i> Upload Holdings</a></li>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="#" onclick="openUploadModal(${account.id})"><i class="fas fa-file-upload me-2"></i> Upload Holdings</a></li>
                                 </ul>
                             </div>
                         </div>
