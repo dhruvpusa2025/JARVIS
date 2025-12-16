@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     await JARVIS.init();
 
     // Fetch regular accounts for dropdowns
-    regularAccountsData = await JARVIS.getRequest('/api/accounts') || [];
+    regularAccountsData = await JARVIS.request('GET', '/api/accounts') || [];
 
     loadAccounts();
     loadSIPs();
@@ -172,7 +172,7 @@ async function loadSIPs() {
     if (!list) return;
 
     try {
-        const investments = await JARVIS.getRequest('/api/investments') || [];
+        const investments = await JARVIS.request('GET', '/api/investments') || [];
         const sips = investments.filter(inv => inv.is_sip);
 
         if (sips.length === 0) {
@@ -233,7 +233,7 @@ function openEditSipModal(id) {
     // We need to fetch the single investment details or find from cache
     // Since we don't have a global cache here like investments.js, fetch fresh or find from list if possible
     // Let's simplified fetch single
-    JARVIS.getRequest(`/api/investments/${id}`).then(inv => {
+    JARVIS.request('GET', `/api/investments/${id}`).then(inv => {
         document.getElementById('editSipId').value = inv.id;
         document.getElementById('editSipName').value = inv.name;
         document.getElementById('editSipAmount').value = inv.sip_amount;
