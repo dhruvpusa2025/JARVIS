@@ -1,6 +1,7 @@
 let currentFilter = null; // null = No selection, 'all' = All, number = Account ID
 let allInvestments = [];
-let allAccounts = [];
+let allAccounts = []; // Investment Accounts
+let regularAccounts = []; // Bank/Savings Accounts
 let searchQuery = '';
 let sortBy = 'value_desc';
 
@@ -29,9 +30,11 @@ async function loadData() {
     try {
         // Fetch accounts first to map names
         allAccounts = await JARVIS.request('GET', '/api/investment-accounts');
+        regularAccounts = await JARVIS.request('GET', '/api/accounts'); // Fetch regular accounts for SIP
     } catch (e) {
-        console.error("Failed to load investment accounts", e);
+        console.error("Failed to load accounts", e);
         allAccounts = [];
+        regularAccounts = [];
     }
 
     // Then fetch investments, now including account relation if possible, or we map manually
@@ -333,7 +336,7 @@ function openSipModal(id) {
 
     // Populate Accounts
     const accountSelect = document.getElementById('sipAccount');
-    accountSelect.innerHTML = allAccounts
+    accountSelect.innerHTML = regularAccounts
         .filter(acc => acc.type === 'bank' || acc.type === 'savings')
         .map(acc => `<option value="${acc.id}" ${inv.source_account_id === acc.id ? 'selected' : ''}>${acc.name} (₹${JARVIS.formatCurrency(acc.balance)})</option>`)
         .join('');
