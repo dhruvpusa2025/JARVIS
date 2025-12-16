@@ -803,72 +803,89 @@ body {
    PREMIUM UI ENHANCEMENTS (Investment Accounts)
    ========================================= */
 
-/* Investment Cards */
-.investment-card {
+/* Compact Account Cards (Matches Summary Cards) */
+.account-card {
     background: var(--bg-secondary);
     border-radius: var(--radius-lg);
     padding: var(--spacing-lg);
-    height: 100%;
-    transition: all 0.3s ease;
-    border: 1px solid var(--bg-tertiary);
-    position: relative;
-    overflow: hidden;
     display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    align-items: center;
+    gap: var(--spacing-md);
+    box-shadow: var(--shadow-md);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid var(--bg-tertiary);
+    height: 100%;
+    position: relative;
+    cursor: pointer;
 }
 
-.investment-card:hover {
+.account-card:hover {
     transform: translateY(-5px);
     box-shadow: var(--shadow-xl);
     border-color: var(--primary-green);
 }
 
-.investment-header {
+.account-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: var(--radius-md);
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: var(--spacing-md);
-}
-
-.investment-type {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--primary-green);
-    font-weight: 700;
-    margin-bottom: 0.25rem;
-}
-
-.investment-name {
-    font-size: 1.1rem;
-    font-weight: 600;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-primary));
     color: var(--text-primary);
 }
 
-.investment-stats {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--spacing-md);
-    margin-top: var(--spacing-md);
-    background: rgba(255, 255, 255, 0.03);
-    padding: var(--spacing-sm);
-    border-radius: var(--radius-md);
+.account-icon.zerodha {
+    background: linear-gradient(135deg, #FF5722, #E64A19);
+    color: white;
 }
 
-.stat-label {
-    display: block;
+.account-icon.groww {
+    background: linear-gradient(135deg, #00D09C, #009688);
+    color: white;
+}
+
+.account-icon.coin {
+    background: linear-gradient(135deg, #2196F3, #1976D2);
+    color: white;
+}
+
+.account-icon.kite {
+    background: linear-gradient(135deg, #FF9800, #F57C00);
+    color: white;
+}
+
+.account-details {
+    flex: 1;
+}
+
+.account-broker {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 2px;
+}
+
+.account-balance {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.account-meta {
     font-size: 0.75rem;
     color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
 }
 
-.stat-value {
-    display: block;
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--text-primary);
+.account-actions-absolute {
+    position: absolute;
+    top: 10px;
+    right: 10px;
 }
 
 /* Custom Nav Pills (Tabs) */
@@ -985,121 +1002,122 @@ body {
     background: var(--bg-tertiary);
     color: var(--text-primary);
 }
-    .modal-footer {
-        display: flex;
-        justify-content: flex-end;
-        gap: var(--spacing-md);
-        margin-top: var(--spacing-lg);
-    }
 
-    .btn-secondary {
-        background: var(--bg-tertiary);
-        color: var(--text-primary);
-        padding: 0.75rem 1.5rem;
-        border: none;
-        border-radius: var(--radius-md);
-        cursor: pointer;
-        font-weight: 500;
-        transition: background 0.3s ease;
-    }
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-lg);
+}
 
-    .btn-secondary:hover {
-        background: var(--bg-primary);
-    }
+.btn-secondary {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.3s ease;
+}
 
-    .btn-primary {
-        background: var(--gradient-primary);
-        color: white;
-        padding: 0.75rem 1.5rem;
-        border: none;
-        border-radius: var(--radius-md);
-        cursor: pointer;
-        font-weight: 500;
-        transition: transform 0.2s ease;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        justify-content: center;
-        text-decoration: none;
-    }
+.btn-secondary:hover {
+    background: var(--bg-primary);
+}
 
-    .btn-primary:hover {
-        transform: translateY(-2px);
-    }
+.btn-primary {
+    background: var(--gradient-primary);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-weight: 500;
+    transition: transform 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    justify-content: center;
+    text-decoration: none;
+}
 
-    .btn-icon-small {
-        background: none;
-        border: none;
-        color: var(--text-muted);
-        cursor: pointer;
-        padding: 0.25rem;
-        transition: color 0.3s ease;
-    }
+.btn-primary:hover {
+    transform: translateY(-2px);
+}
 
-    .btn-icon-small:hover {
-        color: var(--danger);
-    }
+.btn-icon-small {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0.25rem;
+    transition: color 0.3s ease;
+}
 
-    /* Form Styles */
-    .form-group {
-        margin-bottom: var(--spacing-md);
-    }
+.btn-icon-small:hover {
+    color: var(--danger);
+}
 
-    .form-group input,
-    .form-group select,
-    .form-group textarea,
-    .form-control {
-        width: 100%;
-        padding: 0.75rem;
-        background: var(--bg-primary);
-        border: 1px solid var(--bg-tertiary);
-        border-radius: var(--radius-md);
-        color: var(--text-primary);
-        font-family: inherit;
-        transition: border-color 0.3s ease;
-    }
+/* Form Styles */
+.form-group {
+    margin-bottom: var(--spacing-md);
+}
 
-    .form-group label {
-        display: block;
-        font-family: inherit;
-        transition: border-color 0.3s ease;
-    }
+.form-group input,
+.form-group select,
+.form-group textarea,
+.form-control {
+    width: 100%;
+    padding: 0.75rem;
+    background: var(--bg-primary);
+    border: 1px solid var(--bg-tertiary);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-family: inherit;
+    transition: border-color 0.3s ease;
+}
 
-    .form-group input:focus,
-    .form-group select:focus,
-    .form-group textarea:focus {
-        outline: none;
-        border-color: var(--primary-green);
-    }
+.form-group label {
+    display: block;
+    font-family: inherit;
+    transition: border-color 0.3s ease;
+}
 
-    .readonly-input {
-        background: var(--bg-tertiary) !important;
-        border: 1px solid transparent !important;
-        color: var(--text-muted) !important;
-        cursor: not-allowed;
-    }
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-green);
+}
 
-    .input-group {
-        position: relative;
-        display: flex;
-        align-items: center;
-    }
+.readonly-input {
+    background: var(--bg-tertiary) !important;
+    border: 1px solid transparent !important;
+    color: var(--text-muted) !important;
+    cursor: not-allowed;
+}
 
-    .input-prefix {
-        position: absolute;
-        left: 1rem;
-        color: var(--text-muted);
-        pointer-events: none;
-    }
+.input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
 
-    .input-group input {
-        padding-left: 2rem;
-    }
+.input-prefix {
+    position: absolute;
+    left: 1rem;
+    color: var(--text-muted);
+    pointer-events: none;
+}
 
-    .styled-select {
-        appearance: none;
-        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-        background-repeat: no-repeat;
-        background-position: right 1rem center;
-        background-size: 1em;
-    }
+.input-group input {
+    padding-left: 2rem;
+}
+
+.styled-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1em;
+}

@@ -122,39 +122,30 @@ function loadAccounts() {
                 const current = parseFloat(account.current_value) || 0;
                 const count = account.investments_count || 0;
 
+                // Compact Card Design
+                const brokerClass = account.broker ? account.broker.toLowerCase().replace(/\s+/g, '-') : 'other';
+
                 return `
-                <div class="col-12 col-md-6 col-lg-4 mb-4">
-                    <div class="investment-card">
-                        <div class="investment-header">
-                            <div>
-                                <div class="investment-type">${account.broker}</div>
-                                <div class="investment-name">${account.name}</div>
-                                <div style="font-size: 0.8em; color: var(--text-muted);">${account.account_number || ''}</div>
+                <div class="col-12 col-md-6 col-lg-3 mb-4">
+                    <div class="account-card">
+                        <div class="account-icon ${brokerClass}">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div class="account-details">
+                            <div class="account-broker">${account.broker}</div>
+                            <div class="account-balance">${JARVIS.formatCurrency(current)}</div>
+                            <div class="account-meta">
+                                ${count} Investments <br>
+                                <span class="text-muted">Inv: ${JARVIS.formatCurrency(invested)}</span>
                             </div>
+                        </div>
+                        <div class="account-actions-absolute">
                             <div class="dropdown">
-                                <button class="action-btn" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></button>
+                                <button class="action-btn" data-bs-toggle="dropdown" style="width: 24px; height: 24px;"><i class="fas fa-ellipsis-v" style="font-size: 0.8rem;"></i></button>
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     <li><a class="dropdown-item" href="#" onclick="openUploadModal(${account.id})"><i class="fas fa-file-upload me-2"></i> Upload Holdings</a></li>
                                 </ul>
                             </div>
-                        </div>
-                        
-                        <div class="investment-stats">
-                            <div class="stat">
-                                <span class="stat-label">Invested</span>
-                                <span class="stat-value">${JARVIS.formatCurrency(invested)}</span>
-                            </div>
-                            <div class="stat">
-                                <span class="stat-label">Current Value</span>
-                                <span class="stat-value" style="color: var(--success);">${JARVIS.formatCurrency(current)}</span>
-                            </div>
-                        </div>
-
-                        <div style="margin-top: 1rem; padding-top: 0.5rem; border-top: 1px solid var(--bg-tertiary); display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-size: 0.8rem; color: var(--text-muted);">${count} Investments</span>
-                             <button class="btn btn-sm btn-outline-primary" onclick="openUploadModal(${account.id})">
-                                <i class="fas fa-sync-alt"></i> Sync
-                            </button>
                         </div>
                     </div>
                 </div>
