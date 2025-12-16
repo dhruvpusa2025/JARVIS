@@ -114,21 +114,20 @@
 
         /* Grouping Cards */
         .group-scroll {
-            display: flex;
-            gap: 1rem;
-            overflow-x: auto;
-            padding-bottom: 1rem;
-            margin-bottom: 1rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
         }
 
         .group-card {
-            min-width: 160px;
             background: var(--bg-secondary);
-            padding: 1rem;
+            padding: 1.5rem;
             border-radius: var(--radius-md);
             cursor: pointer;
             border: 2px solid transparent;
             transition: all 0.3s ease;
+            position: relative;
         }
 
         .group-card:hover {

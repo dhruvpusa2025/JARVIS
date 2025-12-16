@@ -68,13 +68,13 @@ class InvestmentController extends Controller
         return DB::transaction(function () use ($validated, $investment) {
             $amount = $validated['amount'];
             $date = $validated['date'];
-            
+
             // 1. Deduct from Source Account
             if ($investment->source_account_id) {
                 $account = Account::findOrFail($investment->source_account_id);
                 $account->balance -= $amount;
                 $account->save();
-                
+
                 // Track as transaction
                 Transaction::create([
                     'account_id' => $account->id,
@@ -89,10 +89,10 @@ class InvestmentController extends Controller
             // 2. Create Entry
             $price = $investment->current_price ?? 0;
             $units = $validated['units'];
-            
+
             // Auto-calculate units if not provided but price exists
             if (empty($units) && $price > 0) {
-                 $units = $amount / $price;
+                $units = $amount / $price;
             }
 
             // Create Entry
@@ -120,8 +120,8 @@ class InvestmentController extends Controller
     public function updateEntry(Request $request, InvestmentEntry $entry)
     {
         $validated = $request->validate([
-             'price' => 'required|numeric',
-             'units' => 'nullable|numeric'
+            'price' => 'required|numeric',
+            'units' => 'nullable|numeric'
         ]);
 
         $entry->load('investment');
@@ -133,16 +133,16 @@ class InvestmentController extends Controller
         }
 
         $entry->price = $validated['price'];
-        
+
         // Calculate new units
         if (isset($validated['units'])) {
-             $entry->units = $validated['units'];
+            $entry->units = $validated['units'];
         } else {
-             if ($validated['price'] > 0) {
-                 $entry->units = $entry->amount / $validated['price'];
-             }
+            if ($validated['price'] > 0) {
+                $entry->units = $entry->amount / $validated['price'];
+            }
         }
-        
+
         $entry->save();
 
         // Apply new units to investment
@@ -157,5 +157,7 @@ class InvestmentController extends Controller
 
         return response()->json($entry);
     }
-    
+
     // private function recalculateInvestment... removed in favor of inline delta updates
+}
+
