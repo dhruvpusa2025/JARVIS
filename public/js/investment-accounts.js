@@ -174,7 +174,7 @@ async function loadSIPs() {
             const accountName = account ? account.name : 'Unknown Account';
 
             return `
-                    < tr style = "background: var(--bg-secondary); transition: background 0.2s;" >
+                <tr style="background: var(--bg-secondary); transition: background 0.2s;">
                     <td style="padding: 1rem; border-top: 1px solid var(--border-color);">
                         <div style="font-weight: 600;">${sip.name}</div>
                         <small style="color: var(--text-muted);">${sip.symbol || '-'}</small>
@@ -199,7 +199,7 @@ async function loadSIPs() {
                             <i class="fas fa-${sip.sip_status === 'ACTIVE' ? 'stop-circle' : 'play-circle'}" style="color: ${sip.sip_status === 'ACTIVE' ? 'var(--danger)' : 'var(--success)'}"></i>
                         </button>
                     </td>
-                </tr >
+                </tr>
                     `;
         }).join('');
 
