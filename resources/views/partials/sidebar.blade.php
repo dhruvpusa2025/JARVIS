@@ -32,6 +32,9 @@
             class="nav-item {{ Request::routeIs('categories.*') ? 'active' : '' }}">
             <i class="fas fa-tags"></i><span>Categories</span>
         </a>
+        <a href="{{ route('cash-flow') }}" class="nav-item {{ Request::routeIs('cash-flow') ? 'active' : '' }}">
+            <i class="fas fa-money-bill-wave"></i><span>Cash Flow</span>
+        </a>
         <a href="{{ route('reports.index') }}" class="nav-item {{ Request::routeIs('reports.*') ? 'active' : '' }}">
             <i class="fas fa-chart-pie"></i><span>Reports</span>
         </a>

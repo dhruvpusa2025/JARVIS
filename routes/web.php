@@ -26,3 +26,4 @@ Route::get('reports', [ReportController::class, 'index'])->name('reports.index')
 Route::get('transfer', [TransferController::class, 'index'])->name('transfer.index');
 
 Route::view('investment-accounts', 'investment-accounts.index')->name('investment-accounts.index');
+Route::view('cash-flow', 'reports.cash-flow')->name('cash-flow');

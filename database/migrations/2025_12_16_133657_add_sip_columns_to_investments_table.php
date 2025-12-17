@@ -11,9 +11,15 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('investments', function (Blueprint $table) {
-            $table->string('sip_frequency')->nullable()->after('is_sip');
-            $table->decimal('sip_amount', 15, 2)->nullable()->after('sip_frequency');
-            $table->integer('sip_date')->nullable()->after('sip_amount');
+            if (!Schema::hasColumn('investments', 'sip_frequency')) {
+                $table->string('sip_frequency')->nullable()->after('is_sip');
+            }
+            if (!Schema::hasColumn('investments', 'sip_amount')) {
+                $table->decimal('sip_amount', 15, 2)->nullable()->after('sip_frequency');
+            }
+            if (!Schema::hasColumn('investments', 'sip_date')) {
+                $table->integer('sip_date')->nullable()->after('sip_amount');
+            }
         });
     }
 
