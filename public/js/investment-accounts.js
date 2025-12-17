@@ -83,23 +83,23 @@ document.addEventListener('DOMContentLoaded', async function () {
 });
 
 function switchTab(tab) {
-    // Buttons
-    document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+    // Navigate strictly within the pills tab context to avoid Sidebar conflicts
+    const tabContainer = document.getElementById('pills-tab');
+    const contentContainer = document.getElementById('pills-tabContent');
 
-    // Panes
-    document.querySelectorAll('.tab-pane').forEach(el => {
-        el.classList.remove('show', 'active');
-    });
+    // Deactivate all tabs in this container
+    tabContainer.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+    contentContainer.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('show', 'active'));
 
     if (tab === 'accounts') {
         document.getElementById('pills-accounts-tab').classList.add('active');
         document.getElementById('pills-accounts').classList.add('show', 'active');
-        window.location.hash = 'accounts';
+        // window.location.hash = 'accounts'; // Optional: Update hash without scrolling
     } else {
         document.getElementById('pills-sip-tab').classList.add('active');
         document.getElementById('pills-sip').classList.add('show', 'active');
-        window.location.hash = 'sips';
-        loadSIPs(); // Refresh SIPs when tab is clicked
+        // window.location.hash = 'sips';
+        loadSIPs();
     }
 }
 
@@ -220,7 +220,7 @@ function openEditSipModal(id) {
     // We need to fetch the single investment details or find from cache
     // Since we don't have a global cache here like investments.js, fetch fresh or find from list if possible
     // Let's simplified fetch single
-    JARVIS.request('GET', `/ api / investments / ${id} `).then(inv => {
+    JARVIS.request('GET', `/api/investments/${id}`).then(inv => {
         document.getElementById('editSipId').value = inv.id;
         document.getElementById('editSipName').value = inv.name;
         document.getElementById('editSipAmount').value = inv.sip_amount;
@@ -229,7 +229,7 @@ function openEditSipModal(id) {
         const accountSelect = document.getElementById('editSipAccount');
         accountSelect.innerHTML = regularAccountsData
             .filter(acc => acc.type === 'bank' || acc.type === 'savings')
-            .map(acc => `< option value = "${acc.id}" ${inv.source_account_id === acc.id ? 'selected' : ''}> ${acc.name} (₹${JARVIS.formatCurrency(acc.balance)})</option > `)
+            .map(acc => `<option value="${acc.id}" ${inv.source_account_id === acc.id ? 'selected' : ''}>${acc.name} (₹${JARVIS.formatCurrency(acc.balance)})</option>`)
             .join('');
 
         document.getElementById('editSipModal').classList.add('active');
@@ -248,7 +248,7 @@ async function handleEditSipSubmit(event) {
     const accountId = document.getElementById('editSipAccount').value;
 
     try {
-        await JARVIS.request('PUT', `/ api / investments / ${id} `, {
+        await JARVIS.request('PUT', `/api/investments/${id}`, {
             sip_amount: amount,
             sip_date: date,
             source_account_id: accountId
@@ -264,14 +264,14 @@ async function handleEditSipSubmit(event) {
 }
 
 async function toggleSip(id, status) {
-    if (!confirm(`Are you sure you want to ${status === 'ACTIVE' ? 'restart' : 'stop'} this SIP ? `)) return;
+    if (!confirm(`Are you sure you want to ${status === 'ACTIVE' ? 'restart' : 'stop'} this SIP?`)) return;
 
     try {
-        await JARVIS.request('PUT', `/ api / investments / ${id} `, {
+        await JARVIS.request('PUT', `/api/investments/${id}`, {
             sip_status: status
         });
         loadSIPs();
-        JARVIS.showToast(`SIP ${status === 'ACTIVE' ? 'Restarted' : 'Stopped'} `, 'success');
+        JARVIS.showToast(`SIP ${status === 'ACTIVE' ? 'Restarted' : 'Stopped'}`, 'success');
     } catch (e) {
         console.error(e);
         JARVIS.showToast('Failed to update SIP status', 'error');

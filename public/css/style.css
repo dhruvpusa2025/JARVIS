@@ -1121,3 +1121,23 @@ body {
     background-position: right 1rem center;
     background-size: 1em;
 }
+
+/* Tab Visibility Fix */
+.tab-pane {
+    display: none !important;
+}
+
+.tab-pane.active {
+    display: block !important;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
